@@ -5,8 +5,8 @@ export const ThemeToggle: React.FC = () => {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('case_theme') as 'dark' | 'light' | null;
-    const initialTheme = savedTheme || 'dark';
+    const saved = localStorage.getItem('case_theme');
+    const initialTheme = saved === 'dark' || saved === 'light' ? saved : 'dark';
     setTheme(initialTheme);
     document.documentElement.setAttribute('data-theme', initialTheme);
   }, []);
@@ -22,18 +22,12 @@ export const ThemeToggle: React.FC = () => {
     <Button
       variant="outline"
       size="sm"
+      className="theme-toggle-btn"
       onClick={toggleTheme}
       aria-label={`Cambiar a tema ${theme === 'dark' ? 'claro' : 'oscuro'}`}
       title={`Cambiar a tema ${theme === 'dark' ? 'claro' : 'oscuro'}`}
-      style={{
-        width: '32px',
-        height: '32px',
-        padding: 0,
-        borderRadius: 'var(--radius-md)',
-      }}
     >
       {theme === 'dark' ? (
-        // Icono Sol (para cambiar a modo claro)
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -57,7 +51,6 @@ export const ThemeToggle: React.FC = () => {
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
         </svg>
       ) : (
-        // Icono Luna (para cambiar a modo oscuro)
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"

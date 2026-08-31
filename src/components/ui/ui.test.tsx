@@ -80,13 +80,21 @@ describe('Design System UI Components', () => {
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
       expect(localStorage.getItem('case_theme')).toBe('dark');
     });
+
+    it('falls back to dark theme if localStorage contains an invalid value', () => {
+      localStorage.setItem('case_theme', 'invalid_theme');
+      render(<ThemeToggle />);
+      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    });
   });
 
   describe('AppHeader component', () => {
-    it('renders banner landmark and platform title', () => {
-      render(<AppHeader breadcrumbs={['Lab', 'Core']} />);
+    it('renders banner landmark, brand, and breadcrumb hierarchy', () => {
+      render(<AppHeader breadcrumbs={['Laboratory', 'Foundation', 'Shell']} />);
       expect(screen.getByRole('banner')).toBeInTheDocument();
       expect(screen.getByText('CASE Algorithms')).toBeInTheDocument();
+      expect(screen.getByText('Foundation')).toBeInTheDocument();
+      expect(screen.getByText('Shell')).toBeInTheDocument();
     });
   });
 
