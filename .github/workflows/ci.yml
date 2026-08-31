@@ -1,4 +1,4 @@
-name: CI — Repository & Foundation Quality
+name: CI — Quality & Test Suite
 
 on:
   push:
@@ -13,14 +13,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate-foundation:
-    name: Verify Documentation & Governance
+  validate:
+    name: Governance, Lint, Typecheck & Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify repository structure and documents
+      - name: Verify repository governance & documentation
         run: |
           test -f README.md
           test -f LICENSE
@@ -39,3 +39,24 @@ jobs:
           test -f .github/ISSUE_TEMPLATE/topic_proposal.yml
           test -f .github/ISSUE_TEMPLATE/config.yml
           echo "Sprint 0 governance and architecture artifacts verified."
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies (clean install)
+        run: npm ci
+
+      - name: Verify TypeScript types (strict mode)
+        run: npm run typecheck
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Vitest unit tests
+        run: npm run test:run
+
+      - name: Verify production build
+        run: npm run build
