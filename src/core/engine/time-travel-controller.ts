@@ -20,6 +20,23 @@ function deepClone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+function deepFreeze<T>(obj: T): T {
+  if (obj === null || typeof obj !== 'object' || Object.isFrozen(obj)) {
+    return obj;
+  }
+
+  Object.freeze(obj);
+
+  for (const key of Object.keys(obj)) {
+    const value = (obj as Record<string, unknown>)[key];
+    if (value !== null && typeof value === 'object' && !Object.isFrozen(value)) {
+      deepFreeze(value);
+    }
+  }
+
+  return obj;
+}
+
 export class TimeTravelController<TState> {
   private steps: readonly ExecutionStep<TState>[] = [];
   private _currentIndex: number = -1;
@@ -32,7 +49,8 @@ export class TimeTravelController<TState> {
     options?: TimeTravelControllerOptions<TState>
   ) {
     this.customCloneState = options?.cloneState;
-    this.initialIndex = options?.initialIndex ?? 0;
+    const rawInitial = options?.initialIndex ?? 0;
+    this.initialIndex = Number.isFinite(rawInitial) ? Math.floor(rawInitial) : 0;
     this.loadSteps(steps, this.initialIndex);
   }
 
@@ -44,33 +62,35 @@ export class TimeTravelController<TState> {
   }
 
   private loadSteps(steps: readonly ExecutionStep<TState>[], targetIndex: number): void {
-    this.steps = Object.freeze(
-      steps.map((step) =>
-        Object.freeze({
-          ...step,
-          state: this.cloneState(step.state),
-          activeIndices: step.activeIndices ? Object.freeze([...step.activeIndices]) : undefined,
-          comparedIndices: step.comparedIndices
-            ? (Object.freeze([...step.comparedIndices]) as readonly [number, number])
-            : undefined,
-          pointers: step.pointers
-            ? Object.freeze(step.pointers.map((p) => Object.freeze({ ...p })))
-            : undefined,
-        })
-      )
-    );
+    const clonedAndFrozenSteps = steps.map((step) => {
+      const clonedState = this.cloneState(step.state);
+      const stepCopy: ExecutionStep<TState> = {
+        ...step,
+        state: clonedState,
+        activeIndices: step.activeIndices ? [...step.activeIndices] : undefined,
+        comparedIndices: step.comparedIndices ? [...step.comparedIndices] : undefined,
+        pointers: step.pointers ? step.pointers.map((p) => ({ ...p })) : undefined,
+        codeHighlight: step.codeHighlight ? { ...step.codeHighlight } : undefined,
+        metrics: step.metrics ? { ...step.metrics } : undefined,
+      };
+      return deepFreeze(stepCopy);
+    });
+
+    this.steps = Object.freeze(clonedAndFrozenSteps);
 
     if (this.steps.length === 0) {
       this._currentIndex = -1;
     } else {
-      this._currentIndex = Math.max(0, Math.min(targetIndex, this.steps.length - 1));
+      const sanitizedTarget = Number.isFinite(targetIndex) ? Math.floor(targetIndex) : 0;
+      this._currentIndex = Math.max(0, Math.min(sanitizedTarget, this.steps.length - 1));
     }
   }
 
   private notify(): void {
     const current = this.currentStep;
     const index = this._currentIndex;
-    for (const listener of this.listeners) {
+    const listenersSnapshot = Array.from(this.listeners);
+    for (const listener of listenersSnapshot) {
       listener(current, index);
     }
   }
@@ -79,16 +99,8 @@ export class TimeTravelController<TState> {
     if (this._currentIndex < 0 || this._currentIndex >= this.steps.length) {
       return null;
     }
-
     const step = this.steps[this._currentIndex];
-    if (!step) {
-      return null;
-    }
-
-    return {
-      ...step,
-      state: this.cloneState(step.state),
-    };
+    return step ?? null;
   }
 
   public get currentState(): TState | null {
@@ -121,10 +133,7 @@ export class TimeTravelController<TState> {
   }
 
   public get history(): readonly ExecutionStep<TState>[] {
-    return this.steps.map((step) => ({
-      ...step,
-      state: this.cloneState(step.state),
-    }));
+    return this.steps;
   }
 
   public get progress(): number {
@@ -183,10 +192,11 @@ export class TimeTravelController<TState> {
   }
 
   public goToStep(targetIndex: number): ExecutionStep<TState> | null {
-    if (this.steps.length === 0) {
-      return null;
+    if (this.steps.length === 0 || !Number.isFinite(targetIndex)) {
+      return this.currentStep;
     }
-    const clampedIndex = Math.max(0, Math.min(targetIndex, this.steps.length - 1));
+    const normalized = Math.floor(targetIndex);
+    const clampedIndex = Math.max(0, Math.min(normalized, this.steps.length - 1));
     if (this._currentIndex !== clampedIndex) {
       this._currentIndex = clampedIndex;
       this.notify();

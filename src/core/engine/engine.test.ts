@@ -141,6 +141,31 @@ describe('TimeTravelController', () => {
     });
   });
 
+  describe('Error handling & Non-standard numeric inputs', () => {
+    it('sanitizes NaN, Infinity, -Infinity and decimal indices', () => {
+      const steps = createSyntheticSteps(5);
+      const controller = new TimeTravelController(steps);
+
+      controller.goToStep(NaN);
+      expect(controller.currentIndex).toBe(0);
+
+      controller.goToStep(Infinity);
+      expect(controller.currentIndex).toBe(0);
+
+      controller.goToStep(-Infinity);
+      expect(controller.currentIndex).toBe(0);
+
+      controller.goToStep(2.8);
+      expect(controller.currentIndex).toBe(2);
+    });
+
+    it('handles NaN initialIndex safely in constructor', () => {
+      const steps = createSyntheticSteps(5);
+      const controller = new TimeTravelController(steps, { initialIndex: NaN });
+      expect(controller.currentIndex).toBe(0);
+    });
+  });
+
   describe('State isolation and immutability', () => {
     it('isolates internal history from external mutations to input array', () => {
       const originalSteps = createSyntheticSteps(3);
@@ -154,20 +179,28 @@ describe('TimeTravelController', () => {
       expect(controller.currentStep?.state.array).toEqual([10, 20, 30, 40, 50]);
     });
 
-    it('isolates internal history from mutations on returned step state', () => {
+    it('prevents runtime mutation on currentStep and state (frozen objects)', () => {
       const steps = createSyntheticSteps(3);
       const controller = new TimeTravelController(steps);
 
       const readStep = controller.currentStep;
       expect(readStep).not.toBeNull();
-      if (readStep) {
-        readStep.state.array.push(777);
-        readStep.state.currentIndex = 999;
-      }
+      expect(Object.isFrozen(readStep)).toBe(true);
+      expect(Object.isFrozen(readStep?.state)).toBe(true);
+      expect(Object.isFrozen(readStep?.state.array)).toBe(true);
 
-      const freshRead = controller.currentStep;
-      expect(freshRead?.state.array).toEqual([10, 20, 30, 40, 50]);
-      expect(freshRead?.state.currentIndex).toBe(0);
+      expect(() => {
+        (readStep?.state.array as number[]).push(777);
+      }).toThrow();
+    });
+
+    it('provides O(1) stable reference access without re-cloning on every getter call', () => {
+      const steps = createSyntheticSteps(3);
+      const controller = new TimeTravelController(steps);
+
+      const ref1 = controller.currentStep;
+      const ref2 = controller.currentStep;
+      expect(ref1).toBe(ref2);
     });
 
     it('supports custom cloneState implementation', () => {
@@ -185,7 +218,7 @@ describe('TimeTravelController', () => {
     });
   });
 
-  describe('Subscription and replacement', () => {
+  describe('Pub/Sub and listener safety', () => {
     it('notifies subscribers on state changes and un-subscribes properly', () => {
       const steps = createSyntheticSteps(4);
       const controller = new TimeTravelController(steps);
@@ -206,6 +239,29 @@ describe('TimeTravelController', () => {
       expect(listener).toHaveBeenCalledTimes(2);
     });
 
+    it('handles concurrent unsubscription safely inside its own callback', () => {
+      const steps = createSyntheticSteps(4);
+      const controller = new TimeTravelController(steps);
+
+      const unsubHolder: { unsub?: () => void } = {};
+      const listener1 = vi.fn(() => {
+        unsubHolder.unsub?.();
+      });
+      const listener2 = vi.fn();
+
+      unsubHolder.unsub = controller.subscribe(listener1);
+      controller.subscribe(listener2);
+
+      controller.next();
+
+      expect(listener1).toHaveBeenCalledTimes(1);
+      expect(listener2).toHaveBeenCalledTimes(1);
+
+      controller.next();
+      expect(listener1).toHaveBeenCalledTimes(1);
+      expect(listener2).toHaveBeenCalledTimes(2);
+    });
+
     it('replaces active sequence with setSteps and notifies listeners', () => {
       const initialSteps = createSyntheticSteps(2);
       const controller = new TimeTravelController(initialSteps);
@@ -220,6 +276,29 @@ describe('TimeTravelController', () => {
       expect(controller.currentIndex).toBe(3);
       expect(listener).toHaveBeenCalledTimes(1);
       expect(listener).toHaveBeenCalledWith(expect.objectContaining({ stepIndex: 3 }), 3);
+    });
+  });
+
+  describe('Determinism', () => {
+    it('ensures two controllers with identical inputs behave identically', () => {
+      const stepsA = createSyntheticSteps(5);
+      const stepsB = createSyntheticSteps(5);
+
+      const controllerA = new TimeTravelController(stepsA);
+      const controllerB = new TimeTravelController(stepsB);
+
+      const ops = ['next', 'next', 'previous', 'last', 'first', 'reset'] as const;
+
+      for (const op of ops) {
+        const stepA = controllerA[op]();
+        const stepB = controllerB[op]();
+
+        expect(stepA).toEqual(stepB);
+        expect(controllerA.currentIndex).toBe(controllerB.currentIndex);
+        expect(controllerA.progress).toBe(controllerB.progress);
+        expect(controllerA.hasNext).toBe(controllerB.hasNext);
+        expect(controllerA.hasPrevious).toBe(controllerB.hasPrevious);
+      }
     });
   });
 });
