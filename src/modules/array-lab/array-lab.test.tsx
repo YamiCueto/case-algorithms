@@ -170,4 +170,53 @@ describe('ArrayLab Component', () => {
     expect(screen.getByText('TypeScript')).toBeInTheDocument();
     expect(screen.getByText(/Line 5 Active/i)).toBeInTheDocument();
   });
+
+  it('updates A11yAnnouncer live region with accessible narrative messages', () => {
+    render(<ArrayLab />);
+
+    const liveRegion = screen.getByRole('status');
+    expect(liveRegion).toBeInTheDocument();
+    expect(liveRegion).toHaveAttribute('aria-live', 'polite');
+    expect(liveRegion).toHaveTextContent(/Array initialized with values/i);
+
+    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    fireEvent.click(stepForwardBtn);
+
+    expect(liveRegion).toHaveTextContent(/Comparing index 0 with value 5/i);
+  });
+
+  it('supports time-travel navigation via global keyboard shortcuts', () => {
+    render(<ArrayLab />);
+
+    const liveRegion = screen.getByRole('status');
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.getByText('Step Index:')).toBeInTheDocument();
+    expect(liveRegion).toHaveTextContent(/Comparing index 0/i);
+
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(liveRegion).toHaveTextContent(/Array initialized/i);
+
+    fireEvent.keyDown(window, { key: 'End' });
+    expect(screen.getByText(/Sorted \(Complete\)/i)).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'Home' });
+    expect(liveRegion).toHaveTextContent(/Array initialized/i);
+
+    fireEvent.keyDown(window, { key: 'r' });
+    expect(liveRegion).toHaveTextContent(/Array initialized/i);
+  });
+
+  it('does not trigger keyboard shortcuts when typing in the input element', () => {
+    render(<ArrayLab />);
+
+    const input = screen.getByLabelText(/array input values/i);
+    const liveRegion = screen.getByRole('status');
+
+    fireEvent.keyDown(input, { key: ' ' });
+    fireEvent.keyDown(input, { key: 'ArrowRight' });
+    fireEvent.keyDown(input, { key: 'r' });
+
+    expect(liveRegion).toHaveTextContent(/Array initialized/i);
+  });
 });

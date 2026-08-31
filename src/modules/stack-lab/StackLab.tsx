@@ -6,6 +6,7 @@ import { StackState } from '@/core/data-structures/stack';
 import { StackVisualizerAdapter } from '@/components/visualizer';
 import { CodeViewer } from '@/components/code-viewer';
 import { LabShell, Button, Badge, Card } from '@/components/ui';
+import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
 
 interface PresetItem {
   label: string;
@@ -340,6 +341,15 @@ export const StackLab: React.FC = () => {
     setIsPlaying((prev) => !prev);
   };
 
+  useTimeTravelKeyboard({
+    onNext: handleNext,
+    onPrevious: handlePrev,
+    onFirst: handleFirst,
+    onLast: handleLast,
+    onTogglePlay: handleTogglePlay,
+    onReset: handleReset,
+  });
+
   const currentAction = currentStep?.action || 'INITIALIZE';
   const stateData = currentStep?.state || { items: [], topIndex: -1, capacity: stackCapacity };
   const activePhase = PEDAGOGICAL_PHASES[activePhaseIndex] || PEDAGOGICAL_PHASES[0];
@@ -363,19 +373,21 @@ export const StackLab: React.FC = () => {
   };
 
   return (
-    <LabShell
-      category="Interactive Laboratory: Stack Data Structure"
-      title="Stack & LIFO Principle Exploration"
-      subtitle="Understand Last-In, First-Out (LIFO) discipline, constant-time O(1) top operations, and boundary conditions through an interactive 10-step pedagogical laboratory."
-      viewportSlot={
-        <StackVisualizerAdapter
-          step={currentStep}
-          viewBoxWidth={800}
-          viewBoxHeight={360}
-        />
-      }
-      controlsSlot={
-        <div className="control-group">
+    <>
+      <A11yAnnouncer message={currentStep?.a11yMessage} />
+      <LabShell
+        category="Interactive Laboratory: Stack Data Structure"
+        title="Stack & LIFO Principle Exploration"
+        subtitle="Understand Last-In, First-Out (LIFO) discipline, constant-time O(1) top operations, and boundary conditions through an interactive 10-step pedagogical laboratory."
+        viewportSlot={
+          <StackVisualizerAdapter
+            step={currentStep}
+            viewBoxWidth={800}
+            viewBoxHeight={360}
+          />
+        }
+        controlsSlot={
+          <div className="control-group">
           <div className="control-group">
             <span className="control-label">Interactive Stack Operations</span>
             <div className="input-action-row">
@@ -545,6 +557,13 @@ export const StackLab: React.FC = () => {
                 2x
               </Button>
             </div>
+
+            <div className="time-travel-shortcuts-hint" aria-label="Keyboard shortcuts guide">
+              <span className="shortcut-item"><kbd className="shortcut-key">Space</kbd> Play</span>
+              <span className="shortcut-item"><kbd className="shortcut-key">←</kbd> <kbd className="shortcut-key">→</kbd> Step</span>
+              <span className="shortcut-item"><kbd className="shortcut-key">Home</kbd> <kbd className="shortcut-key">End</kbd> Bounds</span>
+              <span className="shortcut-item"><kbd className="shortcut-key">R</kbd> Reset</span>
+            </div>
           </div>
 
           <Card title="State & Capacity Inspector">
@@ -634,5 +653,6 @@ export const StackLab: React.FC = () => {
         </div>
       }
     />
+    </>
   );
 };
