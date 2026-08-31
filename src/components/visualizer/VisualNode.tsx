@@ -17,13 +17,13 @@ export const VisualNode: React.FC<VisualNodeProps> = ({
   onClick,
 }) => {
   const isCircle = shape === 'circle';
+  const isClickable = Boolean(onClick);
 
   return (
     <g
       id={id}
-      className={`viz-node viz-node-${state} ${isSelected ? 'viz-node-selected' : ''} ${className}`.trim()}
+      className={`viz-node viz-node-${state} ${isSelected ? 'viz-node-selected' : ''} ${isClickable ? 'viz-node-clickable' : ''} ${className}`.trim()}
       onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
       {isCircle ? (
         <circle

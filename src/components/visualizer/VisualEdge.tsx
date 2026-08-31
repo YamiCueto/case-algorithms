@@ -1,5 +1,6 @@
 import React from 'react';
 import { VisualEdgeProps } from './types';
+import { useSVGViewport } from './context';
 
 export const VisualEdge: React.FC<VisualEdgeProps> = ({
   id,
@@ -13,6 +14,7 @@ export const VisualEdge: React.FC<VisualEdgeProps> = ({
   strokeWidth = 2,
   className = '',
 }) => {
+  const { markerArrowId, markerArrowActiveId } = useSVGViewport();
   const midX = (from.x + to.x) / 2;
   const midY = (from.y + to.y) / 2;
 
@@ -30,9 +32,13 @@ export const VisualEdge: React.FC<VisualEdgeProps> = ({
 
   const markerId = isDirected
     ? isActive
-      ? 'url(#viz-arrowhead-active)'
-      : 'url(#viz-arrowhead)'
+      ? `url(#${markerArrowActiveId})`
+      : `url(#${markerArrowId})`
     : undefined;
+
+  const labelStr = label !== undefined ? String(label) : '';
+  const labelWidth = Math.max(28, labelStr.length * 8 + 12);
+  const labelHeight = 20;
 
   return (
     <g
@@ -54,10 +60,10 @@ export const VisualEdge: React.FC<VisualEdgeProps> = ({
       {label !== undefined && (
         <g className="viz-edge-label-group">
           <rect
-            x={midX - 16}
-            y={midY - 10}
-            width={32}
-            height={20}
+            x={midX - labelWidth / 2}
+            y={midY - labelHeight / 2}
+            width={labelWidth}
+            height={labelHeight}
             rx={4}
             ry={4}
             className="viz-edge-label-bg"

@@ -476,6 +476,10 @@
   transition: transform var(--transition-fast);
 }
 
+.viz-node-clickable {
+  cursor: pointer;
+}
+
 .viz-node-shape {
   fill: var(--viz-node-default-bg);
   stroke: var(--viz-node-default-border);

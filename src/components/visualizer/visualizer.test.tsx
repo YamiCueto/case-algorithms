@@ -40,6 +40,32 @@ describe('SVG Visualizer Primitives', () => {
       expect(svg).toHaveAttribute('viewBox', '10 20 500 250');
       expect(container.querySelector('.svg-viewport-grid-bg')).toBeNull();
     });
+
+    it('generates unique instance IDs for defs and markers across simultaneous viewports', () => {
+      const { container } = render(
+        <div>
+          <SVGViewport title="Viewport A">
+            <VisualEdge from={{ x: 0, y: 0 }} to={{ x: 10, y: 10 }} isDirected />
+          </SVGViewport>
+          <SVGViewport title="Viewport B">
+            <VisualEdge from={{ x: 0, y: 0 }} to={{ x: 20, y: 20 }} isDirected />
+          </SVGViewport>
+        </div>
+      );
+
+      const svgs = container.querySelectorAll('svg.svg-viewport');
+      expect(svgs).toHaveLength(2);
+
+      const patterns = container.querySelectorAll('pattern');
+      expect(patterns).toHaveLength(2);
+      expect(patterns[0]?.id).not.toBe(patterns[1]?.id);
+
+      const markers = container.querySelectorAll('marker');
+      expect(markers.length).toBeGreaterThanOrEqual(4);
+      const markerIds = Array.from(markers).map((m) => m.id);
+      const uniqueMarkerIds = new Set(markerIds);
+      expect(uniqueMarkerIds.size).toBe(markerIds.length);
+    });
   });
 
   describe('VisualNode component', () => {
@@ -54,7 +80,7 @@ describe('SVG Visualizer Primitives', () => {
       expect(screen.getByText('idx: 0')).toBeInTheDocument();
     });
 
-    it('renders a circular node with state and handles click events', () => {
+    it('renders a circular node with state and handles click events via CSS class', () => {
       const handleClick = vi.fn();
       render(
         <svg>
@@ -74,6 +100,7 @@ describe('SVG Visualizer Primitives', () => {
       expect(nodeText).toBeInTheDocument();
       const nodeGroup = nodeText.closest('g');
       expect(nodeGroup).toHaveClass('viz-node-active');
+      expect(nodeGroup).toHaveClass('viz-node-clickable');
 
       if (nodeGroup) {
         fireEvent.click(nodeGroup);
@@ -113,9 +140,9 @@ describe('SVG Visualizer Primitives', () => {
   });
 
   describe('VisualEdge component', () => {
-    it('renders a line with coordinates and directed arrowhead', () => {
+    it('renders a line with coordinates and directed arrowhead from viewport context', () => {
       const { container } = render(
-        <svg>
+        <SVGViewport>
           <VisualEdge
             from={{ x: 50, y: 50 }}
             to={{ x: 200, y: 200 }}
@@ -123,16 +150,43 @@ describe('SVG Visualizer Primitives', () => {
             isActive={true}
             label="weight: 5"
           />
-        </svg>
+        </SVGViewport>
       );
 
-      const line = container.querySelector('line');
+      const line = container.querySelector('line.viz-edge-line');
       expect(line).toHaveAttribute('x1', '50');
       expect(line).toHaveAttribute('y1', '50');
       expect(line).toHaveAttribute('x2', '200');
       expect(line).toHaveAttribute('y2', '200');
-      expect(line).toHaveAttribute('marker-end', 'url(#viz-arrowhead-active)');
+      expect(line?.getAttribute('marker-end')).toMatch(/url\(#:r.*:\)/);
       expect(screen.getByText('weight: 5')).toBeInTheDocument();
+    });
+
+    it('dynamically sizes label background for short and long labels', () => {
+      const { container, rerender } = render(
+        <svg>
+          <VisualEdge from={{ x: 0, y: 0 }} to={{ x: 100, y: 100 }} label="5" />
+        </svg>
+      );
+
+      const shortRect = container.querySelector('rect.viz-edge-label-bg');
+      const shortWidth = Number(shortRect?.getAttribute('width'));
+      expect(shortWidth).toBeGreaterThanOrEqual(28);
+
+      rerender(
+        <svg>
+          <VisualEdge
+            from={{ x: 0, y: 0 }}
+            to={{ x: 100, y: 100 }}
+            label="cost: 999999 units"
+          />
+        </svg>
+      );
+
+      const longRect = container.querySelector('rect.viz-edge-label-bg');
+      const longWidth = Number(longRect?.getAttribute('width'));
+      expect(longWidth).toBeGreaterThan(shortWidth);
+      expect(screen.getByText('cost: 999999 units')).toBeInTheDocument();
     });
 
     it('renders dashed and dotted styles', () => {
@@ -142,14 +196,14 @@ describe('SVG Visualizer Primitives', () => {
         </svg>
       );
 
-      expect(container.querySelector('line')).toHaveAttribute('stroke-dasharray', '6,6');
+      expect(container.querySelector('line.viz-edge-line')).toHaveAttribute('stroke-dasharray', '6,6');
 
       rerender(
         <svg>
           <VisualEdge from={{ x: 0, y: 0 }} to={{ x: 10, y: 10 }} styleVariant="dotted" />
         </svg>
       );
-      expect(container.querySelector('line')).toHaveAttribute('stroke-dasharray', '2,4');
+      expect(container.querySelector('line.viz-edge-line')).toHaveAttribute('stroke-dasharray', '2,4');
     });
   });
 
