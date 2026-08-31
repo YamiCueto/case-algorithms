@@ -4,8 +4,15 @@ import { TimeTravelController } from '@/core/engine';
 import { ExecutionStep } from '@/core/types';
 import { StackState } from '@/core/data-structures/stack';
 import { StackVisualizerAdapter } from '@/components/visualizer';
-import { CodeViewer } from '@/components/code-viewer';
-import { LabShell, Button, Badge, Card } from '@/components/ui';
+import {
+  LabShell,
+  Button,
+  Badge,
+  Card,
+  TimeTravelControls,
+  usePlaybackTimer,
+  PedagogicalKnowledgePanel,
+} from '@/components/ui';
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
 
 interface PresetItem {
@@ -146,14 +153,14 @@ end procedure`,
     if (this.isEmpty()) {
       throw new Error('Stack Underflow: stack is empty');
     }
-    return this.items.pop() as T;
+    return this.items.pop()!;
   }
 
   peek(): T {
     if (this.isEmpty()) {
       throw new Error('Stack Underflow: stack is empty');
     }
-    return this.items[this.items.length - 1] as T;
+    return this.items[this.items.length - 1];
   }
 
   isEmpty(): boolean {
@@ -163,18 +170,14 @@ end procedure`,
   isFull(): boolean {
     return this.items.length >= this.capacity;
   }
-
-  size(): number {
-    return this.items.length;
-  }
 }`,
   },
   {
     id: '08',
     name: '08. Modify',
-    title: 'Modify & Boundary Conditions (Overflow / Underflow)',
+    title: 'Modify & Boundary Conditions',
     content:
-      'In fixed-memory environments (such as embedded systems or thread call stacks), stacks have a bounded capacity. Attempting to push into a full stack triggers a Stack Overflow error. Conversely, popping or peeking from an empty stack triggers a Stack Underflow error. Try running the Overflow and Underflow presets above to observe how these boundary states are handled gracefully!',
+      'A Bounded Stack introduces strict boundary enforcement: Stack Overflow occurs when attempting to PUSH into a full container, and Stack Underflow occurs when attempting to POP or PEEK an empty container. Try triggering both conditions using the demo presets!',
   },
   {
     id: '09',
@@ -196,8 +199,6 @@ export const StackLab: React.FC = () => {
   const [pushInputText, setPushInputText] = useState('42');
   const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(600);
   const [stackCapacity, setStackCapacity] = useState<number>(6);
   const [currentCommands, setCurrentCommands] = useState<StackCommand[]>(PRESET_SEQUENCES[0]?.commands || []);
 
@@ -208,13 +209,42 @@ export const StackLab: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [totalSteps, setTotalSteps] = useState<number>(0);
 
+  const handleNext = useCallback(() => {
+    controllerRef.current?.next();
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    controllerRef.current?.previous();
+  }, []);
+
+  const handleFirst = useCallback(() => {
+    controllerRef.current?.first();
+  }, []);
+
+  const handleLast = useCallback(() => {
+    controllerRef.current?.last();
+  }, []);
+
+  const {
+    isPlaying,
+    playbackSpeed,
+    setPlaybackSpeed,
+    handleTogglePlay,
+    stopPlayback,
+  } = usePlaybackTimer({
+    onStepForward: handleNext,
+    onRewindToStart: handleFirst,
+    isFinal: controllerRef.current?.isFinal ?? false,
+    defaultSpeed: 600,
+  });
+
   const initController = useCallback((commands: StackCommand[], capacity: number) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
       unsubscribeRef.current = null;
     }
 
-    setIsPlaying(false);
+    stopPlayback();
 
     const result = simulateStackOperations(commands, capacity);
     const ctrl = new TimeTravelController(result.steps);
@@ -227,7 +257,7 @@ export const StackLab: React.FC = () => {
       setCurrentStep(step);
       setCurrentIndex(idx);
     });
-  }, []);
+  }, [stopPlayback]);
 
   useEffect(() => {
     const defaultPreset = PRESET_SEQUENCES[0];
@@ -243,25 +273,6 @@ export const StackLab: React.FC = () => {
       }
     };
   }, [initController]);
-
-  useEffect(() => {
-    if (!isPlaying) {
-      return;
-    }
-
-    const timer = setInterval(() => {
-      const ctrl = controllerRef.current;
-      if (!ctrl || ctrl.isFinal) {
-        setIsPlaying(false);
-        return;
-      }
-      ctrl.next();
-    }, playbackSpeed);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [isPlaying, playbackSpeed]);
 
   const handlePush = () => {
     const trimmed = pushInputText.trim();
@@ -313,32 +324,9 @@ export const StackLab: React.FC = () => {
     initController(currentCommands, cap);
   };
 
-  const handleNext = () => {
-    controllerRef.current?.next();
-  };
-
-  const handlePrev = () => {
-    controllerRef.current?.previous();
-  };
-
-  const handleFirst = () => {
-    controllerRef.current?.first();
-  };
-
-  const handleLast = () => {
-    controllerRef.current?.last();
-  };
-
   const handleReset = () => {
-    setIsPlaying(false);
+    stopPlayback();
     controllerRef.current?.reset();
-  };
-
-  const handleTogglePlay = () => {
-    if (controllerRef.current?.isFinal) {
-      controllerRef.current?.first();
-    }
-    setIsPlaying((prev) => !prev);
   };
 
   useTimeTravelKeyboard({
@@ -352,7 +340,6 @@ export const StackLab: React.FC = () => {
 
   const currentAction = currentStep?.action || 'INITIALIZE';
   const stateData = currentStep?.state || { items: [], topIndex: -1, capacity: stackCapacity };
-  const activePhase = PEDAGOGICAL_PHASES[activePhaseIndex] || PEDAGOGICAL_PHASES[0];
 
   const getActionBadgeVariant = (action: string) => {
     switch (action) {
@@ -388,271 +375,170 @@ export const StackLab: React.FC = () => {
         }
         controlsSlot={
           <div className="control-group">
-          <div className="control-group">
-            <span className="control-label">Interactive Stack Operations</span>
-            <div className="input-action-row">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={pushInputText}
-                onChange={(e) => {
-                  setPushInputText(e.target.value);
-                  if (inputError) {
-                    setInputError(null);
-                  }
-                }}
-                placeholder="e.g. 42"
-                aria-label="Value to push onto stack"
-                className="array-input-field"
-              />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handlePush}
-                aria-label="Push value onto stack"
-              >
-                Push
-              </Button>
-            </div>
-
-            <div className="control-actions">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePop}
-                aria-label="Pop top value from stack"
-              >
-                Pop
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePeek}
-                aria-label="Peek top value"
-              >
-                Peek
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClear}
-                aria-label="Clear stack"
-              >
-                Clear
-              </Button>
-            </div>
-
-            {inputError && (
-              <Badge variant="rose" className="input-error-badge">
-                {inputError}
-              </Badge>
-            )}
-
-            <div className="speed-control-row">
-              <span className="control-label">Capacity:</span>
-              {[4, 6, 8].map((cap) => (
+            <div className="control-group">
+              <span className="control-label">Interactive Stack Operations</span>
+              <div className="input-action-row">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={pushInputText}
+                  onChange={(e) => {
+                    setPushInputText(e.target.value);
+                    if (inputError) {
+                      setInputError(null);
+                    }
+                  }}
+                  placeholder="e.g. 42"
+                  aria-label="Value to push onto stack"
+                  className="array-input-field"
+                />
                 <Button
-                  key={`cap-${cap}`}
-                  variant={stackCapacity === cap ? 'secondary' : 'outline'}
+                  variant="primary"
                   size="sm"
-                  onClick={() => handleCapacityChange(cap)}
+                  onClick={handlePush}
+                  aria-label="Push value onto stack"
                 >
-                  {cap}
+                  Push
                 </Button>
-              ))}
-            </div>
+              </div>
 
-            <div className="control-actions">
-              {PRESET_SEQUENCES.map((p) => (
+              <div className="control-actions">
                 <Button
-                  key={p.label}
                   variant="outline"
                   size="sm"
-                  onClick={() => handlePresetSelect(p)}
+                  onClick={handlePop}
+                  aria-label="Pop top value from stack"
                 >
-                  {p.label}
+                  Pop
                 </Button>
-              ))}
-            </div>
-          </div>
-
-          <div className="control-group">
-            <span className="control-label">Time-Travel Step Controller</span>
-            <div className="control-actions">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleFirst}
-                disabled={currentIndex <= 0}
-                aria-label="Jump to first step"
-              >
-                |&lt;
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrev}
-                disabled={currentIndex <= 0}
-                aria-label="Step backwards"
-              >
-                &lt; Step
-              </Button>
-              <Button
-                variant={isPlaying ? 'danger' : 'primary'}
-                size="sm"
-                onClick={handleTogglePlay}
-                aria-label={isPlaying ? 'Pause execution' : 'Play auto execution'}
-              >
-                {isPlaying ? 'Pause' : 'Play'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNext}
-                disabled={currentIndex >= totalSteps - 1}
-                aria-label="Step forward"
-              >
-                Step &gt;
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLast}
-                disabled={currentIndex >= totalSteps - 1}
-                aria-label="Jump to last step"
-              >
-                &gt;|
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-                aria-label="Reset to initial step"
-              >
-                Reset
-              </Button>
-            </div>
-
-            <div className="speed-control-row">
-              <span className="control-label">Speed:</span>
-              <Button
-                variant={playbackSpeed === 1000 ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={() => setPlaybackSpeed(1000)}
-              >
-                0.5x
-              </Button>
-              <Button
-                variant={playbackSpeed === 600 ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={() => setPlaybackSpeed(600)}
-              >
-                1x
-              </Button>
-              <Button
-                variant={playbackSpeed === 250 ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={() => setPlaybackSpeed(250)}
-              >
-                2x
-              </Button>
-            </div>
-
-            <div className="time-travel-shortcuts-hint" aria-label="Keyboard shortcuts guide">
-              <span className="shortcut-item"><kbd className="shortcut-key">Space</kbd> Play</span>
-              <span className="shortcut-item"><kbd className="shortcut-key">←</kbd> <kbd className="shortcut-key">→</kbd> Step</span>
-              <span className="shortcut-item"><kbd className="shortcut-key">Home</kbd> <kbd className="shortcut-key">End</kbd> Bounds</span>
-              <span className="shortcut-item"><kbd className="shortcut-key">R</kbd> Reset</span>
-            </div>
-          </div>
-
-          <Card title="State & Capacity Inspector">
-            <div className="inspector-list">
-              <div>
-                <span className="inspector-label">Action: </span>
-                <Badge variant={getActionBadgeVariant(currentAction)}>
-                  {currentAction}
-                </Badge>
-              </div>
-              <div>
-                <span className="inspector-label">Step Index: </span>
-                <span className="inspector-val-index">
-                  {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
-                </span>
-              </div>
-              <div>
-                <span className="inspector-label">Items in Stack: </span>
-                <span className="inspector-val-total">
-                  {stateData.items.length} / {stateData.capacity}
-                </span>
-              </div>
-              <div>
-                <span className="inspector-label">TOP Element: </span>
-                <span className="inspector-val-index">
-                  {stateData.topIndex >= 0 ? `${stateData.items[stateData.topIndex]} (idx: ${stateData.topIndex})` : 'null (empty)'}
-                </span>
-              </div>
-              <div>
-                <span className="inspector-label">Status: </span>
-                <span
-                  className={
-                    currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
-                      ? 'input-error-badge'
-                      : stateData.items.length === stateData.capacity
-                        ? 'inspector-val-idle'
-                        : 'inspector-val-index'
-                  }
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePeek}
+                  aria-label="Peek top value"
                 >
-                  {currentAction === 'OVERFLOW'
-                    ? 'Overflow Error'
-                    : currentAction === 'UNDERFLOW'
-                      ? 'Underflow Error'
-                      : stateData.items.length === 0
-                        ? 'Empty'
-                        : stateData.items.length === stateData.capacity
-                          ? 'Full (Cap Reached)'
-                          : 'Normal'}
-                </span>
+                  Peek
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClear}
+                  aria-label="Clear stack"
+                >
+                  Clear
+                </Button>
+              </div>
+
+              {inputError && (
+                <Badge variant="rose" className="input-error-badge">
+                  {inputError}
+                </Badge>
+              )}
+
+              <div className="speed-control-row">
+                <span className="control-label">Capacity:</span>
+                {[4, 6, 8].map((cap) => (
+                  <Button
+                    key={`cap-${cap}`}
+                    variant={stackCapacity === cap ? 'secondary' : 'outline'}
+                    size="sm"
+                    onClick={() => handleCapacityChange(cap)}
+                  >
+                    {cap}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="control-actions">
+                {PRESET_SEQUENCES.map((p) => (
+                  <Button
+                    key={p.label}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePresetSelect(p)}
+                  >
+                    {p.label}
+                  </Button>
+                ))}
               </div>
             </div>
-          </Card>
-        </div>
-      }
-      knowledgeSlot={
-        <div className="control-group">
-          <div className="pedagogical-tabs-container">
-            {PEDAGOGICAL_PHASES.map((phase, idx) => (
-              <Button
-                key={phase.id}
-                variant={activePhaseIndex === idx ? 'primary' : 'outline'}
-                size="sm"
-                onClick={() => setActivePhaseIndex(idx)}
-              >
-                {phase.name}
-              </Button>
-            ))}
-          </div>
 
-          <Card title={activePhase?.title}>
-            {activePhase?.id === '06' ? (
-              <CodeViewer
-                code={activePhase.content}
-                language="pseudocode"
-                activeLine={currentStep?.codeHighlight?.pseudocodeLine}
-              />
-            ) : activePhase?.id === '07' ? (
-              <CodeViewer
-                code={activePhase.content}
-                language="typescript"
-                activeLine={currentStep?.codeHighlight?.typescriptLine}
-              />
-            ) : (
-              <p className="phase-content-text">{activePhase?.content}</p>
-            )}
-          </Card>
-        </div>
-      }
-    />
+            <TimeTravelControls
+              isPlaying={isPlaying}
+              currentIndex={currentIndex}
+              totalSteps={totalSteps}
+              playbackSpeed={playbackSpeed}
+              onFirst={handleFirst}
+              onPrevious={handlePrev}
+              onTogglePlay={handleTogglePlay}
+              onNext={handleNext}
+              onLast={handleLast}
+              onReset={handleReset}
+              onSpeedChange={setPlaybackSpeed}
+            />
+
+            <Card title="State & Capacity Inspector">
+              <div className="inspector-list">
+                <div>
+                  <span className="inspector-label">Action: </span>
+                  <Badge variant={getActionBadgeVariant(currentAction)}>
+                    {currentAction}
+                  </Badge>
+                </div>
+                <div>
+                  <span className="inspector-label">Step Index: </span>
+                  <span className="inspector-val-index">
+                    {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
+                  </span>
+                </div>
+                <div>
+                  <span className="inspector-label">Items in Stack: </span>
+                  <span className="inspector-val-total">
+                    {stateData.items.length} / {stateData.capacity}
+                  </span>
+                </div>
+                <div>
+                  <span className="inspector-label">TOP Element: </span>
+                  <span className="inspector-val-index">
+                    {stateData.topIndex >= 0 ? `${stateData.items[stateData.topIndex]} (idx: ${stateData.topIndex})` : 'null (empty)'}
+                  </span>
+                </div>
+                <div>
+                  <span className="inspector-label">Status: </span>
+                  <span
+                    className={
+                      currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
+                        ? 'input-error-badge'
+                        : stateData.items.length === stateData.capacity
+                          ? 'inspector-val-idle'
+                          : 'inspector-val-index'
+                    }
+                  >
+                    {currentAction === 'OVERFLOW'
+                      ? 'Overflow Error'
+                      : currentAction === 'UNDERFLOW'
+                        ? 'Underflow Error'
+                        : stateData.items.length === 0
+                          ? 'Empty'
+                          : stateData.items.length === stateData.capacity
+                            ? 'Full (Cap Reached)'
+                            : 'Normal'}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        }
+        knowledgeSlot={
+          <PedagogicalKnowledgePanel
+            phases={PEDAGOGICAL_PHASES}
+            activePhaseIndex={activePhaseIndex}
+            onPhaseSelect={setActivePhaseIndex}
+            pseudocodeActiveLine={currentStep?.codeHighlight?.pseudocodeLine}
+            typescriptActiveLine={currentStep?.codeHighlight?.typescriptLine}
+          />
+        }
+      />
     </>
   );
 };

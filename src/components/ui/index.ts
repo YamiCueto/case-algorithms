@@ -4,3 +4,6 @@ export * from './Card';
 export * from './ThemeToggle';
 export * from './AppHeader';
 export * from './LabShell';
+export * from './TimeTravelControls';
+export * from './usePlaybackTimer';
+export * from './PedagogicalKnowledgePanel';
