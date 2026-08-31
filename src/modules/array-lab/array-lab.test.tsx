@@ -150,4 +150,24 @@ describe('ArrayLab Component', () => {
     fireEvent.click(challengeTab);
     expect(screen.getByText(/algorithm mastery challenge/i)).toBeInTheDocument();
   });
+
+  it('synchronizes active line in pseudocode and code during step execution', () => {
+    render(<ArrayLab />);
+
+    const pseudocodeTab = screen.getByRole('button', { name: /06\. pseudocode/i });
+    fireEvent.click(pseudocodeTab);
+
+    expect(screen.getByText('Pseudocode')).toBeInTheDocument();
+
+    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    fireEvent.click(stepForwardBtn);
+
+    expect(screen.getByText(/Line 3 Active/i)).toBeInTheDocument();
+
+    const codeTab = screen.getByRole('button', { name: /07\. code/i });
+    fireEvent.click(codeTab);
+
+    expect(screen.getByText('TypeScript')).toBeInTheDocument();
+    expect(screen.getByText(/Line 5 Active/i)).toBeInTheDocument();
+  });
 });

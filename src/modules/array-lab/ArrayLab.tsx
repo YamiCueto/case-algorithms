@@ -4,6 +4,7 @@ import { TimeTravelController } from '@/core/engine';
 import { ExecutionStep } from '@/core/types';
 import { ArrayState } from '@/core/data-structures/array';
 import { ArrayVisualizerAdapter } from '@/components/visualizer';
+import { CodeViewer } from '@/components/code-viewer';
 import { LabShell, Button, Badge, Card } from '@/components/ui';
 
 const PRESET_ARRAYS: { label: string; array: number[] }[] = [
@@ -451,10 +452,18 @@ export const ArrayLab: React.FC = () => {
           </div>
 
           <Card title={activePhase?.title}>
-            {activePhase?.id === '06' || activePhase?.id === '07' ? (
-              <pre className="code-snippet-box">
-                <code>{activePhase.content}</code>
-              </pre>
+            {activePhase?.id === '06' ? (
+              <CodeViewer
+                code={activePhase.content}
+                language="pseudocode"
+                activeLine={currentStep?.codeHighlight?.pseudocodeLine}
+              />
+            ) : activePhase?.id === '07' ? (
+              <CodeViewer
+                code={activePhase.content}
+                language="typescript"
+                activeLine={currentStep?.codeHighlight?.typescriptLine}
+              />
             ) : (
               <p className="phase-content-text">{activePhase?.content}</p>
             )}
