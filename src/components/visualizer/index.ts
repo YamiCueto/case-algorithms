@@ -6,3 +6,4 @@ export * from './VisualEdge';
 export * from './VisualPointer';
 export * from './VisualHighlight';
 export * from './VisualLabel';
+export * from './adapters/ArrayVisualizerAdapter';

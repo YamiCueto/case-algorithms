@@ -667,3 +667,50 @@
 .viz-label-sans {
   font-family: var(--font-sans);
 }
+
+.array-input-field {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--bg-surface-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.input-action-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.speed-control-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.pedagogical-tabs-container {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+.code-snippet-box {
+  background-color: var(--bg-canvas);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent-cyan);
+  overflow-x: auto;
+}
+
+.phase-content-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
