@@ -8,6 +8,7 @@ describe('simulateQueueOperations', () => {
 
     const initStep = result.steps[0]!;
     expect(initStep.action).toBe('INITIALIZE');
+    expect(initStep.state.buffer).toEqual([null, null, null, null, null, null]);
     expect(initStep.state.items).toEqual([]);
     expect(initStep.state.capacity).toBe(6);
     expect(initStep.state.frontIndex).toBe(-1);
@@ -20,7 +21,7 @@ describe('simulateQueueOperations', () => {
     expect(completeStep.a11yMessage).toMatch(/Queue sequence completed/i);
   });
 
-  it('generates ENQUEUE steps updating front and rear indices deterministically', () => {
+  it('generates ENQUEUE steps updating front and rear indices deterministically in O(1)', () => {
     const result = simulateQueueOperations([
       { type: 'ENQUEUE', value: 10 },
       { type: 'ENQUEUE', value: 20 },
@@ -30,7 +31,7 @@ describe('simulateQueueOperations', () => {
 
     const step1 = result.steps[1]!;
     expect(step1.action).toBe('ENQUEUE');
-    expect(step1.state.items).toEqual([10]);
+    expect(step1.state.buffer[0]).toBe(10);
     expect(step1.state.frontIndex).toBe(0);
     expect(step1.state.rearIndex).toBe(0);
     expect(step1.a11yMessage).toMatch(/Enqueued value 10 at REAR/i);
@@ -38,13 +39,14 @@ describe('simulateQueueOperations', () => {
 
     const step2 = result.steps[2]!;
     expect(step2.action).toBe('ENQUEUE');
-    expect(step2.state.items).toEqual([10, 20]);
+    expect(step2.state.buffer[0]).toBe(10);
+    expect(step2.state.buffer[1]).toBe(20);
     expect(step2.state.frontIndex).toBe(0);
     expect(step2.state.rearIndex).toBe(1);
     expect(step2.a11yMessage).toMatch(/Enqueued value 20 at REAR/i);
   });
 
-  it('generates DEQUEUE steps in strict FIFO order', () => {
+  it('generates DEQUEUE steps advancing front index in O(1) without shifting array elements', () => {
     const result = simulateQueueOperations([
       { type: 'ENQUEUE', value: 100 },
       { type: 'ENQUEUE', value: 200 },
@@ -53,14 +55,16 @@ describe('simulateQueueOperations', () => {
 
     const dequeueStep = result.steps[3]!;
     expect(dequeueStep.action).toBe('DEQUEUE');
+    expect(dequeueStep.state.buffer[0]).toBeNull();
+    expect(dequeueStep.state.buffer[1]).toBe(200);
+    expect(dequeueStep.state.frontIndex).toBe(1);
+    expect(dequeueStep.state.rearIndex).toBe(1);
     expect(dequeueStep.state.items).toEqual([200]);
-    expect(dequeueStep.state.frontIndex).toBe(0);
-    expect(dequeueStep.state.rearIndex).toBe(0);
-    expect(dequeueStep.a11yMessage).toMatch(/Dequeued value 100 from FRONT/i);
+    expect(dequeueStep.a11yMessage).toMatch(/Dequeued value 100 from FRONT in O\(1\)/i);
     expect(dequeueStep.codeHighlight).toEqual({ pseudocodeLine: 13, typescriptLine: 20 });
   });
 
-  it('generates PEEK_FRONT steps without mutating state items', () => {
+  it('generates PEEK_FRONT steps without mutating state items or buffer', () => {
     const result = simulateQueueOperations([
       { type: 'ENQUEUE', value: 50 },
       { type: 'PEEK_FRONT' },
@@ -68,8 +72,9 @@ describe('simulateQueueOperations', () => {
 
     const peekStep = result.steps[2]!;
     expect(peekStep.action).toBe('PEEK_FRONT');
-    expect(peekStep.state.items).toEqual([50]);
-    expect(peekStep.a11yMessage).toMatch(/Peeked at FRONT element with value 50/i);
+    expect(peekStep.state.buffer[0]).toBe(50);
+    expect(peekStep.state.frontIndex).toBe(0);
+    expect(peekStep.a11yMessage).toMatch(/Peeked at FRONT slot 0 with value 50/i);
     expect(peekStep.codeHighlight).toEqual({ pseudocodeLine: 20, typescriptLine: 27 });
   });
 
@@ -82,7 +87,7 @@ describe('simulateQueueOperations', () => {
 
     const overflowStep = result.steps[3]!;
     expect(overflowStep.action).toBe('OVERFLOW');
-    expect(overflowStep.state.items).toEqual([1, 2]);
+    expect(overflowStep.state.buffer).toEqual([1, 2]);
     expect(overflowStep.a11yMessage).toMatch(/Queue Overflow: Cannot enqueue value 99/i);
     expect(overflowStep.codeHighlight).toEqual({ pseudocodeLine: 3, typescriptLine: 11 });
   });

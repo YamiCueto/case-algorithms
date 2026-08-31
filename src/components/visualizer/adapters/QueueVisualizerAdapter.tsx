@@ -39,7 +39,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
     );
   }
 
-  const { items, frontIndex, rearIndex, capacity } = step.state;
+  const { buffer, frontIndex, rearIndex, count, capacity } = step.state;
   const maxCapacity = capacity || 8;
   const action = step.action;
 
@@ -62,12 +62,12 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
   const pipeTop = centerY - nodeHeight / 2 - 10;
   const pipeBottom = centerY + nodeHeight / 2 + 10;
 
-  const getNodeX = (index: number) => {
+  const getSlotX = (index: number) => {
     return startX + index * (nodeWidth + gap) + nodeWidth / 2;
   };
 
-  const frontNodeX = frontIndex >= 0 ? getNodeX(frontIndex) : startX + nodeWidth / 2;
-  const rearNodeX = rearIndex >= 0 ? getNodeX(rearIndex) : startX + nodeWidth / 2;
+  const frontNodeX = frontIndex >= 0 ? getSlotX(frontIndex) : startX + nodeWidth / 2;
+  const rearNodeX = rearIndex >= 0 ? getSlotX(rearIndex) : startX + nodeWidth / 2;
 
   return (
     <SVGViewport
@@ -126,7 +126,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
       <VisualLabel
         x={startX}
         y={pipeTop - 12}
-        text={`Capacity: ${maxCapacity} | Items: ${items.length}`}
+        text={`Buffer Capacity: ${maxCapacity} | Count: ${count}`}
         variant="muted"
         fontType="mono"
         anchor="start"
@@ -136,7 +136,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
       {Array.from({ length: maxCapacity }).map((_, i) => {
         const slotX = startX + i * (nodeWidth + gap);
         const slotY = centerY - nodeHeight / 2;
-        const hasItem = i < items.length;
+        const hasItem = buffer && buffer[i] !== null && buffer[i] !== undefined;
 
         return (
           <g key={`slot-${i}`}>
@@ -163,8 +163,12 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
         );
       })}
 
-      {items.map((val, i) => {
-        const nodeCenterX = getNodeX(i);
+      {buffer.map((val, i) => {
+        if (val === null || val === undefined) {
+          return null;
+        }
+
+        const nodeCenterX = getSlotX(i);
         const isCurrentRear = isEnqueue && i === rearIndex;
         const isCurrentFront = (isDequeue || isPeek) && i === frontIndex;
 

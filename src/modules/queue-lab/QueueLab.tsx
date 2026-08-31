@@ -86,40 +86,43 @@ const PEDAGOGICAL_PHASES = [
     name: '03. Observe',
     title: 'Observe Dual-End Access Discipline',
     content:
-      'Notice that elements in a Queue can only enter from one end (REAR) and exit from the other end (FRONT). Random index access into middle elements is prohibited by the ADT contract. As elements are dequeued from the front, remaining elements advance toward the front of the line.',
+      'Notice that elements in a Queue can only enter from one end (REAR) and exit from the other end (FRONT). Random index access into middle elements is prohibited by the ADT contract. Notice how DEQUEUE advances the FRONT pointer without physically shifting any remaining elements in memory!',
   },
   {
     id: '04',
     name: '04. Explain',
-    title: 'Explain Time & Space Complexity',
+    title: 'Explain Time & Space Complexity (Why O(1)?)',
     content:
-      'When implemented with head and tail pointers or circular buffers, ENQUEUE, DEQUEUE, and PEEK all execute in strict O(1) constant time. Space complexity is O(N) auxiliary memory to store N items, while the pedagogical ExecutionStep[] trace records immutable state snapshots for time travel.',
+      'In a naive array implementation, removing the front element requires shifting all remaining N-1 elements to the left, which costs O(N) time. In CASE Algorithms, the Bounded Queue is implemented as an authentic Two-Pointer Circular Buffer: ENQUEUE inserts at buffer[rear] and advances rear = (rear + 1) % capacity; DEQUEUE extracts buffer[front] and advances front = (front + 1) % capacity. Because zero elements are shifted, ENQUEUE, DEQUEUE, and PEEK all execute in strict O(1) constant time! Space complexity is O(N) auxiliary memory for the buffer, while the immutable ExecutionStep[] trace records pedagogical snapshots for time-travel.',
   },
   {
     id: '05',
     name: '05. Visualize',
-    title: 'Visual Representation & Pointers',
+    title: 'Visual Representation & Circular Buffer Pointers',
     content:
-      'The SVG Viewport renders the queue as an open horizontal pipe. The FRONT pointer tracks the first available element at the left outflow, while the REAR pointer indicates the most recently appended element at the right inflow. When empty, both pointers indicate null.',
+      'The SVG Viewport renders the queue as a bounded physical buffer. The FRONT pointer (cyan) tracks the earliest valid element, while the REAR pointer (amber) indicates the most recently appended element. Notice how empty slots remain fixed in place while pointers advance across the buffer.',
   },
   {
     id: '06',
     name: '06. Pseudocode',
-    title: 'Algorithm Pseudocode (Bounded Queue ADT)',
+    title: 'Algorithm Pseudocode (Circular Buffer Queue ADT)',
     content: `procedure enqueue(queue: Queue, value: Item)
   if isFull(queue) then
     throw QueueOverflowError
   end if
-  queue.items[queue.rear] := value
-  queue.rear := queue.rear + 1
+  queue.buffer[queue.rear] := value
+  queue.rear := (queue.rear + 1) mod queue.capacity
+  queue.count := queue.count + 1
 end procedure
 
 procedure dequeue(queue: Queue) -> Item
   if isEmpty(queue) then
     throw QueueUnderflowError
   end if
-  value := queue.items[queue.front]
-  queue.front := queue.front + 1
+  value := queue.buffer[queue.front]
+  queue.buffer[queue.front] := null
+  queue.front := (queue.front + 1) mod queue.capacity
+  queue.count := queue.count - 1
   return value
 end procedure
 
@@ -127,48 +130,58 @@ procedure peek(queue: Queue) -> Item
   if isEmpty(queue) then
     throw QueueUnderflowError
   end if
-  return queue.items[queue.front]
+  return queue.buffer[queue.front]
 end procedure`,
   },
   {
     id: '07',
     name: '07. Code',
-    title: 'TypeScript Implementation (Generic Bounded Queue)',
+    title: 'TypeScript Implementation (Two-Pointer Circular Queue)',
     content: `export class BoundedQueue<T> {
-  private readonly items: T[] = [];
+  private readonly buffer: (T | null)[];
+  private front: number = 0;
+  private rear: number = 0;
+  private count: number = 0;
   private readonly capacity: number;
 
   constructor(capacity: number = 8) {
     this.capacity = capacity;
+    this.buffer = new Array<T | null>(capacity).fill(null);
   }
 
   enqueue(item: T): void {
     if (this.isFull()) {
       throw new Error('Queue Overflow: capacity reached');
     }
-    this.items.push(item);
+    this.buffer[this.rear] = item;
+    this.rear = (this.rear + 1) % this.capacity;
+    this.count++;
   }
 
   dequeue(): T {
     if (this.isEmpty()) {
       throw new Error('Queue Underflow: queue is empty');
     }
-    return this.items.shift()!;
+    const item = this.buffer[this.front]!;
+    this.buffer[this.front] = null;
+    this.front = (this.front + 1) % this.capacity;
+    this.count--;
+    return item;
   }
 
   peek(): T {
     if (this.isEmpty()) {
       throw new Error('Queue Underflow: queue is empty');
     }
-    return this.items[0]!;
+    return this.buffer[this.front]!;
   }
 
   isEmpty(): boolean {
-    return this.items.length === 0;
+    return this.count === 0;
   }
 
   isFull(): boolean {
-    return this.items.length >= this.capacity;
+    return this.count >= this.capacity;
   }
 }`,
   },
@@ -348,9 +361,11 @@ export const QueueLab: React.FC = () => {
 
   const currentAction = currentStep?.action || 'INITIALIZE';
   const stateData = currentStep?.state || {
+    buffer: new Array(queueCapacity).fill(null),
     items: [],
     frontIndex: -1,
     rearIndex: -1,
+    count: 0,
     capacity: queueCapacity,
   };
 
@@ -507,22 +522,22 @@ export const QueueLab: React.FC = () => {
                 <div>
                   <span className="inspector-label">Items in Queue: </span>
                   <span className="inspector-val-total">
-                    {stateData.items.length} / {stateData.capacity}
+                    {stateData.count} / {stateData.capacity}
                   </span>
                 </div>
                 <div>
                   <span className="inspector-label">FRONT Element: </span>
                   <span className="inspector-val-index">
-                    {stateData.frontIndex >= 0
-                      ? `${stateData.items[stateData.frontIndex]} (idx: ${stateData.frontIndex})`
+                    {stateData.frontIndex >= 0 && stateData.buffer[stateData.frontIndex] !== null
+                      ? `${stateData.buffer[stateData.frontIndex]} (slot [${stateData.frontIndex}])`
                       : 'null (empty)'}
                   </span>
                 </div>
                 <div>
                   <span className="inspector-label">REAR Element: </span>
                   <span className="inspector-val-index">
-                    {stateData.rearIndex >= 0
-                      ? `${stateData.items[stateData.rearIndex]} (idx: ${stateData.rearIndex})`
+                    {stateData.rearIndex >= 0 && stateData.buffer[stateData.rearIndex] !== null
+                      ? `${stateData.buffer[stateData.rearIndex]} (slot [${stateData.rearIndex}])`
                       : 'null (empty)'}
                   </span>
                 </div>
@@ -532,7 +547,7 @@ export const QueueLab: React.FC = () => {
                     className={
                       currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
                         ? 'input-error-badge'
-                        : stateData.items.length === stateData.capacity
+                        : stateData.count === stateData.capacity
                           ? 'inspector-val-idle'
                           : 'inspector-val-index'
                     }
@@ -541,9 +556,9 @@ export const QueueLab: React.FC = () => {
                       ? 'Overflow Error'
                       : currentAction === 'UNDERFLOW'
                         ? 'Underflow Error'
-                        : stateData.items.length === 0
+                        : stateData.count === 0
                           ? 'Empty'
-                          : stateData.items.length === stateData.capacity
+                          : stateData.count === stateData.capacity
                             ? 'Full (Cap Reached)'
                             : 'Normal'}
                   </span>

@@ -17,9 +17,11 @@ describe('QueueVisualizerAdapter', () => {
       totalSteps: 1,
       action: 'INITIALIZE',
       state: {
+        buffer: [null, null, null, null, null, null],
         items: [],
         frontIndex: -1,
         rearIndex: -1,
+        count: 0,
         capacity: 6,
       },
       description: 'Empty queue initialized with capacity 6.',
@@ -29,7 +31,7 @@ describe('QueueVisualizerAdapter', () => {
     render(<QueueVisualizerAdapter step={mockStep} />);
 
     expect(screen.getAllByText('Empty queue initialized with capacity 6.')[0]).toBeInTheDocument();
-    expect(screen.getByText(/Capacity: 6 \| Items: 0/i)).toBeInTheDocument();
+    expect(screen.getByText(/Buffer Capacity: 6 \| Count: 0/i)).toBeInTheDocument();
     expect(screen.getByText(/Outflow \(FRONT\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Inflow \(REAR\)/i)).toBeInTheDocument();
     expect(screen.getByText('[0]')).toBeInTheDocument();
@@ -44,9 +46,11 @@ describe('QueueVisualizerAdapter', () => {
       totalSteps: 2,
       action: 'ENQUEUE',
       state: {
+        buffer: [10, 20, 30, null, null, null],
         items: [10, 20, 30],
         frontIndex: 0,
         rearIndex: 2,
+        count: 3,
         capacity: 6,
       },
       description: 'Enqueued value 30 at REAR.',
@@ -72,9 +76,11 @@ describe('QueueVisualizerAdapter', () => {
       totalSteps: 3,
       action: 'OVERFLOW',
       state: {
+        buffer: [1, 2, 3, 4],
         items: [1, 2, 3, 4],
         frontIndex: 0,
         rearIndex: 3,
+        count: 4,
         capacity: 4,
       },
       description: 'Queue Overflow: Cannot enqueue value 99.',

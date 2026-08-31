@@ -69,7 +69,7 @@ describe('QueueLab Component', () => {
     const clearBtn = screen.getByRole('button', { name: /clear queue/i });
     fireEvent.click(clearBtn);
 
-    expect(screen.getByText(/Capacity: 6 \| Items: 0/i)).toBeInTheDocument();
+    expect(screen.getByText(/Buffer Capacity: 6 \| Count: 0/i)).toBeInTheDocument();
   });
 
   it('changes queue capacity', () => {
