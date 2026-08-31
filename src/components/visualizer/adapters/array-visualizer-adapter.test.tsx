@@ -81,9 +81,10 @@ describe('ArrayVisualizerAdapter', () => {
       },
     };
 
-    const { rerender } = render(<ArrayVisualizerAdapter step={stepComparing} />);
+    const { container, rerender } = render(<ArrayVisualizerAdapter step={stepComparing} />);
 
-    expect(screen.getByText('COMPARE')).toBeInTheDocument();
+    expect(screen.getByText('Comparing 10 and 20')).toBeInTheDocument();
+    expect(container.querySelector('.viz-highlight-comparing')).toBeInTheDocument();
     expect(screen.getByText('j')).toBeInTheDocument();
     expect(screen.getByText('j+1')).toBeInTheDocument();
 
@@ -108,7 +109,8 @@ describe('ArrayVisualizerAdapter', () => {
     };
 
     rerender(<ArrayVisualizerAdapter step={stepSwapping} />);
-    expect(screen.getByText('SWAP')).toBeInTheDocument();
+    expect(screen.getByText('Swapped 10 and 20')).toBeInTheDocument();
+    expect(container.querySelector('.viz-highlight-swapping')).toBeInTheDocument();
     const swappedNode = screen.getByText('20').closest('g');
     expect(swappedNode).toHaveClass('viz-node-swapping');
   });

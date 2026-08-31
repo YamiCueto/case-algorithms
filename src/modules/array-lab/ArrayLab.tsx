@@ -19,35 +19,35 @@ const PEDAGOGICAL_PHASES = [
     name: '01. Discover',
     title: 'Discover the Need for Sorting',
     content:
-      'Imagine searching through an unsorted list: you must inspect every single item one by one (O(n)). If the data is ordered, you can find anything logarithmically in O(log n). How can simple pairwise comparisons gradually organize an entire array?',
+      'Sorting is one of the most fundamental operations in computer science. Given an unordered sequence of numbers, our goal is to rearrange them in non-decreasing order. How can a simple strategy based exclusively on inspecting and swapping two adjacent elements at a time gradually bring global order to the entire list?',
   },
   {
     id: '02',
     name: '02. Interact',
     title: 'Interact with Pairwise Swaps',
     content:
-      'Use the time-travel buttons above to step through the execution. Watch how the algorithm only examines two adjacent elements at a time (j and j+1) and swaps them if the left is greater than the right.',
+      'Use the time-travel controls below to step through execution. Watch how the algorithm scans from left to right, always focusing on a pair of adjacent elements (pointers j and j+1). If the left element is strictly greater than the right element, they swap positions.',
   },
   {
     id: '03',
     name: '03. Observe',
     title: 'Observe the Invariant & Bubbling',
     content:
-      'Notice that after Pass 1, the largest element (8) is guaranteed to reach the rightmost position. After Pass 2, the second largest is locked in place. The green nodes highlight elements that have settled into their permanent sorted indices.',
+      'Notice the key invariant: on every full pass through the unsorted portion of the array, the largest remaining element inevitably "bubbles up" to its final sorted position at the right. Once an element reaches its permanent home, it is marked in green and never needs to be compared again.',
   },
   {
     id: '04',
     name: '04. Explain',
     title: 'Explain Time & Space Complexity',
     content:
-      'Bubble Sort performs (n - 1) passes. In pass i, it performs (n - 1 - i) comparisons. Total comparisons: n(n - 1)/2 ≈ O(n²). Space complexity is O(1) auxiliary memory because swaps happen in-place.',
+      'In an array of length n, Pass 1 performs (n - 1) comparisons, Pass 2 performs (n - 2), down to 1 comparison in the final pass. The total number of comparisons is (n - 1) + (n - 2) + ... + 1 = n(n - 1)/2, resulting in O(n²) worst-case and average-case time complexity. Because all swaps happen directly within the original array without allocating auxiliary lists, space complexity is strictly O(1).',
   },
   {
     id: '05',
     name: '05. Visualize',
     title: 'Visual Representation',
     content:
-      'The SVG Viewport renders active pointers (j and j+1), highlight boxes around compared pairs (yellow) and swapped pairs (rose), and green borders for finalized positions.',
+      'The SVG Viewport renders the active state in real time: pointers (j and j+1) indicate the current pair under inspection, yellow highlights denote active comparisons, rose highlights denote elements in the middle of a swap, and green nodes indicate permanently sorted positions.',
   },
   {
     id: '06',
@@ -86,43 +86,63 @@ end procedure`,
   {
     id: '08',
     name: '08. Modify',
-    title: 'Modify & Optimize',
+    title: 'Modify & Optimize (Early Exit)',
     content:
-      'Can we stop early if the array becomes sorted before all n-1 passes? Yes! By adding a boolean flag "swappedInPass", we can terminate immediately on pass 1 if zero swaps occur, achieving O(n) best-case performance for sorted inputs.',
+      'In standard Bubble Sort, all n(n - 1)/2 comparisons are executed even if the array is already sorted. We can optimize this by introducing a boolean flag "swappedInPass". If a full pass completes with 0 swaps, the array is already in perfect order and we can terminate immediately, achieving O(n) best-case time complexity.',
   },
   {
     id: '09',
     name: '09. Practice',
     title: 'Practice with Custom Inputs',
     content:
-      'Type custom comma-separated numbers in the input box above (e.g. 9, 3, 7, 1, 5) and click "Run Sort". Predict how many total swaps will occur before stepping through!',
+      'Try typing your own comma-separated list of numbers into the input box above (e.g. 9, 3, 7, 1, 5) and click "Load & Run". Try to predict how many total swaps will occur before stepping through the visualizer!',
   },
   {
     id: '10',
     name: '10. Challenge',
     title: 'Algorithm Mastery Challenge',
     content:
-      'Challenge Question: For an array with n=5 elements in reverse order [5, 4, 3, 2, 1], what is the exact number of swaps? (Answer: 4 + 3 + 2 + 1 = 10 swaps). Try it in the sandbox to verify!',
+      'Challenge Question: For an array with n=5 elements in strictly reverse order [5, 4, 3, 2, 1], what is the exact number of swaps required? (Answer: 4 + 3 + 2 + 1 = 10 swaps). Load the "Reverse" preset in the sandbox above to step through and verify!',
   },
 ];
 
 export const ArrayLab: React.FC = () => {
   const [inputArrayText, setInputArrayText] = useState('5, 1, 4, 2, 8');
+  const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(600);
-
-  const initialNumbers = useMemo(() => {
-    return inputArrayText
-      .split(',')
-      .map((s) => parseInt(s.trim(), 10))
-      .filter((n) => !isNaN(n));
-  }, [inputArrayText]);
 
   const controllerRef = useRef<TimeTravelController<ArrayState> | null>(null);
   const [currentStep, setCurrentStep] = useState<ExecutionStep<ArrayState> | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [totalSteps, setTotalSteps] = useState<number>(0);
+
+  const parseNumbers = (text: string): { numbers: number[]; error: string | null } => {
+    const rawTokens = text.split(',').map((t) => t.trim()).filter(Boolean);
+    if (rawTokens.length === 0) {
+      return { numbers: [], error: 'Please enter at least one number.' };
+    }
+    if (rawTokens.length > 14) {
+      return { numbers: [], error: 'Please enter at most 14 numbers for optimal visualization.' };
+    }
+
+    const numbers: number[] = [];
+    for (const token of rawTokens) {
+      const val = Number(token);
+      if (!Number.isFinite(val)) {
+        return { numbers: [], error: `Invalid number: "${token}". Only valid numbers are allowed.` };
+      }
+      numbers.push(Math.round(val));
+    }
+
+    return { numbers, error: null };
+  };
+
+  const initialNumbers = useMemo(() => {
+    const { numbers } = parseNumbers(inputArrayText);
+    return numbers.length > 0 ? numbers : [5, 1, 4, 2, 8];
+  }, [inputArrayText]);
 
   const initController = useCallback((numbers: number[]) => {
     const result = bubbleSort(numbers);
@@ -166,6 +186,18 @@ export const ArrayLab: React.FC = () => {
     };
   }, [isPlaying, playbackSpeed]);
 
+  const handleLoadAndRun = () => {
+    const { numbers, error } = parseNumbers(inputArrayText);
+    if (error) {
+      setInputError(error);
+      return;
+    }
+
+    setInputError(null);
+    setIsPlaying(false);
+    initController(numbers);
+  };
+
   const handleNext = () => {
     controllerRef.current?.next();
   };
@@ -196,7 +228,9 @@ export const ArrayLab: React.FC = () => {
 
   const handlePresetSelect = (preset: number[]) => {
     setIsPlaying(false);
+    setInputError(null);
     setInputArrayText(preset.join(', '));
+    initController(preset);
   };
 
   const currentAction = currentStep?.action || 'INITIALIZE';
@@ -217,7 +251,12 @@ export const ArrayLab: React.FC = () => {
               <input
                 type="text"
                 value={inputArrayText}
-                onChange={(e) => setInputArrayText(e.target.value)}
+                onChange={(e) => {
+                  setInputArrayText(e.target.value);
+                  if (inputError) {
+                    setInputError(null);
+                  }
+                }}
                 placeholder="e.g. 5, 1, 4, 2, 8"
                 aria-label="Array input values"
                 className="array-input-field"
@@ -225,12 +264,18 @@ export const ArrayLab: React.FC = () => {
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => initController(initialNumbers)}
-                aria-label="Run Sort"
+                onClick={handleLoadAndRun}
+                aria-label="Load and run sorting"
               >
                 Load & Run
               </Button>
             </div>
+
+            {inputError && (
+              <Badge variant="rose" className="input-error-badge">
+                {inputError}
+              </Badge>
+            )}
 
             <div className="control-actions">
               {PRESET_ARRAYS.map((p) => (

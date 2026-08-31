@@ -106,12 +106,19 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
         { id: 'ptr-next', index: j + 1, label: 'j+1', colorVar: 'var(--pointer-mid)' },
       ];
 
+      const compareExplanation =
+        valA === valB
+          ? `${valA} === ${valB}: equal elements maintain relative order (stable sort).`
+          : valA > valB
+            ? `${valA} > ${valB}: swap needed.`
+            : `${valA} < ${valB}: order is correct.`;
+
       steps.push({
         id: `step-${steps.length}`,
         stepIndex: steps.length,
         totalSteps: 0,
         action: 'COMPARE',
-        description: `Comparing index ${j} (${valA}) and index ${j + 1} (${valB}). ${valA > valB ? `${valA} > ${valB}: swap needed.` : `${valA} <= ${valB}: order is correct.`}`,
+        description: `Comparing index ${j} (${valA}) and index ${j + 1} (${valB}). ${compareExplanation}`,
         a11yMessage: `Comparing index ${j} with value ${valA} against index ${j + 1} with value ${valB}. ${valA > valB ? 'Swap will occur.' : 'No swap needed.'}`,
         activeIndices: [j, j + 1],
         comparedIndices: [j, j + 1],

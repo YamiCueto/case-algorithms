@@ -42,7 +42,7 @@ export const VisualHighlight: React.FC<VisualHighlightProps> = ({
       {label && (
         <text
           x={x + 8}
-          y={y - 8}
+          y={y + height + 14}
           className="viz-highlight-label"
         >
           {label}

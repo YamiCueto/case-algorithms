@@ -63,9 +63,9 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
     );
   }
 
-  const nodeWidth = n > 8 ? 44 : 56;
-  const nodeHeight = n > 8 ? 44 : 56;
-  const gap = n > 8 ? 10 : 16;
+  const nodeWidth = n > 12 ? 34 : n > 9 ? 40 : n > 6 ? 48 : 56;
+  const nodeHeight = n > 12 ? 34 : n > 9 ? 40 : n > 6 ? 48 : 56;
+  const gap = n > 12 ? 6 : n > 9 ? 8 : n > 6 ? 12 : 16;
   const totalWidth = n * nodeWidth + (n - 1) * gap;
   const startX = (viewBoxWidth - totalWidth) / 2 + nodeWidth / 2;
   const centerY = viewBoxHeight / 2;
@@ -117,7 +117,6 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
           }
           height={nodeHeight + 12}
           variant="comparing"
-          label="COMPARE"
         />
       )}
 
@@ -137,7 +136,6 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
           }
           height={nodeHeight + 12}
           variant="swapping"
-          label="SWAP"
         />
       )}
 

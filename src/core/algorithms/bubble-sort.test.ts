@@ -40,6 +40,24 @@ describe('Bubble Sort Algorithm Generator', () => {
     expect(result.metrics.totalSwaps).toBe(10);
   });
 
+  it('handles duplicate values correctly preserving stability', () => {
+    const input = [4, 2, 4, 2, 4];
+    const result = bubbleSort(input);
+    expect(result.output).toEqual([2, 2, 4, 4, 4]);
+
+    const equalCompareStep = result.steps.find(
+      (s) => s.action === 'COMPARE' && s.description.includes('equal elements maintain relative order')
+    );
+    expect(equalCompareStep).toBeDefined();
+  });
+
+  it('handles negative numbers correctly', () => {
+    const input = [-5, 10, -2, 0, 8];
+    const result = bubbleSort(input);
+    expect(result.output).toEqual([-5, -2, 0, 8, 10]);
+    expect(result.steps[result.steps.length - 1]?.action).toBe('COMPLETE');
+  });
+
   it('produces a rich, granular sequence of ExecutionSteps for arbitrary arrays', () => {
     const input = [5, 1, 4, 2, 8];
     const result = bubbleSort(input);
@@ -60,6 +78,14 @@ describe('Bubble Sort Algorithm Generator', () => {
     const finalStep = result.steps[result.steps.length - 1];
     expect(finalStep?.action).toBe('COMPLETE');
     expect(finalStep?.state.sortedIndices).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('handles larger arrays up to 14 elements without issues', () => {
+    const input = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+    const result = bubbleSort(input);
+    expect(result.output).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+    expect(result.metrics.totalComparisons).toBe(91);
+    expect(result.metrics.totalSwaps).toBe(91);
   });
 
   it('ensures determinism across repeated executions', () => {

@@ -285,6 +285,16 @@
   gap: var(--space-3);
 }
 
+.app-header-version-badge {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .app-header-version-badge {
+    display: inline-flex;
+  }
+}
+
 .theme-toggle-btn {
   width: 32px;
   height: 32px;
@@ -713,4 +723,9 @@
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.6;
+}
+
+.input-error-badge {
+  margin-top: var(--space-2);
+  display: inline-flex;
 }

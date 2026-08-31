@@ -1,8 +1,16 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ArrayLab } from './ArrayLab';
 
 describe('ArrayLab Component', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders initial laboratory with default array and controls', () => {
     render(<ArrayLab />);
 
@@ -47,7 +55,7 @@ describe('ArrayLab Component', () => {
     render(<ArrayLab />);
 
     const input = screen.getByLabelText(/array input values/i);
-    const loadBtn = screen.getByRole('button', { name: /run sort/i });
+    const loadBtn = screen.getByRole('button', { name: /load and run sorting/i });
 
     fireEvent.change(input, { target: { value: '99, 11, 44' } });
     fireEvent.click(loadBtn);
@@ -55,6 +63,49 @@ describe('ArrayLab Component', () => {
     expect(screen.getByText('99')).toBeInTheDocument();
     expect(screen.getByText('11')).toBeInTheDocument();
     expect(screen.getByText('44')).toBeInTheDocument();
+  });
+
+  it('displays error badge when user inputs invalid values', () => {
+    render(<ArrayLab />);
+
+    const input = screen.getByLabelText(/array input values/i);
+    const loadBtn = screen.getByRole('button', { name: /load and run sorting/i });
+
+    fireEvent.change(input, { target: { value: 'abc, 123, @#' } });
+    fireEvent.click(loadBtn);
+
+    expect(screen.getByText(/invalid number/i)).toBeInTheDocument();
+  });
+
+  it('loads preset arrays when clicking preset buttons', () => {
+    render(<ArrayLab />);
+
+    const reversePresetBtn = screen.getByRole('button', { name: /reverse \[/i });
+    fireEvent.click(reversePresetBtn);
+
+    expect(screen.getByText('5')).toBeInTheDocument();
+    expect(screen.getByText('4')).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
+  });
+
+  it('supports automated play/pause execution and speed switching', () => {
+    render(<ArrayLab />);
+
+    const playBtn = screen.getByRole('button', { name: /play auto execution/i });
+    fireEvent.click(playBtn);
+
+    const speed2xBtn = screen.getByRole('button', { name: '2x' });
+    fireEvent.click(speed2xBtn);
+
+    act(() => {
+      vi.advanceTimersByTime(550);
+    });
+
+    expect(screen.getByText(/step index:/i)).toBeInTheDocument();
+
+    const pauseBtn = screen.getByRole('button', { name: /pause execution/i });
+    fireEvent.click(pauseBtn);
+    expect(screen.getByRole('button', { name: /play auto execution/i })).toBeInTheDocument();
   });
 
   it('switches between pedagogical progression tabs', () => {
@@ -72,6 +123,10 @@ describe('ArrayLab Component', () => {
     const codeTab = screen.getByRole('button', { name: /07\. code/i });
     fireEvent.click(codeTab);
     expect(screen.getByText(/export function bubbleSort/i)).toBeInTheDocument();
+
+    const modifyTab = screen.getByRole('button', { name: /08\. modify/i });
+    fireEvent.click(modifyTab);
+    expect(screen.getByText(/early exit/i)).toBeInTheDocument();
 
     const challengeTab = screen.getByRole('button', { name: /10\. challenge/i });
     fireEvent.click(challengeTab);
