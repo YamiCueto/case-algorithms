@@ -1,6 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Button, Badge, Card, ThemeToggle, AppHeader, LabShell } from './index';
+import {
+  Button,
+  Badge,
+  Card,
+  ThemeToggle,
+  AppHeader,
+  LabShell,
+  TimeTravelControls,
+  PedagogicalKnowledgePanel,
+} from './index';
 
 describe('Design System UI Components', () => {
   beforeEach(() => {
@@ -115,6 +124,148 @@ describe('Design System UI Components', () => {
       expect(screen.getByTestId('viewport-content')).toBeInTheDocument();
       expect(screen.getByTestId('controls-content')).toBeInTheDocument();
       expect(screen.getByTestId('knowledge-content')).toBeInTheDocument();
+    });
+  });
+
+  describe('TimeTravelControls component', () => {
+    it('renders all buttons and responds to click events', () => {
+      const onFirst = vi.fn();
+      const onPrevious = vi.fn();
+      const onTogglePlay = vi.fn();
+      const onNext = vi.fn();
+      const onLast = vi.fn();
+      const onReset = vi.fn();
+      const onSpeedChange = vi.fn();
+
+      render(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={600}
+          onFirst={onFirst}
+          onPrevious={onPrevious}
+          onTogglePlay={onTogglePlay}
+          onNext={onNext}
+          onLast={onLast}
+          onReset={onReset}
+          onSpeedChange={onSpeedChange}
+        />
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /jump to first step/i }));
+      expect(onFirst).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: /step backwards/i }));
+      expect(onPrevious).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: /play auto execution/i }));
+      expect(onTogglePlay).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: /step forward/i }));
+      expect(onNext).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: /jump to last step/i }));
+      expect(onLast).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: /reset to initial step/i }));
+      expect(onReset).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: '2x' }));
+      expect(onSpeedChange).toHaveBeenCalledWith(250);
+    });
+
+    it('disables boundary buttons correctly at start and end', () => {
+      const { rerender } = render(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={0}
+          totalSteps={5}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+        />
+      );
+
+      expect(screen.getByRole('button', { name: /jump to first step/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /step backwards/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /step forward/i })).not.toBeDisabled();
+
+      rerender(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={4}
+          totalSteps={5}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+        />
+      );
+
+      expect(screen.getByRole('button', { name: /step forward/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /jump to last step/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /step backwards/i })).not.toBeDisabled();
+    });
+  });
+
+  describe('PedagogicalKnowledgePanel component', () => {
+    const mockPhases = [
+      { id: '01', name: '01. Discover', title: 'Discover Phase', content: 'Discover overview text' },
+      { id: '06', name: '06. Pseudocode', title: 'Pseudocode Phase', content: 'line 1\nline 2' },
+      { id: '07', name: '07. Code', title: 'Code Phase', content: 'const a = 1;\nconst b = 2;' },
+    ];
+
+    it('renders tabs and responds to selection', () => {
+      const handleSelect = vi.fn();
+      render(
+        <PedagogicalKnowledgePanel
+          phases={mockPhases}
+          activePhaseIndex={0}
+          onPhaseSelect={handleSelect}
+        />
+      );
+
+      expect(screen.getByText('Discover Phase')).toBeInTheDocument();
+      expect(screen.getByText('Discover overview text')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: /06\. pseudocode/i }));
+      expect(handleSelect).toHaveBeenCalledWith(1);
+    });
+
+    it('renders CodeViewer for pseudocode and typescript phases', () => {
+      const { rerender } = render(
+        <PedagogicalKnowledgePanel
+          phases={mockPhases}
+          activePhaseIndex={1}
+          onPhaseSelect={vi.fn()}
+          pseudocodeActiveLine={2}
+        />
+      );
+
+      expect(screen.getByText('Pseudocode')).toBeInTheDocument();
+      expect(screen.getByText(/Line 2 Active/i)).toBeInTheDocument();
+
+      rerender(
+        <PedagogicalKnowledgePanel
+          phases={mockPhases}
+          activePhaseIndex={2}
+          onPhaseSelect={vi.fn()}
+          typescriptActiveLine={1}
+        />
+      );
+
+      expect(screen.getByText('TypeScript')).toBeInTheDocument();
+      expect(screen.getByText(/Line 1 Active/i)).toBeInTheDocument();
     });
   });
 });

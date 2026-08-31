@@ -4,8 +4,15 @@ import { TimeTravelController } from '@/core/engine';
 import { ExecutionStep } from '@/core/types';
 import { ArrayState } from '@/core/data-structures/array';
 import { ArrayVisualizerAdapter } from '@/components/visualizer';
-import { CodeViewer } from '@/components/code-viewer';
-import { LabShell, Button, Badge, Card } from '@/components/ui';
+import {
+  LabShell,
+  Button,
+  Badge,
+  Card,
+  TimeTravelControls,
+  usePlaybackTimer,
+  PedagogicalKnowledgePanel,
+} from '@/components/ui';
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
 
 const PRESET_ARRAYS: { label: string; array: number[] }[] = [
@@ -122,8 +129,6 @@ export const ArrayLab: React.FC = () => {
   const [inputArrayText, setInputArrayText] = useState('5, 1, 4, 2, 8');
   const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(600);
 
   const controllerRef = useRef<TimeTravelController<ArrayState> | null>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -153,13 +158,42 @@ export const ArrayLab: React.FC = () => {
     return { numbers, error: null };
   };
 
+  const handleNext = useCallback(() => {
+    controllerRef.current?.next();
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    controllerRef.current?.previous();
+  }, []);
+
+  const handleFirst = useCallback(() => {
+    controllerRef.current?.first();
+  }, []);
+
+  const handleLast = useCallback(() => {
+    controllerRef.current?.last();
+  }, []);
+
+  const {
+    isPlaying,
+    playbackSpeed,
+    setPlaybackSpeed,
+    handleTogglePlay,
+    stopPlayback,
+  } = usePlaybackTimer({
+    onStepForward: handleNext,
+    onRewindToStart: handleFirst,
+    isFinal: controllerRef.current?.isFinal ?? false,
+    defaultSpeed: 600,
+  });
+
   const initController = useCallback((numbers: number[]) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
       unsubscribeRef.current = null;
     }
 
-    setIsPlaying(false);
+    stopPlayback();
 
     const result = bubbleSort(numbers);
     const ctrl = new TimeTravelController(result.steps);
@@ -172,7 +206,7 @@ export const ArrayLab: React.FC = () => {
       setCurrentStep(step);
       setCurrentIndex(idx);
     });
-  }, []);
+  }, [stopPlayback]);
 
   useEffect(() => {
     initController([5, 1, 4, 2, 8]);
@@ -183,25 +217,6 @@ export const ArrayLab: React.FC = () => {
       }
     };
   }, [initController]);
-
-  useEffect(() => {
-    if (!isPlaying) {
-      return;
-    }
-
-    const timer = setInterval(() => {
-      const ctrl = controllerRef.current;
-      if (!ctrl || ctrl.isFinal) {
-        setIsPlaying(false);
-        return;
-      }
-      ctrl.next();
-    }, playbackSpeed);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [isPlaying, playbackSpeed]);
 
   const handleLoadAndRun = () => {
     const { numbers, error } = parseNumbers(inputArrayText);
@@ -214,32 +229,9 @@ export const ArrayLab: React.FC = () => {
     initController(numbers);
   };
 
-  const handleNext = () => {
-    controllerRef.current?.next();
-  };
-
-  const handlePrev = () => {
-    controllerRef.current?.previous();
-  };
-
-  const handleFirst = () => {
-    controllerRef.current?.first();
-  };
-
-  const handleLast = () => {
-    controllerRef.current?.last();
-  };
-
   const handleReset = () => {
-    setIsPlaying(false);
+    stopPlayback();
     controllerRef.current?.reset();
-  };
-
-  const handleTogglePlay = () => {
-    if (controllerRef.current?.isFinal) {
-      controllerRef.current?.first();
-    }
-    setIsPlaying((prev) => !prev);
   };
 
   const handlePresetSelect = (preset: number[]) => {
@@ -259,7 +251,6 @@ export const ArrayLab: React.FC = () => {
 
   const currentAction = currentStep?.action || 'INITIALIZE';
   const metrics = currentStep?.metrics || { comparisonsCount: 0, swapsCount: 0 };
-  const activePhase = PEDAGOGICAL_PHASES[activePhaseIndex] || PEDAGOGICAL_PHASES[0];
 
   return (
     <>
@@ -271,225 +262,124 @@ export const ArrayLab: React.FC = () => {
         viewportSlot={<ArrayVisualizerAdapter step={currentStep} viewBoxWidth={800} viewBoxHeight={340} />}
         controlsSlot={
           <div className="control-group">
-          <div className="control-group">
-            <span className="control-label">Array Input Configuration</span>
-            <div className="input-action-row">
-              <input
-                type="text"
-                value={inputArrayText}
-                onChange={(e) => {
-                  setInputArrayText(e.target.value);
-                  if (inputError) {
-                    setInputError(null);
-                  }
-                }}
-                placeholder="e.g. 5, 1, 4, 2, 8"
-                aria-label="Array input values"
-                className="array-input-field"
-              />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleLoadAndRun}
-                aria-label="Load and run sorting"
-              >
-                Load & Run
-              </Button>
-            </div>
-
-            {inputError && (
-              <Badge variant="rose" className="input-error-badge">
-                {inputError}
-              </Badge>
-            )}
-
-            <div className="control-actions">
-              {PRESET_ARRAYS.map((p) => (
+            <div className="control-group">
+              <span className="control-label">Array Input Configuration</span>
+              <div className="input-action-row">
+                <input
+                  type="text"
+                  value={inputArrayText}
+                  onChange={(e) => {
+                    setInputArrayText(e.target.value);
+                    if (inputError) {
+                      setInputError(null);
+                    }
+                  }}
+                  placeholder="e.g. 5, 1, 4, 2, 8"
+                  aria-label="Array input values"
+                  className="array-input-field"
+                />
                 <Button
-                  key={p.label}
-                  variant="outline"
+                  variant="primary"
                   size="sm"
-                  onClick={() => handlePresetSelect(p.array)}
+                  onClick={handleLoadAndRun}
+                  aria-label="Load and run sorting"
                 >
-                  {p.label}
+                  Load & Run
                 </Button>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          <div className="control-group">
-            <span className="control-label">Time-Travel Step Controller</span>
-            <div className="control-actions">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleFirst}
-                disabled={currentIndex <= 0}
-                aria-label="Jump to first step"
-              >
-                |&lt;
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrev}
-                disabled={currentIndex <= 0}
-                aria-label="Step backwards"
-              >
-                &lt; Step
-              </Button>
-              <Button
-                variant={isPlaying ? 'danger' : 'primary'}
-                size="sm"
-                onClick={handleTogglePlay}
-                aria-label={isPlaying ? 'Pause execution' : 'Play auto execution'}
-              >
-                {isPlaying ? 'Pause' : 'Play'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNext}
-                disabled={currentIndex >= totalSteps - 1}
-                aria-label="Step forward"
-              >
-                Step &gt;
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLast}
-                disabled={currentIndex >= totalSteps - 1}
-                aria-label="Jump to last step"
-              >
-                &gt;|
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-                aria-label="Reset to initial step"
-              >
-                Reset
-              </Button>
-            </div>
-
-            <div className="speed-control-row">
-              <span className="control-label">Speed:</span>
-              <Button
-                variant={playbackSpeed === 1000 ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={() => setPlaybackSpeed(1000)}
-              >
-                0.5x
-              </Button>
-              <Button
-                variant={playbackSpeed === 600 ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={() => setPlaybackSpeed(600)}
-              >
-                1x
-              </Button>
-              <Button
-                variant={playbackSpeed === 250 ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={() => setPlaybackSpeed(250)}
-              >
-                2x
-              </Button>
-            </div>
-
-            <div className="time-travel-shortcuts-hint" aria-label="Keyboard shortcuts guide">
-              <span className="shortcut-item"><kbd className="shortcut-key">Space</kbd> Play</span>
-              <span className="shortcut-item"><kbd className="shortcut-key">←</kbd> <kbd className="shortcut-key">→</kbd> Step</span>
-              <span className="shortcut-item"><kbd className="shortcut-key">Home</kbd> <kbd className="shortcut-key">End</kbd> Bounds</span>
-              <span className="shortcut-item"><kbd className="shortcut-key">R</kbd> Reset</span>
-            </div>
-          </div>
-
-          <Card title="State & Metrics Inspector">
-            <div className="inspector-list">
-              <div>
-                <span className="inspector-label">Action: </span>
-                <Badge
-                  variant={
-                    currentAction === 'COMPARE'
-                      ? 'amber'
-                      : currentAction === 'SWAP'
-                        ? 'rose'
-                        : currentAction === 'COMPLETE'
-                          ? 'emerald'
-                          : 'cyan'
-                  }
-                >
-                  {currentAction}
+              {inputError && (
+                <Badge variant="rose" className="input-error-badge">
+                  {inputError}
                 </Badge>
-              </div>
-              <div>
-                <span className="inspector-label">Step Index: </span>
-                <span className="inspector-val-index">
-                  {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
-                </span>
-              </div>
-              <div>
-                <span className="inspector-label">Comparisons: </span>
-                <span className="inspector-val-total">{metrics.comparisonsCount}</span>
-              </div>
-              <div>
-                <span className="inspector-label">Swaps performed: </span>
-                <span className="inspector-val-total">{metrics.swapsCount}</span>
-              </div>
-              <div>
-                <span className="inspector-label">Status: </span>
-                <span
-                  className={
-                    currentIndex === totalSteps - 1 && totalSteps > 0
-                      ? 'inspector-val-idle'
-                      : 'inspector-val-index'
-                  }
-                >
-                  {totalSteps === 0 ? 'Empty' : currentIndex === totalSteps - 1 ? 'Sorted (Complete)' : 'In Progress'}
-                </span>
+              )}
+
+              <div className="control-actions">
+                {PRESET_ARRAYS.map((p) => (
+                  <Button
+                    key={p.label}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePresetSelect(p.array)}
+                  >
+                    {p.label}
+                  </Button>
+                ))}
               </div>
             </div>
-          </Card>
-        </div>
-      }
-      knowledgeSlot={
-        <div className="control-group">
-          <div className="pedagogical-tabs-container">
-            {PEDAGOGICAL_PHASES.map((phase, idx) => (
-              <Button
-                key={phase.id}
-                variant={activePhaseIndex === idx ? 'primary' : 'outline'}
-                size="sm"
-                onClick={() => setActivePhaseIndex(idx)}
-              >
-                {phase.name}
-              </Button>
-            ))}
-          </div>
 
-          <Card title={activePhase?.title}>
-            {activePhase?.id === '06' ? (
-              <CodeViewer
-                code={activePhase.content}
-                language="pseudocode"
-                activeLine={currentStep?.codeHighlight?.pseudocodeLine}
-              />
-            ) : activePhase?.id === '07' ? (
-              <CodeViewer
-                code={activePhase.content}
-                language="typescript"
-                activeLine={currentStep?.codeHighlight?.typescriptLine}
-              />
-            ) : (
-              <p className="phase-content-text">{activePhase?.content}</p>
-            )}
-          </Card>
-        </div>
-      }
-    />
+            <TimeTravelControls
+              isPlaying={isPlaying}
+              currentIndex={currentIndex}
+              totalSteps={totalSteps}
+              playbackSpeed={playbackSpeed}
+              onFirst={handleFirst}
+              onPrevious={handlePrev}
+              onTogglePlay={handleTogglePlay}
+              onNext={handleNext}
+              onLast={handleLast}
+              onReset={handleReset}
+              onSpeedChange={setPlaybackSpeed}
+            />
+
+            <Card title="State & Metrics Inspector">
+              <div className="inspector-list">
+                <div>
+                  <span className="inspector-label">Action: </span>
+                  <Badge
+                    variant={
+                      currentAction === 'COMPARE'
+                        ? 'amber'
+                        : currentAction === 'SWAP'
+                          ? 'rose'
+                          : currentAction === 'COMPLETE'
+                            ? 'emerald'
+                            : 'cyan'
+                    }
+                  >
+                    {currentAction}
+                  </Badge>
+                </div>
+                <div>
+                  <span className="inspector-label">Step Index: </span>
+                  <span className="inspector-val-index">
+                    {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
+                  </span>
+                </div>
+                <div>
+                  <span className="inspector-label">Comparisons: </span>
+                  <span className="inspector-val-total">{metrics.comparisonsCount}</span>
+                </div>
+                <div>
+                  <span className="inspector-label">Swaps performed: </span>
+                  <span className="inspector-val-total">{metrics.swapsCount}</span>
+                </div>
+                <div>
+                  <span className="inspector-label">Status: </span>
+                  <span
+                    className={
+                      currentIndex === totalSteps - 1 && totalSteps > 0
+                        ? 'inspector-val-idle'
+                        : 'inspector-val-index'
+                    }
+                  >
+                    {totalSteps === 0 ? 'Empty' : currentIndex === totalSteps - 1 ? 'Sorted (Complete)' : 'In Progress'}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        }
+        knowledgeSlot={
+          <PedagogicalKnowledgePanel
+            phases={PEDAGOGICAL_PHASES}
+            activePhaseIndex={activePhaseIndex}
+            onPhaseSelect={setActivePhaseIndex}
+            pseudocodeActiveLine={currentStep?.codeHighlight?.pseudocodeLine}
+            typescriptActiveLine={currentStep?.codeHighlight?.typescriptLine}
+          />
+        }
+      />
     </>
   );
 };
