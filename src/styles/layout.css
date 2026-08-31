@@ -1,0 +1,97 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+.lab-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-4);
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .lab-shell {
+    padding: var(--space-6);
+    gap: var(--space-6);
+  }
+}
+
+.lab-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .lab-grid {
+    grid-template-columns: 1fr 380px;
+    gap: var(--space-6);
+  }
+}
+
+.viewport-panel {
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  min-height: 380px;
+}
+
+.control-panel {
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  gap: var(--space-4);
+  box-shadow: var(--shadow-md);
+}
+
+.knowledge-panel {
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  gap: var(--space-4);
+  box-shadow: var(--shadow-md);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface-secondary);
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.panel-body {
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
