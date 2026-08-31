@@ -162,4 +162,53 @@ describe('StackLab Component', () => {
     expect(screen.getByText('TypeScript')).toBeInTheDocument();
     expect(screen.getByText(/Line 5 Active/i)).toBeInTheDocument();
   });
+
+  it('updates A11yAnnouncer live region with accessible narrative messages', () => {
+    render(<StackLab />);
+
+    const liveRegion = screen.getByRole('status');
+    expect(liveRegion).toBeInTheDocument();
+    expect(liveRegion).toHaveAttribute('aria-live', 'polite');
+    expect(liveRegion).toHaveTextContent(/Empty stack initialized with capacity 6/i);
+
+    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    fireEvent.click(stepForwardBtn);
+
+    expect(liveRegion).toHaveTextContent(/Pushed value 10 onto top of stack/i);
+  });
+
+  it('supports time-travel navigation via global keyboard shortcuts', () => {
+    render(<StackLab />);
+
+    const liveRegion = screen.getByRole('status');
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.getByText('Step Index:')).toBeInTheDocument();
+    expect(liveRegion).toHaveTextContent(/Pushed value 10/i);
+
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(liveRegion).toHaveTextContent(/Empty stack initialized/i);
+
+    fireEvent.keyDown(window, { key: 'End' });
+    expect(liveRegion).toHaveTextContent(/Stack sequence completed/i);
+
+    fireEvent.keyDown(window, { key: 'Home' });
+    expect(liveRegion).toHaveTextContent(/Empty stack initialized/i);
+
+    fireEvent.keyDown(window, { key: 'r' });
+    expect(liveRegion).toHaveTextContent(/Empty stack initialized/i);
+  });
+
+  it('does not trigger keyboard shortcuts when typing in the input element', () => {
+    render(<StackLab />);
+
+    const input = screen.getByLabelText(/value to push onto stack/i);
+    const liveRegion = screen.getByRole('status');
+
+    fireEvent.keyDown(input, { key: ' ' });
+    fireEvent.keyDown(input, { key: 'ArrowRight' });
+    fireEvent.keyDown(input, { key: 'r' });
+
+    expect(liveRegion).toHaveTextContent(/Stack initialized/i);
+  });
 });

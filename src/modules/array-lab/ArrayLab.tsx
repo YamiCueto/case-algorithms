@@ -6,6 +6,7 @@ import { ArrayState } from '@/core/data-structures/array';
 import { ArrayVisualizerAdapter } from '@/components/visualizer';
 import { CodeViewer } from '@/components/code-viewer';
 import { LabShell, Button, Badge, Card } from '@/components/ui';
+import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
 
 const PRESET_ARRAYS: { label: string; array: number[] }[] = [
   { label: 'Default [5, 1, 4, 2, 8]', array: [5, 1, 4, 2, 8] },
@@ -247,18 +248,29 @@ export const ArrayLab: React.FC = () => {
     initController(preset);
   };
 
+  useTimeTravelKeyboard({
+    onNext: handleNext,
+    onPrevious: handlePrev,
+    onFirst: handleFirst,
+    onLast: handleLast,
+    onTogglePlay: handleTogglePlay,
+    onReset: handleReset,
+  });
+
   const currentAction = currentStep?.action || 'INITIALIZE';
   const metrics = currentStep?.metrics || { comparisonsCount: 0, swapsCount: 0 };
   const activePhase = PEDAGOGICAL_PHASES[activePhaseIndex] || PEDAGOGICAL_PHASES[0];
 
   return (
-    <LabShell
-      category="Interactive Laboratory: Array Data Structure"
-      title="Array & Bubble Sort Exploration"
-      subtitle="Discover how local element comparisons and adjacent swaps systematically sort an array through an interactive 10-step pedagogical journey."
-      viewportSlot={<ArrayVisualizerAdapter step={currentStep} viewBoxWidth={800} viewBoxHeight={340} />}
-      controlsSlot={
-        <div className="control-group">
+    <>
+      <A11yAnnouncer message={currentStep?.a11yMessage} />
+      <LabShell
+        category="Interactive Laboratory: Array Data Structure"
+        title="Array & Bubble Sort Exploration"
+        subtitle="Discover how local element comparisons and adjacent swaps systematically sort an array through an interactive 10-step pedagogical journey."
+        viewportSlot={<ArrayVisualizerAdapter step={currentStep} viewBoxWidth={800} viewBoxHeight={340} />}
+        controlsSlot={
+          <div className="control-group">
           <div className="control-group">
             <span className="control-label">Array Input Configuration</span>
             <div className="input-action-row">
@@ -386,6 +398,13 @@ export const ArrayLab: React.FC = () => {
                 2x
               </Button>
             </div>
+
+            <div className="time-travel-shortcuts-hint" aria-label="Keyboard shortcuts guide">
+              <span className="shortcut-item"><kbd className="shortcut-key">Space</kbd> Play</span>
+              <span className="shortcut-item"><kbd className="shortcut-key">←</kbd> <kbd className="shortcut-key">→</kbd> Step</span>
+              <span className="shortcut-item"><kbd className="shortcut-key">Home</kbd> <kbd className="shortcut-key">End</kbd> Bounds</span>
+              <span className="shortcut-item"><kbd className="shortcut-key">R</kbd> Reset</span>
+            </div>
           </div>
 
           <Card title="State & Metrics Inspector">
@@ -471,5 +490,6 @@ export const ArrayLab: React.FC = () => {
         </div>
       }
     />
+    </>
   );
 };
