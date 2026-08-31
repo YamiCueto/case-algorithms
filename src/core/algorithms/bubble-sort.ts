@@ -96,6 +96,8 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
   });
 
   for (let i = 0; i < n - 1; i++) {
+    let swappedInPass = false;
+
     for (let j = 0; j < n - 1 - i; j++) {
       comparisonsCount++;
       const valA = currentArray[j] as number;
@@ -141,6 +143,7 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
 
       if (valA > valB) {
         swapsCount++;
+        swappedInPass = true;
         currentArray[j] = valB;
         currentArray[j + 1] = valA;
 
@@ -197,11 +200,35 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
         swapsCount,
       },
     });
+
+    if (!swappedInPass) {
+      const allIndices = Array.from({ length: n }, (_, idx) => idx);
+      steps.push({
+        id: `step-${steps.length}`,
+        stepIndex: steps.length,
+        totalSteps: 0,
+        action: 'SET_POINTER',
+        description: `Early exit triggered: 0 swaps in pass ${i + 1}. Array is already fully sorted!`,
+        a11yMessage: `Early exit triggered in pass ${i + 1} with 0 swaps. The array is fully sorted.`,
+        activeIndices: allIndices,
+        pointers: [
+          { id: 'ptr-early-exit', index: 0, label: 'early exit', colorVar: 'var(--accent-emerald)' },
+        ],
+        state: {
+          array: [...currentArray],
+          sortedIndices: allIndices,
+          phaseDescription: `Early exit optimization: pass ${i + 1} completed with 0 swaps, terminating execution early.`,
+        },
+        metrics: {
+          comparisonsCount,
+          swapsCount,
+        },
+      });
+      break;
+    }
   }
 
-  if (!sortedIndices.includes(0)) {
-    sortedIndices.push(0);
-  }
+  const allFinalIndices = Array.from({ length: n }, (_, idx) => idx);
 
   steps.push({
     id: `step-${steps.length}`,
@@ -210,10 +237,10 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
     action: 'COMPLETE',
     description: `Sorting complete! Final sorted array: [${currentArray.join(', ')}].`,
     a11yMessage: `Bubble Sort finished. Total comparisons: ${comparisonsCount}, total swaps: ${swapsCount}. Sorted array: ${currentArray.join(', ')}.`,
-    activeIndices: Array.from({ length: n }, (_, idx) => idx),
+    activeIndices: allFinalIndices,
     state: {
       array: [...currentArray],
-      sortedIndices: Array.from({ length: n }, (_, idx) => idx),
+      sortedIndices: allFinalIndices,
       phaseDescription: 'Algorithm completed. All elements are sorted in non-decreasing order.',
     },
     metrics: {

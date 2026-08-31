@@ -21,15 +21,27 @@ describe('Bubble Sort Algorithm Generator', () => {
     expect(result.steps[0]?.state.sortedIndices).toEqual([0]);
   });
 
-  it('sorts an already sorted array with 0 swaps', () => {
+  it('triggers early exit on an already sorted array in O(n) time with 0 swaps', () => {
     const input = [1, 2, 3, 4, 5];
     const result = bubbleSort(input);
     expect(result.output).toEqual([1, 2, 3, 4, 5]);
-    expect(result.metrics.totalComparisons).toBe(10);
+    expect(result.metrics.totalComparisons).toBe(4);
     expect(result.metrics.totalSwaps).toBe(0);
-    expect(result.steps.length).toBeGreaterThan(1);
-    expect(result.steps[0]?.action).toBe('INITIALIZE');
+
+    const earlyExitStep = result.steps.find((s) => s.description.includes('Early exit triggered'));
+    expect(earlyExitStep).toBeDefined();
     expect(result.steps[result.steps.length - 1]?.action).toBe('COMPLETE');
+  });
+
+  it('triggers early exit on a partially sorted array before completing all passes', () => {
+    const input = [1, 2, 4, 3, 5];
+    const result = bubbleSort(input);
+    expect(result.output).toEqual([1, 2, 3, 4, 5]);
+    expect(result.metrics.totalSwaps).toBe(1);
+    expect(result.metrics.totalComparisons).toBe(7);
+
+    const earlyExitStep = result.steps.find((s) => s.description.includes('Early exit triggered'));
+    expect(earlyExitStep).toBeDefined();
   });
 
   it('sorts a reverse-ordered array with maximum swaps (n*(n-1)/2)', () => {

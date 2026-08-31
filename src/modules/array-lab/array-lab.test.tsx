@@ -26,32 +26,18 @@ describe('ArrayLab Component', () => {
     expect(screen.getByRole('button', { name: /step backwards/i })).toBeInTheDocument();
   });
 
-  it('navigates through steps using next, previous, first, and last buttons', () => {
+  it('does not re-run the algorithm when merely typing in the input field', () => {
     render(<ArrayLab />);
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
-    const stepBackBtn = screen.getByRole('button', { name: /step backwards/i });
-    const lastBtn = screen.getByRole('button', { name: /jump to last step/i });
-    const firstBtn = screen.getByRole('button', { name: /jump to first step/i });
+    const input = screen.getByLabelText(/array input values/i);
+    fireEvent.change(input, { target: { value: '99, 11, 44' } });
 
-    expect(stepBackBtn).toBeDisabled();
-    expect(firstBtn).toBeDisabled();
-
-    fireEvent.click(stepForwardBtn);
-    expect(stepBackBtn).not.toBeDisabled();
-    expect(screen.getByText(/step index:/i)).toBeInTheDocument();
-
-    fireEvent.click(lastBtn);
-    expect(stepForwardBtn).toBeDisabled();
-    expect(lastBtn).toBeDisabled();
-    expect(screen.getByText(/sorted \(complete\)/i)).toBeInTheDocument();
-
-    fireEvent.click(firstBtn);
-    expect(firstBtn).toBeDisabled();
-    expect(stepForwardBtn).not.toBeDisabled();
+    expect(screen.getByText('5')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.queryByText('99')).toBeNull();
   });
 
-  it('loads and runs sorting for custom array input', () => {
+  it('loads and runs sorting only when clicking Load & Run button', () => {
     render(<ArrayLab />);
 
     const input = screen.getByLabelText(/array input values/i);
@@ -88,7 +74,32 @@ describe('ArrayLab Component', () => {
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
-  it('supports automated play/pause execution and speed switching', () => {
+  it('navigates through steps using next, previous, first, and last buttons', () => {
+    render(<ArrayLab />);
+
+    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    const stepBackBtn = screen.getByRole('button', { name: /step backwards/i });
+    const lastBtn = screen.getByRole('button', { name: /jump to last step/i });
+    const firstBtn = screen.getByRole('button', { name: /jump to first step/i });
+
+    expect(stepBackBtn).toBeDisabled();
+    expect(firstBtn).toBeDisabled();
+
+    fireEvent.click(stepForwardBtn);
+    expect(stepBackBtn).not.toBeDisabled();
+    expect(screen.getByText(/step index:/i)).toBeInTheDocument();
+
+    fireEvent.click(lastBtn);
+    expect(stepForwardBtn).toBeDisabled();
+    expect(lastBtn).toBeDisabled();
+    expect(screen.getByText(/sorted \(complete\)/i)).toBeInTheDocument();
+
+    fireEvent.click(firstBtn);
+    expect(firstBtn).toBeDisabled();
+    expect(stepForwardBtn).not.toBeDisabled();
+  });
+
+  it('supports automated play/pause execution and speed switching across multiple array loads', () => {
     render(<ArrayLab />);
 
     const playBtn = screen.getByRole('button', { name: /play auto execution/i });
@@ -106,6 +117,13 @@ describe('ArrayLab Component', () => {
     const pauseBtn = screen.getByRole('button', { name: /pause execution/i });
     fireEvent.click(pauseBtn);
     expect(screen.getByRole('button', { name: /play auto execution/i })).toBeInTheDocument();
+
+    const sortedPresetBtn = screen.getByRole('button', { name: /sorted \[/i });
+    fireEvent.click(sortedPresetBtn);
+
+    const playAgainBtn = screen.getByRole('button', { name: /play auto execution/i });
+    fireEvent.click(playAgainBtn);
+    expect(screen.getByRole('button', { name: /pause execution/i })).toBeInTheDocument();
   });
 
   it('switches between pedagogical progression tabs', () => {
@@ -126,7 +144,7 @@ describe('ArrayLab Component', () => {
 
     const modifyTab = screen.getByRole('button', { name: /08\. modify/i });
     fireEvent.click(modifyTab);
-    expect(screen.getByText(/early exit/i)).toBeInTheDocument();
+    expect(screen.getByText(/early exit active/i)).toBeInTheDocument();
 
     const challengeTab = screen.getByRole('button', { name: /10\. challenge/i });
     fireEvent.click(challengeTab);

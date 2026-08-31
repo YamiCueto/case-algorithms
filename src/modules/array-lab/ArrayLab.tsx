@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { bubbleSort } from '@/core/algorithms';
 import { TimeTravelController } from '@/core/engine';
 import { ExecutionStep } from '@/core/types';
@@ -33,14 +33,14 @@ const PEDAGOGICAL_PHASES = [
     name: '03. Observe',
     title: 'Observe the Invariant & Bubbling',
     content:
-      'Notice the key invariant: on every full pass through the unsorted portion of the array, the largest remaining element inevitably "bubbles up" to its final sorted position at the right. Once an element reaches its permanent home, it is marked in green and never needs to be compared again.',
+      'Notice the key invariant: on every full pass through the unsorted portion of the array, the largest remaining element inevitably "bubbles up" to its final sorted position at the right. Once an element reaches its permanent home, it is marked in green and locked in place.',
   },
   {
     id: '04',
     name: '04. Explain',
     title: 'Explain Time & Space Complexity',
     content:
-      'In an array of length n, Pass 1 performs (n - 1) comparisons, Pass 2 performs (n - 2), down to 1 comparison in the final pass. The total number of comparisons is (n - 1) + (n - 2) + ... + 1 = n(n - 1)/2, resulting in O(n²) worst-case and average-case time complexity. Because all swaps happen directly within the original array without allocating auxiliary lists, space complexity is strictly O(1).',
+      'In an array of length n, Pass 1 performs (n - 1) comparisons, Pass 2 performs (n - 2), down to 1 comparison in the final pass. The worst-case and average-case time complexity is O(n²) with n(n - 1)/2 comparisons. However, with the Early Exit optimization, a pre-sorted array only takes a single pass of (n - 1) comparisons with 0 swaps, achieving O(n) best-case time complexity. Space complexity is strictly O(1) auxiliary memory because swaps happen in-place.',
   },
   {
     id: '05',
@@ -52,32 +52,42 @@ const PEDAGOGICAL_PHASES = [
   {
     id: '06',
     name: '06. Pseudocode',
-    title: 'Algorithm Pseudocode',
+    title: 'Algorithm Pseudocode (with Early Exit)',
     content: `procedure bubbleSort(A: list of sortable items)
   n := length(A)
   for i from 0 to n-1 do
+    swapped := false
     for j from 0 to n-2-i do
       if A[j] > A[j+1] then
         swap(A[j], A[j+1])
+        swapped := true
       end if
     end for
+    if not swapped then
+      break
+    end if
   end for
 end procedure`,
   },
   {
     id: '07',
     name: '07. Code',
-    title: 'TypeScript Implementation',
+    title: 'TypeScript Implementation (with Early Exit)',
     content: `export function bubbleSort(arr: number[]): number[] {
   const a = [...arr];
   const n = a.length;
   for (let i = 0; i < n - 1; i++) {
+    let swapped = false;
     for (let j = 0; j < n - 1 - i; j++) {
       if (a[j] > a[j + 1]) {
         const temp = a[j];
         a[j] = a[j + 1];
         a[j + 1] = temp;
+        swapped = true;
       }
+    }
+    if (!swapped) {
+      break;
     }
   }
   return a;
@@ -86,9 +96,9 @@ end procedure`,
   {
     id: '08',
     name: '08. Modify',
-    title: 'Modify & Optimize (Early Exit)',
+    title: 'Modify & Optimize (Early Exit Active)',
     content:
-      'In standard Bubble Sort, all n(n - 1)/2 comparisons are executed even if the array is already sorted. We can optimize this by introducing a boolean flag "swappedInPass". If a full pass completes with 0 swaps, the array is already in perfect order and we can terminate immediately, achieving O(n) best-case time complexity.',
+      'This laboratory implements the Early Exit optimization. By checking if zero swaps occurred during a complete pass, the algorithm terminates early as soon as the array reaches sorted order. For example, testing the "Sorted" preset only requires a single pass with (n - 1) comparisons instead of all n(n - 1)/2 comparisons!',
   },
   {
     id: '09',
@@ -114,6 +124,8 @@ export const ArrayLab: React.FC = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(600);
 
   const controllerRef = useRef<TimeTravelController<ArrayState> | null>(null);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+
   const [currentStep, setCurrentStep] = useState<ExecutionStep<ArrayState> | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [totalSteps, setTotalSteps] = useState<number>(0);
@@ -139,12 +151,14 @@ export const ArrayLab: React.FC = () => {
     return { numbers, error: null };
   };
 
-  const initialNumbers = useMemo(() => {
-    const { numbers } = parseNumbers(inputArrayText);
-    return numbers.length > 0 ? numbers : [5, 1, 4, 2, 8];
-  }, [inputArrayText]);
-
   const initController = useCallback((numbers: number[]) => {
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+
+    setIsPlaying(false);
+
     const result = bubbleSort(numbers);
     const ctrl = new TimeTravelController(result.steps);
     controllerRef.current = ctrl;
@@ -152,20 +166,21 @@ export const ArrayLab: React.FC = () => {
     setCurrentIndex(ctrl.currentIndex);
     setTotalSteps(ctrl.totalSteps);
 
-    const unsubscribe = ctrl.subscribe((step, idx) => {
+    unsubscribeRef.current = ctrl.subscribe((step, idx) => {
       setCurrentStep(step);
       setCurrentIndex(idx);
     });
-
-    return unsubscribe;
   }, []);
 
   useEffect(() => {
-    const unsub = initController(initialNumbers);
+    initController([5, 1, 4, 2, 8]);
     return () => {
-      unsub();
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
     };
-  }, [initController, initialNumbers]);
+  }, [initController]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -194,7 +209,6 @@ export const ArrayLab: React.FC = () => {
     }
 
     setInputError(null);
-    setIsPlaying(false);
     initController(numbers);
   };
 
@@ -227,7 +241,6 @@ export const ArrayLab: React.FC = () => {
   };
 
   const handlePresetSelect = (preset: number[]) => {
-    setIsPlaying(false);
     setInputError(null);
     setInputArrayText(preset.join(', '));
     initController(preset);
