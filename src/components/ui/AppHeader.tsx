@@ -39,7 +39,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       </div>
 
       <div className="app-header-right">
-        <Badge variant="emerald">v0.1 — First Learning Experience</Badge>
+        <Badge variant="emerald" className="app-header-version-badge">v0.1 — First Learning Experience</Badge>
         <ThemeToggle />
       </div>
     </header>
