@@ -40,7 +40,7 @@ const PEDAGOGICAL_PHASES = [
     name: '04. Explain',
     title: 'Explain Time & Space Complexity',
     content:
-      'In an array of length n, Pass 1 performs (n - 1) comparisons, Pass 2 performs (n - 2), down to 1 comparison in the final pass. The worst-case and average-case time complexity is O(n²) with n(n - 1)/2 comparisons. However, with the Early Exit optimization, a pre-sorted array only takes a single pass of (n - 1) comparisons with 0 swaps, achieving O(n) best-case time complexity. Space complexity is strictly O(1) auxiliary memory because swaps happen in-place.',
+      'In an array of length n, Pass 1 performs (n - 1) comparisons, Pass 2 performs (n - 2), down to 1 comparison in the final pass. The worst-case and average-case time complexity is O(n²) with n(n - 1)/2 comparisons. With Early Exit, a pre-sorted array finishes in a single pass of (n - 1) comparisons and 0 swaps, achieving O(n) best-case time complexity. Regarding space complexity: classic in-place sorting operates in O(1) auxiliary memory; in this implementation, the input is cloned once (O(n)) to preserve immutability, while the pedagogical ExecutionStep[] trace requires additional memory proportional to the number of recorded snapshots.',
   },
   {
     id: '05',
