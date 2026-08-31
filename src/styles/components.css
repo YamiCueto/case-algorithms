@@ -567,7 +567,7 @@
 
 .viz-node-selected .viz-node-shape {
   stroke: var(--accent-cyan);
-  stroke-dasharray: 4,4;
+  stroke-dasharray: 4, 4;
 }
 
 .viz-edge-line {
@@ -617,19 +617,19 @@
 .viz-highlight-primary .viz-highlight-shape {
   fill: rgba(6, 182, 212, 0.08);
   stroke: var(--accent-cyan);
-  stroke-dasharray: 6,4;
+  stroke-dasharray: 6, 4;
 }
 
 .viz-highlight-comparing .viz-highlight-shape {
   fill: rgba(245, 158, 11, 0.08);
   stroke: var(--accent-amber);
-  stroke-dasharray: 6,4;
+  stroke-dasharray: 6, 4;
 }
 
 .viz-highlight-swapping .viz-highlight-shape {
   fill: rgba(244, 63, 94, 0.08);
   stroke: var(--accent-rose);
-  stroke-dasharray: 6,4;
+  stroke-dasharray: 6, 4;
 }
 
 .viz-highlight-sorted .viz-highlight-shape {
@@ -640,7 +640,7 @@
 .viz-highlight-subtle .viz-highlight-shape {
   fill: rgba(255, 255, 255, 0.03);
   stroke: var(--border-default);
-  stroke-dasharray: 4,4;
+  stroke-dasharray: 4, 4;
 }
 
 .viz-highlight-label {
@@ -896,4 +896,3 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-sm);
 }
-
