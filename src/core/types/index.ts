@@ -13,47 +13,61 @@ export type StepActionType =
   | 'COMPLETE';
 
 export interface PointerInfo {
-  id: string;
-  index: number;
-  label: string;
-  colorVar?: string;
+  readonly id: string;
+  readonly index: number;
+  readonly label: string;
+  readonly colorVar?: string;
+}
+
+export interface CodeHighlightInfo {
+  readonly pseudocodeLine?: number;
+  readonly typescriptLine?: number;
+}
+
+export interface StepMetricsInfo {
+  readonly comparisonsCount: number;
+  readonly swapsCount: number;
+  readonly depthLevel?: number;
 }
 
 export interface ExecutionStep<TState> {
-  id: string;
-  stepIndex: number;
-  totalSteps?: number;
-  action: StepActionType;
-  description: string;
-  a11yMessage: string;
-  state: TState;
-  activeIndices?: number[];
-  comparedIndices?: [number, number];
-  pointers?: PointerInfo[];
-  codeHighlight?: {
-    pseudocodeLine?: number;
-    typescriptLine?: number;
-  };
-  metrics?: {
-    comparisonsCount: number;
-    swapsCount: number;
-    depthLevel?: number;
-  };
+  readonly id: string;
+  readonly stepIndex: number;
+  readonly totalSteps: number;
+  readonly action: StepActionType;
+  readonly description: string;
+  readonly a11yMessage: string;
+  readonly state: TState;
+  readonly activeIndices?: readonly number[];
+  readonly comparedIndices?: readonly [number, number];
+  readonly pointers?: readonly PointerInfo[];
+  readonly codeHighlight?: CodeHighlightInfo;
+  readonly metrics?: StepMetricsInfo;
 }
 
 export interface AlgorithmMetrics {
-  totalComparisons: number;
-  totalSwaps: number;
-  totalSteps: number;
-  executionTimeMs: number;
+  readonly totalComparisons: number;
+  readonly totalSwaps: number;
+  readonly totalSteps: number;
+  readonly executionTimeMs: number;
 }
 
 export interface AlgorithmResult<TState, TOutput = unknown> {
-  steps: ExecutionStep<TState>[];
-  output: TOutput;
-  metrics: AlgorithmMetrics;
+  readonly steps: readonly ExecutionStep<TState>[];
+  readonly output: TOutput;
+  readonly metrics: AlgorithmMetrics;
 }
 
 export type AlgorithmGenerator<TInput, TState, TOutput = unknown> = (
   input: TInput
 ) => AlgorithmResult<TState, TOutput>;
+
+export type StepChangeListener<TState> = (
+  step: ExecutionStep<TState> | null,
+  currentIndex: number
+) => void;
+
+export interface TimeTravelControllerOptions<TState> {
+  readonly initialIndex?: number;
+  readonly cloneState?: (state: TState) => TState;
+}
