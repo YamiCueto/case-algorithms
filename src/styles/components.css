@@ -265,6 +265,20 @@
   }
 }
 
+.breadcrumb-separator {
+  color: var(--border-highlight);
+}
+
+.breadcrumb-item {
+  color: inherit;
+  font-weight: 400;
+}
+
+.breadcrumb-item-active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .app-header-right {
   display: flex;
   align-items: center;
@@ -330,6 +344,10 @@
   background: radial-gradient(circle at center, rgba(6, 182, 212, 0.05) 0%, transparent 70%);
 }
 
+.viewport-placeholder-badge {
+  margin-bottom: var(--space-3);
+}
+
 .viewport-placeholder-title {
   font-size: 20px;
   font-weight: 600;
@@ -372,6 +390,22 @@
   gap: var(--space-1);
 }
 
+.inspector-label {
+  color: var(--text-muted);
+}
+
+.inspector-val-idle {
+  color: var(--accent-emerald);
+}
+
+.inspector-val-index {
+  color: var(--accent-cyan);
+}
+
+.inspector-val-total {
+  color: var(--text-primary);
+}
+
 .knowledge-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -385,4 +419,29 @@
   background-color: var(--bg-surface-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+}
+
+.knowledge-card-title-cyan {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.knowledge-card-title-emerald {
+  color: var(--accent-emerald);
+  font-weight: 600;
+}
+
+.knowledge-card-title-amber {
+  color: var(--accent-amber);
+  font-weight: 600;
+}
+
+.knowledge-card-title-rose {
+  color: var(--accent-rose);
+  font-weight: 600;
+}
+
+.knowledge-card-desc {
+  color: var(--text-muted);
+  margin-top: var(--space-1);
 }

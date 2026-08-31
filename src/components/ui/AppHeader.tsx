@@ -24,12 +24,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <nav aria-label="Breadcrumbs" className="header-breadcrumbs">
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={crumb}>
-                {idx > 0 && <span style={{ color: 'var(--border-highlight)' }}>/</span>}
+                {idx > 0 && <span className="breadcrumb-separator">/</span>}
                 <span
-                  style={{
-                    color: idx === breadcrumbs.length - 1 ? 'var(--text-primary)' : 'inherit',
-                    fontWeight: idx === breadcrumbs.length - 1 ? 600 : 400,
-                  }}
+                  className={
+                    idx === breadcrumbs.length - 1 ? 'breadcrumb-item-active' : 'breadcrumb-item'
+                  }
                 >
                   {crumb}
                 </span>

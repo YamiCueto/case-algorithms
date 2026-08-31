@@ -12,7 +12,7 @@ export const App: React.FC = () => {
         subtitle="Responsive workspace ready for algorithm visualization engines, time-travel step controls, and multi-dimensional knowledge panels."
         viewportSlot={
           <div className="viewport-placeholder">
-            <Badge variant="cyan" style={{ marginBottom: 'var(--space-3)' }}>
+            <Badge variant="cyan" className="viewport-placeholder-badge">
               VIEWPORT CANVAS READY
             </Badge>
             <h2 className="viewport-placeholder-title">Visualization Engine Viewport</h2>
@@ -60,16 +60,16 @@ export const App: React.FC = () => {
             <Card title="State Inspector">
               <div className="inspector-list">
                 <div>
-                  <span style={{ color: 'var(--text-muted)' }}>status: </span>
-                  <span style={{ color: 'var(--accent-emerald)' }}>idle</span>
+                  <span className="inspector-label">status: </span>
+                  <span className="inspector-val-idle">idle</span>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-muted)' }}>stepIndex: </span>
-                  <span style={{ color: 'var(--accent-cyan)' }}>0</span>
+                  <span className="inspector-label">stepIndex: </span>
+                  <span className="inspector-val-index">0</span>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-muted)' }}>totalSteps: </span>
-                  <span style={{ color: 'var(--text-primary)' }}>0</span>
+                  <span className="inspector-label">totalSteps: </span>
+                  <span className="inspector-val-total">0</span>
                 </div>
               </div>
             </Card>
@@ -78,30 +78,20 @@ export const App: React.FC = () => {
         knowledgeSlot={
           <div className="knowledge-grid">
             <div className="knowledge-card">
-              <div style={{ color: 'var(--accent-cyan)', fontWeight: 600 }}>01. Discover</div>
-              <div style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
-                Interactive observation
-              </div>
+              <div className="knowledge-card-title-cyan">01. Discover</div>
+              <div className="knowledge-card-desc">Interactive observation</div>
             </div>
             <div className="knowledge-card">
-              <div style={{ color: 'var(--accent-emerald)', fontWeight: 600 }}>04. Explain</div>
-              <div style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
-                Formal complexity O(n)
-              </div>
+              <div className="knowledge-card-title-emerald">04. Explain</div>
+              <div className="knowledge-card-desc">Formal complexity O(n)</div>
             </div>
             <div className="knowledge-card">
-              <div className="knowledge-card-title" style={{ color: 'var(--accent-amber)', fontWeight: 600 }}>
-                07. Code
-              </div>
-              <div style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
-                TypeScript implementation
-              </div>
+              <div className="knowledge-card-title-amber">07. Code</div>
+              <div className="knowledge-card-desc">TypeScript implementation</div>
             </div>
             <div className="knowledge-card">
-              <div style={{ color: 'var(--accent-rose)', fontWeight: 600 }}>10. Challenge</div>
-              <div style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
-                Automated test validation
-              </div>
+              <div className="knowledge-card-title-rose">10. Challenge</div>
+              <div className="knowledge-card-desc">Automated test validation</div>
             </div>
           </div>
         }
