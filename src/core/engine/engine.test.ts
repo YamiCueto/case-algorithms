@@ -301,4 +301,53 @@ describe('TimeTravelController', () => {
       }
     });
   });
+
+  describe('StackState Interoperability', () => {
+    it('manages StackState steps without engine modifications', () => {
+      const stackSteps: ExecutionStep<{ items: number[]; topIndex: number }>[] = [
+        {
+          id: 'step-0',
+          stepIndex: 0,
+          totalSteps: 3,
+          action: 'INITIALIZE',
+          description: 'Empty stack',
+          a11yMessage: 'Stack initialized',
+          state: { items: [], topIndex: -1 },
+        },
+        {
+          id: 'step-1',
+          stepIndex: 1,
+          totalSteps: 3,
+          action: 'PUSH',
+          description: 'Pushed 10',
+          a11yMessage: 'Pushed 10 onto stack',
+          state: { items: [10], topIndex: 0 },
+        },
+        {
+          id: 'step-2',
+          stepIndex: 2,
+          totalSteps: 3,
+          action: 'PUSH',
+          description: 'Pushed 20',
+          a11yMessage: 'Pushed 20 onto stack',
+          state: { items: [10, 20], topIndex: 1 },
+        },
+      ];
+
+      const controller = new TimeTravelController(stackSteps);
+      expect(controller.totalSteps).toBe(3);
+      expect(controller.currentStep?.state.items).toEqual([]);
+
+      controller.next();
+      expect(controller.currentStep?.state.items).toEqual([10]);
+      expect(controller.currentStep?.state.topIndex).toBe(0);
+
+      controller.last();
+      expect(controller.currentStep?.state.items).toEqual([10, 20]);
+      expect(controller.currentStep?.state.topIndex).toBe(1);
+
+      controller.first();
+      expect(controller.currentStep?.state.items).toEqual([]);
+    });
+  });
 });
