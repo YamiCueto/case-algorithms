@@ -729,3 +729,16 @@
   margin-top: var(--space-2);
   display: inline-flex;
 }
+
+.lab-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-6);
+  background-color: var(--bg-surface-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.stack-container-outline {
+  transition: stroke var(--transition-normal);
+}

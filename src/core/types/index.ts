@@ -10,6 +10,12 @@ export type StepActionType =
   | 'MERGE'
   | 'FOUND'
   | 'NOT_FOUND'
+  | 'PUSH'
+  | 'POP'
+  | 'PEEK'
+  | 'OVERFLOW'
+  | 'UNDERFLOW'
+  | 'CLEAR'
   | 'COMPLETE';
 
 export interface PointerInfo {
