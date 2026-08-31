@@ -7,3 +7,4 @@ export * from './VisualHighlight';
 export * from './VisualLabel';
 export * from './adapters/ArrayVisualizerAdapter';
 export * from './adapters/StackVisualizerAdapter';
+export * from './adapters/QueueVisualizerAdapter';
