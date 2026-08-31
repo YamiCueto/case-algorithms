@@ -51,7 +51,6 @@ Esta separación garantiza:
 ### 2.1 Modelo de Pasos de Ejecución (`ExecutionStep`)
 
 ```typescript
-/** Tipo de acción atómica realizada en un paso */
 export type StepActionType =
   | 'INITIALIZE'
   | 'COMPARE'
@@ -66,29 +65,27 @@ export type StepActionType =
   | 'NOT_FOUND'
   | 'COMPLETE';
 
-/** Indicador semántico de un puntero en la visualización */
 export interface PointerInfo {
-  id: string;          // Ej: 'low', 'mid', 'high', 'top'
-  index: number;       // Posición o índice objetivo
-  label: string;       // Etiqueta legible
-  colorVar?: string;   // Token de color asociado
+  id: string;
+  index: number;
+  label: string;
+  colorVar?: string;
 }
 
-/** Paso atómico e inmutable emitido por el motor algorítmico */
 export interface ExecutionStep<TState> {
   id: string;
   stepIndex: number;
   totalSteps?: number;
   action: StepActionType;
-  description: string;                // Descripción didáctica del paso
-  a11yMessage: string;                // Mensaje optimizado para lector de pantalla
-  state: TState;                      // Snapshot completo del estado de datos
-  activeIndices?: number[];           // Elementos destacados en el paso
-  comparedIndices?: [number, number]; // Índices bajo comparación
-  pointers?: PointerInfo[];           // Punteros activos en la visualización
+  description: string;
+  a11yMessage: string;
+  state: TState;
+  activeIndices?: number[];
+  comparedIndices?: [number, number];
+  pointers?: PointerInfo[];
   codeHighlight?: {
-    pseudocodeLine?: number;          // Línea activa en pseudocódigo (1-based)
-    typescriptLine?: number;          // Línea activa en código TS (1-based)
+    pseudocodeLine?: number;
+    typescriptLine?: number;
   };
   metrics?: {
     comparisonsCount: number;

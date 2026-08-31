@@ -82,14 +82,14 @@ El proyecto cuenta con especificaciones completas para cada dimensión del siste
 
 | Documento | Descripción |
 | :--- | :--- |
-| 📖 [**VISION.md**](file:///c:/Users/YAMI/Documents/projects/case-algorithms/docs/VISION.md) | Manifiesto, misión, principios pedagógicos y ecosistema CASE. |
-| 📋 [**PRODUCT.md**](file:///c:/Users/YAMI/Documents/projects/case-algorithms/docs/PRODUCT.md) | Especificación de producto, experiencia de usuario y **Definition of Done (16 puntos)**. |
-| 🎓 [**LEARNING.md**](file:///c:/Users/YAMI/Documents/projects/case-algorithms/docs/LEARNING.md) | Guía detallada del Framework de 10 Pasos con casos de estudio (Stack, Binary Search). |
-| 🎨 [**DESIGN_SYSTEM.md**](file:///c:/Users/YAMI/Documents/projects/case-algorithms/docs/DESIGN_SYSTEM.md) | Tokens CSS, paleta de colores de laboratorio, tipografía y reglas visuales. |
-| 🏛️ [**ARCHITECTURE.md**](file:///c:/Users/YAMI/Documents/projects/case-algorithms/docs/ARCHITECTURE.md) | Arquitectura desacoplada (*Engine* $\to$ `ExecutionStep[]` $\to$ *Renderer*), tipos y A11y. |
-| 🛠️ [**DEVELOPMENT.md**](file:///c:/Users/YAMI/Documents/projects/case-algorithms/docs/DEVELOPMENT.md) | Setup local, comandos de desarrollo, testing con Vitest y estándares de código. |
-| 🤝 [**CONTRIBUTING.md**](file:///c:/Users/YAMI/Documents/projects/case-algorithms/docs/CONTRIBUTING.md) | Flujo Git, estrategia de ramas (`feature/*`, `fix/*`), PRs y ciclo de vida. |
-| 🚀 [**SPRINT_1_BACKLOG.md**](file:///c:/Users/YAMI/Documents/projects/case-algorithms/docs/SPRINT_1_BACKLOG.md) | Especificación de las primeras 6 Issues para el hito `v0.1 — First Learning Experience`. |
+| 📖 [**VISION.md**](docs/VISION.md) | Manifiesto, misión, principios pedagógicos y ecosistema CASE. |
+| 📋 [**PRODUCT.md**](docs/PRODUCT.md) | Especificación de producto, experiencia de usuario y **Definition of Done (16 puntos)**. |
+| 🎓 [**LEARNING.md**](docs/LEARNING.md) | Guía detallada del Framework de 10 Pasos con casos de estudio (Stack, Binary Search). |
+| 🎨 [**DESIGN_SYSTEM.md**](docs/DESIGN_SYSTEM.md) | Tokens CSS, paleta de colores de laboratorio, tipografía y reglas visuales. |
+| 🏛️ [**ARCHITECTURE.md**](docs/ARCHITECTURE.md) | Arquitectura desacoplada (*Engine* $\to$ `ExecutionStep[]` $\to$ *Renderer*), tipos y A11y. |
+| 🛠️ [**DEVELOPMENT.md**](docs/DEVELOPMENT.md) | Setup local, comandos de desarrollo, testing con Vitest y estándares de código. |
+| 🤝 [**CONTRIBUTING.md**](docs/CONTRIBUTING.md) | Flujo Git, estrategia de ramas (`feature/*`, `fix/*`), PRs y ciclo de vida. |
+| 🚀 [**SPRINT_1_BACKLOG.md**](docs/SPRINT_1_BACKLOG.md) | Especificación de las primeras 6 Issues para el hito `v0.1 — First Learning Experience`. |
 
 ---
 

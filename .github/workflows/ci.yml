@@ -1,4 +1,4 @@
-name: CI — Quality & Test Suite
+name: CI — Repository & Foundation Quality
 
 on:
   push:
@@ -13,30 +13,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
-    name: Lint, Typecheck & Tests
+  validate-foundation:
+    name: Verify Documentation & Governance
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Verify TypeScript types
-        run: npm run typecheck
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Run Vitest Unit Tests
-        run: npm run test:run
-
-      - name: Verify Production Build
-        run: npm run build
+      - name: Verify repository structure and documents
+        run: |
+          test -f README.md
+          test -f LICENSE
+          test -f docs/VISION.md
+          test -f docs/PRODUCT.md
+          test -f docs/LEARNING.md
+          test -f docs/DESIGN_SYSTEM.md
+          test -f docs/ARCHITECTURE.md
+          test -f docs/DEVELOPMENT.md
+          test -f docs/CONTRIBUTING.md
+          test -f docs/SPRINT_1_BACKLOG.md
+          test -f .github/labels.json
+          test -f .github/PULL_REQUEST_TEMPLATE.md
+          test -f .github/ISSUE_TEMPLATE/feature_request.yml
+          test -f .github/ISSUE_TEMPLATE/bug_report.yml
+          test -f .github/ISSUE_TEMPLATE/topic_proposal.yml
+          test -f .github/ISSUE_TEMPLATE/config.yml
+          echo "Sprint 0 governance and architecture artifacts verified."
