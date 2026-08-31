@@ -445,3 +445,221 @@
   color: var(--text-muted);
   margin-top: var(--space-1);
 }
+
+.svg-viewport-container {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.svg-viewport {
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+}
+
+.svg-viewport-grid-bg {
+  pointer-events: none;
+}
+
+.svg-viewport-content {
+  transform-origin: center center;
+}
+
+.viz-node {
+  transition: transform var(--transition-fast);
+}
+
+.viz-node-shape {
+  fill: var(--viz-node-default-bg);
+  stroke: var(--viz-node-default-border);
+  stroke-width: 2;
+  transition: fill var(--transition-normal), stroke var(--transition-normal), filter var(--transition-normal);
+}
+
+.viz-node-label {
+  fill: var(--viz-node-default-text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.viz-node-sublabel {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.viz-node-active .viz-node-shape {
+  fill: var(--viz-node-active-bg);
+  stroke: var(--viz-node-active-border);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.4));
+}
+
+.viz-node-active .viz-node-label {
+  fill: var(--accent-cyan);
+}
+
+.viz-node-comparing .viz-node-shape {
+  fill: var(--viz-node-comparing-bg);
+  stroke: var(--viz-node-comparing-border);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4));
+}
+
+.viz-node-comparing .viz-node-label {
+  fill: var(--accent-amber);
+}
+
+.viz-node-swapping .viz-node-shape {
+  fill: var(--viz-node-swapping-bg);
+  stroke: var(--viz-node-swapping-border);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.4));
+}
+
+.viz-node-swapping .viz-node-label {
+  fill: var(--accent-rose);
+}
+
+.viz-node-sorted .viz-node-shape {
+  fill: var(--viz-node-sorted-bg);
+  stroke: var(--viz-node-sorted-border);
+  stroke-width: 2;
+}
+
+.viz-node-sorted .viz-node-label {
+  fill: var(--accent-emerald);
+}
+
+.viz-node-discarded {
+  opacity: var(--viz-node-discarded-opacity);
+}
+
+.viz-node-discarded .viz-node-shape {
+  fill: var(--viz-node-discarded-bg);
+  stroke: var(--viz-node-discarded-border);
+}
+
+.viz-node-selected .viz-node-shape {
+  stroke: var(--accent-cyan);
+  stroke-dasharray: 4,4;
+}
+
+.viz-edge-line {
+  transition: stroke var(--transition-fast), stroke-width var(--transition-fast);
+}
+
+.viz-edge-active .viz-edge-line {
+  stroke: var(--accent-cyan);
+  stroke-width: 3;
+}
+
+.viz-edge-label-bg {
+  fill: var(--bg-surface-secondary);
+  stroke: var(--border-default);
+  stroke-width: 1;
+}
+
+.viz-edge-label-text {
+  fill: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.viz-pointer {
+  transition: transform var(--transition-fast);
+}
+
+.viz-pointer-label-bg {
+  box-shadow: var(--shadow-sm);
+}
+
+.viz-pointer-label-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.viz-highlight-shape {
+  fill: transparent;
+  stroke-width: 2;
+  transition: all var(--transition-normal);
+}
+
+.viz-highlight-primary .viz-highlight-shape {
+  fill: rgba(6, 182, 212, 0.08);
+  stroke: var(--accent-cyan);
+  stroke-dasharray: 6,4;
+}
+
+.viz-highlight-comparing .viz-highlight-shape {
+  fill: rgba(245, 158, 11, 0.08);
+  stroke: var(--accent-amber);
+  stroke-dasharray: 6,4;
+}
+
+.viz-highlight-swapping .viz-highlight-shape {
+  fill: rgba(244, 63, 94, 0.08);
+  stroke: var(--accent-rose);
+  stroke-dasharray: 6,4;
+}
+
+.viz-highlight-sorted .viz-highlight-shape {
+  fill: rgba(16, 185, 129, 0.08);
+  stroke: var(--accent-emerald);
+}
+
+.viz-highlight-subtle .viz-highlight-shape {
+  fill: rgba(255, 255, 255, 0.03);
+  stroke: var(--border-default);
+  stroke-dasharray: 4,4;
+}
+
+.viz-highlight-label {
+  fill: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.viz-label {
+  fill: var(--text-primary);
+  user-select: none;
+}
+
+.viz-label-default {
+  fill: var(--text-primary);
+}
+
+.viz-label-accent {
+  fill: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.viz-label-muted {
+  fill: var(--text-muted);
+}
+
+.viz-label-mono {
+  font-family: var(--font-mono);
+}
+
+.viz-label-sans {
+  font-family: var(--font-sans);
+}
