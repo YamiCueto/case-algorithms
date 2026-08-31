@@ -1,135 +1,160 @@
 import React from 'react';
+import { AppHeader, LabShell, Button, Badge, Card } from '@/components/ui';
 
 export const App: React.FC = () => {
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: 'var(--bg-canvas)',
-        color: 'var(--text-primary)',
-      }}
-    >
-      <header
-        style={{
-          height: '64px',
-          borderBottom: '1px solid var(--border-default)',
-          backgroundColor: 'var(--bg-surface-primary)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 var(--space-6)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+    <div className="app-container">
+      <AppHeader breadcrumbs={['Laboratory', 'Foundation', 'Design System Shell']} />
+
+      <LabShell
+        category="Laboratory Shell Foundation"
+        title="Interactive Laboratory Workspace"
+        subtitle="Responsive workspace ready for algorithm visualization engines, time-travel step controls, and multi-dimensional knowledge panels."
+        viewportSlot={
           <div
             style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--bg-surface-secondary)',
-              border: '1px solid var(--accent-cyan)',
+              flex: 1,
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 700,
-              fontSize: '14px',
-              color: 'var(--accent-cyan)',
-              fontFamily: 'var(--font-mono)',
+              minHeight: '280px',
+              padding: 'var(--space-6)',
+              textAlign: 'center',
+              background: 'radial-gradient(circle at center, rgba(6, 182, 212, 0.05) 0%, transparent 70%)',
             }}
           >
-            CA
+            <Badge variant="cyan" style={{ marginBottom: 'var(--space-3)' }}>
+              VIEWPORT CANVAS READY
+            </Badge>
+            <h2
+              style={{
+                fontSize: '20px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                marginBottom: 'var(--space-2)',
+              }}
+            >
+              Visualization Engine Viewport
+            </h2>
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--text-secondary)',
+                maxWidth: '480px',
+                lineHeight: 1.5,
+              }}
+            >
+              This slot will host SVG / Canvas renderers for Array, Stack, Queue, Trees, and Graph
+              data structures with deterministic step frames.
+            </p>
           </div>
-          <div>
-            <h1 style={{ fontSize: '16px', fontWeight: 600, letterSpacing: '-0.02em' }}>
-              CASE Algorithms
-            </h1>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-              Interactive Algorithm Laboratory
-            </span>
+        }
+        controlsSlot={
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--text-muted)',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Sandbox Actions
+              </span>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 'var(--space-2)',
+                  flexWrap: 'wrap',
+                  marginTop: 'var(--space-2)',
+                }}
+              >
+                <Button variant="primary" size="sm">
+                  Primary Action
+                </Button>
+                <Button variant="secondary" size="sm">
+                  Secondary
+                </Button>
+                <Button variant="outline" size="sm">
+                  Reset
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--text-muted)',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Time-Travel Controls
+              </span>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 'var(--space-2)',
+                  marginTop: 'var(--space-2)',
+                }}
+              >
+                <Button variant="outline" size="sm" aria-label="First step">
+                  |&lt;
+                </Button>
+                <Button variant="outline" size="sm" aria-label="Step back">
+                  &lt; Step
+                </Button>
+                <Button variant="primary" size="sm" aria-label="Play execution">
+                  Play
+                </Button>
+                <Button variant="outline" size="sm" aria-label="Step forward">
+                  Step &gt;
+                </Button>
+              </div>
+            </div>
+
+            <Card
+              title="State Inspector"
+              style={{
+                backgroundColor: 'var(--bg-surface-secondary)',
+                boxShadow: 'none',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '12px',
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'var(--space-1)',
+                }}
+              >
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>status: </span>
+                  <span style={{ color: 'var(--accent-emerald)' }}>idle</span>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>stepIndex: </span>
+                  <span style={{ color: 'var(--accent-cyan)' }}>0</span>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>totalSteps: </span>
+                  <span style={{ color: 'var(--text-primary)' }}>0</span>
+                </div>
+              </div>
+            </Card>
           </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-          <span
-            style={{
-              fontSize: '12px',
-              fontFamily: 'var(--font-mono)',
-              padding: 'var(--space-1) var(--space-2)',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              color: 'var(--accent-emerald)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-            }}
-          >
-            Milestone v0.1 — First Learning Experience
-          </span>
-        </div>
-      </header>
-
-      <main
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 'var(--space-8)',
-          textAlign: 'center',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '640px',
-            padding: 'var(--space-8)',
-            backgroundColor: 'var(--bg-surface-primary)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--border-default)',
-            boxShadow: 'var(--shadow-lg)',
-          }}
-        >
-          <div
-            style={{
-              display: 'inline-block',
-              fontSize: '12px',
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--accent-cyan)',
-              marginBottom: 'var(--space-3)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-            }}
-          >
-            Understand before memorizing
-          </div>
-          <h2
-            style={{
-              fontSize: '24px',
-              fontWeight: 700,
-              marginBottom: 'var(--space-3)',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Laboratory Scaffolding Active
-          </h2>
-          <p
-            style={{
-              fontSize: '15px',
-              color: 'var(--text-secondary)',
-              lineHeight: 1.6,
-              marginBottom: 'var(--space-6)',
-            }}
-          >
-            Platform foundations initialized with React, TypeScript strict mode, Vitest, CSS design
-            tokens, and decoupled architecture.
-          </p>
-
+        }
+        knowledgeSlot={
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
               gap: 'var(--space-3)',
-              textAlign: 'left',
               fontFamily: 'var(--font-mono)',
               fontSize: '12px',
             }}
@@ -142,8 +167,10 @@ export const App: React.FC = () => {
                 border: '1px solid var(--border-subtle)',
               }}
             >
-              <div style={{ color: 'var(--text-muted)' }}>ENGINE</div>
-              <div style={{ color: 'var(--accent-cyan)', marginTop: '4px' }}>Pure TypeScript</div>
+              <div style={{ color: 'var(--accent-cyan)', fontWeight: 600 }}>01. Discover</div>
+              <div style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
+                Interactive observation
+              </div>
             </div>
             <div
               style={{
@@ -153,8 +180,10 @@ export const App: React.FC = () => {
                 border: '1px solid var(--border-subtle)',
               }}
             >
-              <div style={{ color: 'var(--text-muted)' }}>TESTS</div>
-              <div style={{ color: 'var(--accent-emerald)', marginTop: '4px' }}>Vitest + JSDOM</div>
+              <div style={{ color: 'var(--accent-emerald)', fontWeight: 600 }}>04. Explain</div>
+              <div style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
+                Formal complexity O(n)
+              </div>
             </div>
             <div
               style={{
@@ -164,12 +193,27 @@ export const App: React.FC = () => {
                 border: '1px solid var(--border-subtle)',
               }}
             >
-              <div style={{ color: 'var(--text-muted)' }}>A11Y</div>
-              <div style={{ color: 'var(--accent-amber)', marginTop: '4px' }}>ARIA Live Ready</div>
+              <div style={{ color: 'var(--accent-amber)', fontWeight: 600 }}>07. Code</div>
+              <div style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
+                TypeScript implementation
+              </div>
+            </div>
+            <div
+              style={{
+                padding: 'var(--space-3)',
+                backgroundColor: 'var(--bg-surface-secondary)',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-subtle)',
+              }}
+            >
+              <div style={{ color: 'var(--accent-rose)', fontWeight: 600 }}>10. Challenge</div>
+              <div style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
+                Automated test validation
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        }
+      />
     </div>
   );
 };
