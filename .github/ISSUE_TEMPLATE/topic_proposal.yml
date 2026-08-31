@@ -1,0 +1,65 @@
+name: Topic / Algorithm Proposal
+description: Proponer la incorporación de una nueva estructura de datos o algoritmo siguiendo el Framework de 10 Pasos.
+title: "feat(topic): add <Nombre de la Estructura / Algoritmo> interactive module"
+labels: ["type:feature", "area:education"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cada nuevo tema en CASE Algorithms debe diseñarse bajo el principio: **"Entender antes de memorizar"** y estructurarse conforme a `docs/LEARNING.md`.
+
+  - type: input
+    id: topic-name
+    attributes:
+      label: "Nombre del Algoritmo o Estructura"
+      placeholder: "Ej: Doubly Linked List, Merge Sort, Dijkstra's Algorithm"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: "Categoría Principal"
+      options:
+        - "Estructura de Datos Lineal (Array, Stack, Queue, Linked List)"
+        - "Estructura de Datos No Lineal (Tree, BST, Heap, Trie, Graph)"
+        - "Algoritmo de Búsqueda (Linear, Binary, Quickselect)"
+        - "Algoritmo de Ordenamiento (Bubble, Insertion, Merge, Quick, Heap)"
+        - "Técnica Algorítmica (Two Pointers, Sliding Window, Recursion, Dynamic Programming)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: pedagogical-design
+    attributes:
+      label: "Diseño Pedagógico (Framework de 10 Pasos)"
+      description: Resume cómo se abordarán las fases clave.
+      value: |
+        - **01. Discover**: (¿Qué ve el usuario al inicio sin spoilers?)
+        - **02. Interact**: (¿Qué botones o controles puede tocar?)
+        - **03. Observe**: (¿Qué patrón descubre por causa y efecto?)
+        - **04. Explain**: (Definición formal y complejidad O(n))
+        - **05. Visualize**: (¿Cómo se representa visualmente el paso a paso?)
+        - **09. Practice**: (Pregunta o reto predictivo)
+        - **10. Challenge**: (Problema computacional a resolver)
+    validations:
+      required: true
+
+  - type: textarea
+    id: state-model
+    attributes:
+      label: "Modelo de Estado y Punteros"
+      description: Especifica qué datos y punteros contendrá el ExecutionStep.
+      placeholder: "State: { nodes: Node[], activeEdge: [u, v], visited: Set<number>, distances: number[] }"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: readiness-checklist
+    attributes:
+      label: "Validación de Estándares"
+      options:
+        - label: "He revisado `docs/LEARNING.md` y `docs/ARCHITECTURE.md`."
+          required: true
+        - label: "El algoritmo generará `ExecutionStep[]` desacoplado del renderizado."
+          required: true

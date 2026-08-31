@@ -1,0 +1,74 @@
+name: Bug Report
+description: Reportar un error en una visualización, algoritmo o componente interactivo.
+title: "fix(<area>): <descripción concisa del error>"
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por ayudarnos a mantener la precisión técnica de CASE Algorithms. Completa la siguiente información para reproducir y corregir el error.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: "Descripción del Error"
+      description: Explica qué ocurrió de forma inesperada.
+      placeholder: "Al ejecutar el paso 4 de Binary Search con un array de tamaño par, el puntero mid apunta fuera del rango..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: "Pasos para Reproducir"
+      description: Enumera los pasos exactos para observar el fallo.
+      value: |
+        1. Ir al módulo de '...'
+        2. Ingresar los datos: '...'
+        3. Hacer clic en '...'
+        4. Observar que...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: "Comportamiento Esperado"
+      description: ¿Qué debería haber ocurrido según la teoría algorítmica o las reglas de diseño?
+      placeholder: "El puntero mid debería calcularse como floor((low + high) / 2) = 3."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Área afectada"
+      options:
+        - "area:algorithm"
+        - "area:visualization"
+        - "area:data-structure"
+        - "area:ui"
+        - "area:a11y"
+        - "area:performance"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Severidad / Prioridad"
+      options:
+        - "priority:critical (Rompe la aplicación o cálculo algorítmico incorrecto)"
+        - "priority:high (Visualización errónea que afecta la comprensión)"
+        - "priority:medium (Glitch visual menor o comportamiento no ideal)"
+        - "priority:low (Detalle cosmético)"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: "Navegador y Sistema Operativo"
+      placeholder: "Chrome 120 / Windows 11, Safari 17 / macOS 14, Firefox 121 / Linux"
+    validations:
+      required: false

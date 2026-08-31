@@ -1,0 +1,67 @@
+name: Feature Request
+description: Proponer una nueva funcionalidad, componente de laboratorio o mejora para CASE Algorithms.
+title: "feat(<area>): <descripción corta>"
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por proponer una nueva característica. Asegúrate de que tu propuesta esté alineada con los principios de CASE Algorithms: *Entender antes de memorizar* y *Laboratorio interactivo*.
+
+  - type: textarea
+    id: problem-or-goal
+    attributes:
+      label: "¿Qué problema resuelve o qué objetivo busca esta característica?"
+      description: Explica claramente el propósito de esta funcionalidad desde la perspectiva del usuario o de la arquitectura.
+      placeholder: "Actualmente no podemos visualizar punteros múltiples con diferente color en algoritmos de dos punteros..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: "Solución propuesta y experiencia de usuario"
+      description: Describe cómo funcionaría y qué interacción visual experimentaría el usuario en el laboratorio.
+      placeholder: "Añadir soporte para un array de Pointers en ExecutionStep..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Área principal"
+      options:
+        - "area:visualization"
+        - "area:algorithm"
+        - "area:data-structure"
+        - "area:education"
+        - "area:ui"
+        - "area:a11y"
+        - "area:performance"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Prioridad sugerida"
+      options:
+        - "priority:low"
+        - "priority:medium"
+        - "priority:high"
+        - "priority:critical"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: definition-of-done-alignment
+    attributes:
+      label: "Compromiso con la Calidad (Definition of Done)"
+      description: Confirma que la implementación cumplirá con los estándares del proyecto.
+      options:
+        - label: "He leído la Definition of Done en `docs/PRODUCT.md` y entiendo los criterios requeridos."
+          required: true
+        - label: "La funcionalidad incluirá pruebas automatizadas (Vitest/RTL)."
+          required: true
+        - label: "La funcionalidad contempla accesibilidad (A11y, foco por teclado y anuncios ARIA)."
+          required: true

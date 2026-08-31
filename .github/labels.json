@@ -1,0 +1,122 @@
+[
+  {
+    "name": "type:feature",
+    "color": "0E8A16",
+    "description": "Nueva funcionalidad, módulo o componente interactivo"
+  },
+  {
+    "name": "type:bug",
+    "color": "D93F0B",
+    "description": "Error o fallo en el comportamiento algorítmico o visual"
+  },
+  {
+    "name": "type:docs",
+    "color": "0075CA",
+    "description": "Mejoras o adiciones en la documentación y guías"
+  },
+  {
+    "name": "type:refactor",
+    "color": "FBCA04",
+    "description": "Reestructuración de código sin cambio funcional"
+  },
+  {
+    "name": "type:test",
+    "color": "1D76DB",
+    "description": "Nuevas pruebas unitarias, de integración o e2e"
+  },
+  {
+    "name": "type:chore",
+    "color": "6E7681",
+    "description": "Mantenimiento de dependencias, scripts o configuración de build"
+  },
+  {
+    "name": "type:a11y",
+    "color": "B60205",
+    "description": "Mejoras específicas en accesibilidad, ARIA o navegación por teclado"
+  },
+  {
+    "name": "area:algorithm",
+    "color": "5319E7",
+    "description": "Lógica algorítmica pura y generadores de pasos"
+  },
+  {
+    "name": "area:data-structure",
+    "color": "8A2BE2",
+    "description": "Estructuras de datos (pilas, colas, árboles, grafos)"
+  },
+  {
+    "name": "area:visualization",
+    "color": "006B75",
+    "description": "Renderizadores gráficos (SVG, Canvas, Viewport, animaciones)"
+  },
+  {
+    "name": "area:education",
+    "color": "0E8A16",
+    "description": "Contenido didáctico, explicaciones y retos prácticos"
+  },
+  {
+    "name": "area:ui",
+    "color": "BFD4F2",
+    "description": "Interfaz de usuario, controles de panel, layout y componentes"
+  },
+  {
+    "name": "area:a11y",
+    "color": "D4C5F9",
+    "description": "Accesibilidad, soporte de lectores de pantalla y foco"
+  },
+  {
+    "name": "area:performance",
+    "color": "E99695",
+    "description": "Optimización de rendimiento y benchmarks"
+  },
+  {
+    "name": "priority:critical",
+    "color": "B60205",
+    "description": "Bloqueante para el milestone actual o fallo grave"
+  },
+  {
+    "name": "priority:high",
+    "color": "D93F0B",
+    "description": "Alta prioridad para el desarrollo del sprint"
+  },
+  {
+    "name": "priority:medium",
+    "color": "FBCA04",
+    "description": "Prioridad estándar de trabajo"
+  },
+  {
+    "name": "priority:low",
+    "color": "FEF2C0",
+    "description": "Mejora secundaria o detalle estético menor"
+  },
+  {
+    "name": "status:blocked",
+    "color": "000000",
+    "description": "Bloqueado por dependencias externas o discusión abierta"
+  },
+  {
+    "name": "status:in-progress",
+    "color": "0052CC",
+    "description": "Trabajo en desarrollo activo"
+  },
+  {
+    "name": "status:needs-review",
+    "color": "D4C5F9",
+    "description": "Pull Request o solución lista para revisión por pares"
+  },
+  {
+    "name": "vertical-slice",
+    "color": "7057FF",
+    "description": "Feature vertical que valida la experiencia de aprendizaje completa"
+  },
+  {
+    "name": "good-first-issue",
+    "color": "7057FF",
+    "description": "Ideal para personas que colaboran por primera vez"
+  },
+  {
+    "name": "help-wanted",
+    "color": "008672",
+    "description": "Se solicita colaboración activa de la comunidad"
+  }
+]
