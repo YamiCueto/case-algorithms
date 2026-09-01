@@ -8,3 +8,4 @@ export * from './VisualLabel';
 export * from './adapters/ArrayVisualizerAdapter';
 export * from './adapters/StackVisualizerAdapter';
 export * from './adapters/QueueVisualizerAdapter';
+export * from './adapters/LinkedListVisualizerAdapter';

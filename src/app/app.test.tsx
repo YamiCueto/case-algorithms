@@ -3,10 +3,10 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { App } from './App';
 
 describe('App Root Component', () => {
-  it('renders default active lab and switches between Array, Stack, and Queue', () => {
+  it('renders default active lab and switches between Array, Stack, Queue, and Linked List', () => {
     render(<App />);
 
-    expect(screen.getByText('Queue & FIFO Principle Exploration')).toBeInTheDocument();
+    expect(screen.getAllByText('Singly Linked List & Pointer Chains')[0]).toBeInTheDocument();
 
     const arrayTabBtn = screen.getByRole('button', { name: /switch to array laboratory/i });
     fireEvent.click(arrayTabBtn);
@@ -19,5 +19,9 @@ describe('App Root Component', () => {
     const queueTabBtn = screen.getByRole('button', { name: /switch to queue laboratory/i });
     fireEvent.click(queueTabBtn);
     expect(screen.getByText('Queue & FIFO Principle Exploration')).toBeInTheDocument();
+
+    const linkedListTabBtn = screen.getByRole('button', { name: /switch to linked list laboratory/i });
+    fireEvent.click(linkedListTabBtn);
+    expect(screen.getAllByText('Singly Linked List & Pointer Chains')[0]).toBeInTheDocument();
   });
 });
