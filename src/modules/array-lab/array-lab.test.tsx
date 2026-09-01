@@ -136,11 +136,13 @@ describe('ArrayLab Component', () => {
 
     const pseudocodeTab = screen.getByRole('button', { name: /06\. pseudocode/i });
     fireEvent.click(pseudocodeTab);
-    expect(screen.getAllByText(/procedure bubbleSort/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('procedure').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('bubbleSort').length).toBeGreaterThan(0);
 
     const codeTab = screen.getByRole('button', { name: /07\. code/i });
     fireEvent.click(codeTab);
-    expect(screen.getAllByText(/export function bubbleSort/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('export').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('bubbleSort').length).toBeGreaterThan(0);
 
     const modifyTab = screen.getByRole('button', { name: /08\. modify/i });
     fireEvent.click(modifyTab);

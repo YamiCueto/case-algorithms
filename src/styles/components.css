@@ -836,8 +836,9 @@
 }
 
 .code-line-active {
-  background-color: rgba(6, 182, 212, 0.12);
+  background-color: rgba(6, 182, 212, 0.15);
   border-left: 3px solid var(--accent-cyan);
+  box-shadow: inset 0 0 12px rgba(6, 182, 212, 0.08);
 }
 
 .code-line-active .code-line-number {
@@ -846,9 +847,50 @@
   opacity: 1;
 }
 
-.code-line-active .code-line-code {
+.code-line-active .code-line-indicator {
   color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.shiki-token-keyword {
+  color: var(--shiki-token-keyword);
   font-weight: 600;
+}
+
+.shiki-token-constant {
+  color: var(--shiki-token-constant);
+}
+
+.shiki-token-string,
+.shiki-token-string-expression {
+  color: var(--shiki-token-string);
+}
+
+.shiki-token-comment {
+  color: var(--shiki-token-comment);
+  font-style: italic;
+}
+
+.shiki-token-function {
+  color: var(--shiki-token-function);
+  font-weight: 500;
+}
+
+.shiki-token-parameter {
+  color: var(--shiki-token-parameter);
+}
+
+.shiki-token-punctuation {
+  color: var(--shiki-token-punctuation);
+}
+
+.shiki-token-link {
+  color: var(--shiki-token-link);
+  text-decoration: underline;
+}
+
+.shiki-token-default {
+  color: var(--shiki-foreground);
 }
 
 .a11y-live-announcer {
