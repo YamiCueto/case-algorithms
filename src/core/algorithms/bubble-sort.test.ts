@@ -115,4 +115,27 @@ describe('Bubble Sort Algorithm Generator', () => {
       expect(run1.steps[i]?.state.array).toEqual(run2.steps[i]?.state.array);
     }
   });
+
+  it('correctly maps codeHighlight line numbers to canonical pseudocode and TypeScript lines', () => {
+    const input = [5, 1, 4];
+    const result = bubbleSort(input);
+
+    const compareStep = result.steps.find((s) => s.action === 'COMPARE');
+    expect(compareStep?.codeHighlight).toEqual({
+      pseudocodeLine: 6,
+      typescriptLine: 7,
+    });
+
+    const swapStep = result.steps.find((s) => s.action === 'SWAP');
+    expect(swapStep?.codeHighlight).toEqual({
+      pseudocodeLine: 7,
+      typescriptLine: 8,
+    });
+
+    const completeStep = result.steps.find((s) => s.action === 'COMPLETE');
+    expect(completeStep?.codeHighlight).toEqual({
+      pseudocodeLine: 15,
+      typescriptLine: 18,
+    });
+  });
 });

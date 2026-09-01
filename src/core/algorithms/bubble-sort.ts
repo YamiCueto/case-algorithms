@@ -126,8 +126,8 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
         comparedIndices: [j, j + 1],
         pointers: comparePointers,
         codeHighlight: {
-          pseudocodeLine: 3,
-          typescriptLine: 5,
+          pseudocodeLine: 6,
+          typescriptLine: 7,
         },
         state: {
           array: [...currentArray],
@@ -158,8 +158,8 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
           comparedIndices: [j, j + 1],
           pointers: comparePointers,
           codeHighlight: {
-            pseudocodeLine: 4,
-            typescriptLine: 6,
+            pseudocodeLine: 7,
+            typescriptLine: 8,
           },
           state: {
             array: [...currentArray],
@@ -189,6 +189,10 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
       pointers: [
         { id: 'ptr-sorted', index: newlySortedIndex, label: 'sorted', colorVar: 'var(--accent-emerald)' },
       ],
+      codeHighlight: {
+        pseudocodeLine: 10,
+        typescriptLine: 13,
+      },
       state: {
         array: [...currentArray],
         sortedIndices: [...sortedIndices],
@@ -214,6 +218,10 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
         pointers: [
           { id: 'ptr-early-exit', index: 0, label: 'early exit', colorVar: 'var(--accent-emerald)' },
         ],
+        codeHighlight: {
+          pseudocodeLine: 12,
+          typescriptLine: 15,
+        },
         state: {
           array: [...currentArray],
           sortedIndices: allIndices,
@@ -238,6 +246,10 @@ export function bubbleSort(input: readonly number[]): AlgorithmResult<ArrayState
     description: `Sorting complete! Final sorted array: [${currentArray.join(', ')}].`,
     a11yMessage: `Bubble Sort finished. Total comparisons: ${comparisonsCount}, total swaps: ${swapsCount}. Sorted array: ${currentArray.join(', ')}.`,
     activeIndices: allFinalIndices,
+    codeHighlight: {
+      pseudocodeLine: 15,
+      typescriptLine: 18,
+    },
     state: {
       array: [...currentArray],
       sortedIndices: allFinalIndices,

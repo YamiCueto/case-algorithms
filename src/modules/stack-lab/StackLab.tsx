@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { simulateStackOperations, StackCommand } from '@/core/algorithms';
-import { TimeTravelController } from '@/core/engine';
-import { ExecutionStep } from '@/core/types';
 import { StackState } from '@/core/data-structures/stack';
 import { StackVisualizerAdapter } from '@/components/visualizer';
 import {
@@ -11,6 +9,7 @@ import {
   Card,
   TimeTravelControls,
   usePlaybackTimer,
+  useTimeTravelEngine,
   PedagogicalKnowledgePanel,
 } from '@/components/ui';
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
@@ -202,28 +201,18 @@ export const StackLab: React.FC = () => {
   const [stackCapacity, setStackCapacity] = useState<number>(6);
   const [currentCommands, setCurrentCommands] = useState<StackCommand[]>(PRESET_SEQUENCES[0]?.commands || []);
 
-  const controllerRef = useRef<TimeTravelController<StackState> | null>(null);
-  const unsubscribeRef = useRef<(() => void) | null>(null);
-
-  const [currentStep, setCurrentStep] = useState<ExecutionStep<StackState> | null>(null);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [totalSteps, setTotalSteps] = useState<number>(0);
-
-  const handleNext = useCallback(() => {
-    controllerRef.current?.next();
-  }, []);
-
-  const handlePrev = useCallback(() => {
-    controllerRef.current?.previous();
-  }, []);
-
-  const handleFirst = useCallback(() => {
-    controllerRef.current?.first();
-  }, []);
-
-  const handleLast = useCallback(() => {
-    controllerRef.current?.last();
-  }, []);
+  const {
+    currentStep,
+    currentIndex,
+    totalSteps,
+    isLast,
+    handleNext,
+    handlePrevious,
+    handleFirst,
+    handleLast,
+    handleReset,
+    loadSteps,
+  } = useTimeTravelEngine<StackState>();
 
   const {
     isPlaying,
@@ -234,30 +223,18 @@ export const StackLab: React.FC = () => {
   } = usePlaybackTimer({
     onStepForward: handleNext,
     onRewindToStart: handleFirst,
-    isFinal: controllerRef.current?.isFinal ?? false,
+    isFinal: isLast,
     defaultSpeed: 600,
   });
 
-  const initController = useCallback((commands: StackCommand[], capacity: number) => {
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-      unsubscribeRef.current = null;
-    }
-
-    stopPlayback();
-
-    const result = simulateStackOperations(commands, capacity);
-    const ctrl = new TimeTravelController(result.steps);
-    controllerRef.current = ctrl;
-    setCurrentStep(ctrl.currentStep);
-    setCurrentIndex(ctrl.currentIndex);
-    setTotalSteps(ctrl.totalSteps);
-
-    unsubscribeRef.current = ctrl.subscribe((step, idx) => {
-      setCurrentStep(step);
-      setCurrentIndex(idx);
-    });
-  }, [stopPlayback]);
+  const initController = useCallback(
+    (commands: StackCommand[], capacity: number) => {
+      stopPlayback();
+      const result = simulateStackOperations(commands, capacity);
+      loadSteps(result.steps);
+    },
+    [stopPlayback, loadSteps]
+  );
 
   useEffect(() => {
     const defaultPreset = PRESET_SEQUENCES[0];
@@ -266,12 +243,6 @@ export const StackLab: React.FC = () => {
       setCurrentCommands(defaultPreset.commands);
       initController(defaultPreset.commands, defaultPreset.capacity);
     }
-    return () => {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-    };
   }, [initController]);
 
   const handlePush = () => {
@@ -286,7 +257,7 @@ export const StackLab: React.FC = () => {
     const newCommands: StackCommand[] = [...currentCommands, { type: 'PUSH', value: Math.round(val) }];
     setCurrentCommands(newCommands);
     initController(newCommands, stackCapacity);
-    controllerRef.current?.last();
+    handleLast();
   };
 
   const handlePop = () => {
@@ -294,7 +265,7 @@ export const StackLab: React.FC = () => {
     const newCommands: StackCommand[] = [...currentCommands, { type: 'POP' }];
     setCurrentCommands(newCommands);
     initController(newCommands, stackCapacity);
-    controllerRef.current?.last();
+    handleLast();
   };
 
   const handlePeek = () => {
@@ -302,7 +273,7 @@ export const StackLab: React.FC = () => {
     const newCommands: StackCommand[] = [...currentCommands, { type: 'PEEK' }];
     setCurrentCommands(newCommands);
     initController(newCommands, stackCapacity);
-    controllerRef.current?.last();
+    handleLast();
   };
 
   const handleClear = () => {
@@ -324,18 +295,18 @@ export const StackLab: React.FC = () => {
     initController(currentCommands, cap);
   };
 
-  const handleReset = () => {
+  const handleResetWithStop = () => {
     stopPlayback();
-    controllerRef.current?.reset();
+    handleReset();
   };
 
   useTimeTravelKeyboard({
     onNext: handleNext,
-    onPrevious: handlePrev,
+    onPrevious: handlePrevious,
     onFirst: handleFirst,
     onLast: handleLast,
     onTogglePlay: handleTogglePlay,
-    onReset: handleReset,
+    onReset: handleResetWithStop,
   });
 
   const currentAction = currentStep?.action || 'INITIALIZE';
@@ -469,11 +440,11 @@ export const StackLab: React.FC = () => {
               totalSteps={totalSteps}
               playbackSpeed={playbackSpeed}
               onFirst={handleFirst}
-              onPrevious={handlePrev}
+              onPrevious={handlePrevious}
               onTogglePlay={handleTogglePlay}
               onNext={handleNext}
               onLast={handleLast}
-              onReset={handleReset}
+              onReset={handleResetWithStop}
               onSpeedChange={setPlaybackSpeed}
             />
 
