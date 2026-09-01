@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { AppHeader, Button } from '@/components/ui';
-import { ArrayLab, StackLab, QueueLab } from '@/modules';
+import { ArrayLab, StackLab, QueueLab, LinkedListLab } from '@/modules';
 
 export const App: React.FC = () => {
-  const [activeLab, setActiveLab] = useState<'array' | 'stack' | 'queue'>('queue');
+  const [activeLab, setActiveLab] = useState<'array' | 'stack' | 'queue' | 'linked-list'>('linked-list');
 
   const getBreadcrumb = () => {
     switch (activeLab) {
@@ -13,6 +13,8 @@ export const App: React.FC = () => {
         return 'Stack & LIFO Principle';
       case 'queue':
         return 'Queue & FIFO Principle';
+      case 'linked-list':
+        return 'Singly Linked List & Pointer Chains';
     }
   };
 
@@ -45,13 +47,23 @@ export const App: React.FC = () => {
         >
           Queue (FIFO)
         </Button>
+        <Button
+          variant={activeLab === 'linked-list' ? 'primary' : 'outline'}
+          size="sm"
+          onClick={() => setActiveLab('linked-list')}
+          aria-label="Switch to Linked List Laboratory"
+        >
+          Linked List
+        </Button>
       </div>
       {activeLab === 'array' ? (
         <ArrayLab />
       ) : activeLab === 'stack' ? (
         <StackLab />
-      ) : (
+      ) : activeLab === 'queue' ? (
         <QueueLab />
+      ) : (
+        <LinkedListLab />
       )}
     </div>
   );
