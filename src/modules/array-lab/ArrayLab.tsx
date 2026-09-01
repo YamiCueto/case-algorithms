@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { bubbleSort } from '@/core/algorithms';
-import { TimeTravelController } from '@/core/engine';
-import { ExecutionStep } from '@/core/types';
 import { ArrayState } from '@/core/data-structures/array';
 import { ArrayVisualizerAdapter } from '@/components/visualizer';
 import {
@@ -11,6 +9,7 @@ import {
   Card,
   TimeTravelControls,
   usePlaybackTimer,
+  useTimeTravelEngine,
   PedagogicalKnowledgePanel,
 } from '@/components/ui';
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
@@ -130,12 +129,18 @@ export const ArrayLab: React.FC = () => {
   const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
 
-  const controllerRef = useRef<TimeTravelController<ArrayState> | null>(null);
-  const unsubscribeRef = useRef<(() => void) | null>(null);
-
-  const [currentStep, setCurrentStep] = useState<ExecutionStep<ArrayState> | null>(null);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [totalSteps, setTotalSteps] = useState<number>(0);
+  const {
+    currentStep,
+    currentIndex,
+    totalSteps,
+    isLast,
+    handleNext,
+    handlePrevious,
+    handleFirst,
+    handleLast,
+    handleReset,
+    loadSteps,
+  } = useTimeTravelEngine<ArrayState>();
 
   const parseNumbers = (text: string): { numbers: number[]; error: string | null } => {
     const rawTokens = text.split(',').map((t) => t.trim()).filter(Boolean);
@@ -158,22 +163,6 @@ export const ArrayLab: React.FC = () => {
     return { numbers, error: null };
   };
 
-  const handleNext = useCallback(() => {
-    controllerRef.current?.next();
-  }, []);
-
-  const handlePrev = useCallback(() => {
-    controllerRef.current?.previous();
-  }, []);
-
-  const handleFirst = useCallback(() => {
-    controllerRef.current?.first();
-  }, []);
-
-  const handleLast = useCallback(() => {
-    controllerRef.current?.last();
-  }, []);
-
   const {
     isPlaying,
     playbackSpeed,
@@ -183,39 +172,21 @@ export const ArrayLab: React.FC = () => {
   } = usePlaybackTimer({
     onStepForward: handleNext,
     onRewindToStart: handleFirst,
-    isFinal: controllerRef.current?.isFinal ?? false,
+    isFinal: isLast,
     defaultSpeed: 600,
   });
 
-  const initController = useCallback((numbers: number[]) => {
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-      unsubscribeRef.current = null;
-    }
-
-    stopPlayback();
-
-    const result = bubbleSort(numbers);
-    const ctrl = new TimeTravelController(result.steps);
-    controllerRef.current = ctrl;
-    setCurrentStep(ctrl.currentStep);
-    setCurrentIndex(ctrl.currentIndex);
-    setTotalSteps(ctrl.totalSteps);
-
-    unsubscribeRef.current = ctrl.subscribe((step, idx) => {
-      setCurrentStep(step);
-      setCurrentIndex(idx);
-    });
-  }, [stopPlayback]);
+  const initController = useCallback(
+    (numbers: number[]) => {
+      stopPlayback();
+      const result = bubbleSort(numbers);
+      loadSteps(result.steps);
+    },
+    [stopPlayback, loadSteps]
+  );
 
   useEffect(() => {
     initController([5, 1, 4, 2, 8]);
-    return () => {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-    };
   }, [initController]);
 
   const handleLoadAndRun = () => {
@@ -229,9 +200,9 @@ export const ArrayLab: React.FC = () => {
     initController(numbers);
   };
 
-  const handleReset = () => {
+  const handleResetWithStop = () => {
     stopPlayback();
-    controllerRef.current?.reset();
+    handleReset();
   };
 
   const handlePresetSelect = (preset: number[]) => {
@@ -242,11 +213,11 @@ export const ArrayLab: React.FC = () => {
 
   useTimeTravelKeyboard({
     onNext: handleNext,
-    onPrevious: handlePrev,
+    onPrevious: handlePrevious,
     onFirst: handleFirst,
     onLast: handleLast,
     onTogglePlay: handleTogglePlay,
-    onReset: handleReset,
+    onReset: handleResetWithStop,
   });
 
   const currentAction = currentStep?.action || 'INITIALIZE';
@@ -314,11 +285,11 @@ export const ArrayLab: React.FC = () => {
               totalSteps={totalSteps}
               playbackSpeed={playbackSpeed}
               onFirst={handleFirst}
-              onPrevious={handlePrev}
+              onPrevious={handlePrevious}
               onTogglePlay={handleTogglePlay}
               onNext={handleNext}
               onLast={handleLast}
-              onReset={handleReset}
+              onReset={handleResetWithStop}
               onSpeedChange={setPlaybackSpeed}
             />
 

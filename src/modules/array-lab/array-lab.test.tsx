@@ -162,13 +162,13 @@ describe('ArrayLab Component', () => {
     const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
     fireEvent.click(stepForwardBtn);
 
-    expect(screen.getByText(/Line 3 Active/i)).toBeInTheDocument();
+    expect(screen.getByText(/Line 6 Active/i)).toBeInTheDocument();
 
     const codeTab = screen.getByRole('button', { name: /07\. code/i });
     fireEvent.click(codeTab);
 
     expect(screen.getByText('TypeScript')).toBeInTheDocument();
-    expect(screen.getByText(/Line 5 Active/i)).toBeInTheDocument();
+    expect(screen.getByText(/Line 7 Active/i)).toBeInTheDocument();
   });
 
   it('updates A11yAnnouncer live region with accessible narrative messages', () => {

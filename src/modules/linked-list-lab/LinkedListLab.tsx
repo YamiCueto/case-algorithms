@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { simulateLinkedListOperations, LinkedListCommand } from '@/core/algorithms';
-import { TimeTravelController } from '@/core/engine';
-import { ExecutionStep } from '@/core/types';
 import { LinkedListState } from '@/core/data-structures/linked-list';
 import { LinkedListVisualizerAdapter } from '@/components/visualizer';
 import {
@@ -11,6 +9,7 @@ import {
   Card,
   TimeTravelControls,
   usePlaybackTimer,
+  useTimeTravelEngine,
   PedagogicalKnowledgePanel,
 } from '@/components/ui';
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
@@ -220,28 +219,18 @@ export const LinkedListLab: React.FC = () => {
     PRESET_SEQUENCES[0]?.commands || []
   );
 
-  const controllerRef = useRef<TimeTravelController<LinkedListState> | null>(null);
-  const unsubscribeRef = useRef<(() => void) | null>(null);
-
-  const [currentStep, setCurrentStep] = useState<ExecutionStep<LinkedListState> | null>(null);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [totalSteps, setTotalSteps] = useState<number>(0);
-
-  const handleNext = useCallback(() => {
-    controllerRef.current?.next();
-  }, []);
-
-  const handlePrev = useCallback(() => {
-    controllerRef.current?.previous();
-  }, []);
-
-  const handleFirst = useCallback(() => {
-    controllerRef.current?.first();
-  }, []);
-
-  const handleLast = useCallback(() => {
-    controllerRef.current?.last();
-  }, []);
+  const {
+    currentStep,
+    currentIndex,
+    totalSteps,
+    isLast,
+    handleNext,
+    handlePrevious,
+    handleFirst,
+    handleLast,
+    handleReset,
+    loadSteps,
+  } = useTimeTravelEngine<LinkedListState>();
 
   const {
     isPlaying,
@@ -252,32 +241,17 @@ export const LinkedListLab: React.FC = () => {
   } = usePlaybackTimer({
     onStepForward: handleNext,
     onRewindToStart: handleFirst,
-    isFinal: controllerRef.current?.isFinal ?? false,
+    isFinal: isLast,
     defaultSpeed: 600,
   });
 
   const initController = useCallback(
     (commands: readonly LinkedListCommand[], initialItems: readonly number[]) => {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-
       stopPlayback();
-
       const result = simulateLinkedListOperations(commands, initialItems);
-      const ctrl = new TimeTravelController(result.steps);
-      controllerRef.current = ctrl;
-      setCurrentStep(ctrl.currentStep);
-      setCurrentIndex(ctrl.currentIndex);
-      setTotalSteps(ctrl.totalSteps);
-
-      unsubscribeRef.current = ctrl.subscribe((step, idx) => {
-        setCurrentStep(step);
-        setCurrentIndex(idx);
-      });
+      loadSteps(result.steps);
     },
-    [stopPlayback]
+    [stopPlayback, loadSteps]
   );
 
   useEffect(() => {
@@ -287,12 +261,6 @@ export const LinkedListLab: React.FC = () => {
       setCurrentCommands(defaultPreset.commands);
       initController(defaultPreset.commands, defaultPreset.initialItems);
     }
-    return () => {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-    };
   }, [initController]);
 
   const parseValue = (): number | null => {
@@ -323,7 +291,7 @@ export const LinkedListLab: React.FC = () => {
     ];
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems);
-    controllerRef.current?.last();
+    handleLast();
   };
 
   const handleAppend = () => {
@@ -336,7 +304,7 @@ export const LinkedListLab: React.FC = () => {
     ];
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems);
-    controllerRef.current?.last();
+    handleLast();
   };
 
   const handleInsertAt = () => {
@@ -350,7 +318,7 @@ export const LinkedListLab: React.FC = () => {
     ];
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems);
-    controllerRef.current?.last();
+    handleLast();
   };
 
   const handleRemoveAt = () => {
@@ -363,7 +331,7 @@ export const LinkedListLab: React.FC = () => {
     ];
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems);
-    controllerRef.current?.last();
+    handleLast();
   };
 
   const handleFind = () => {
@@ -376,7 +344,7 @@ export const LinkedListLab: React.FC = () => {
     ];
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems);
-    controllerRef.current?.last();
+    handleLast();
   };
 
   const handleClear = () => {
@@ -394,18 +362,18 @@ export const LinkedListLab: React.FC = () => {
     initController(preset.commands, preset.initialItems);
   };
 
-  const handleReset = () => {
+  const handleResetWithStop = () => {
     stopPlayback();
-    controllerRef.current?.reset();
+    handleReset();
   };
 
   useTimeTravelKeyboard({
     onNext: handleNext,
-    onPrevious: handlePrev,
+    onPrevious: handlePrevious,
     onFirst: handleFirst,
     onLast: handleLast,
     onTogglePlay: handleTogglePlay,
-    onReset: handleReset,
+    onReset: handleResetWithStop,
   });
 
   const currentAction = currentStep?.action || 'INITIALIZE';
@@ -568,11 +536,11 @@ export const LinkedListLab: React.FC = () => {
               totalSteps={totalSteps}
               playbackSpeed={playbackSpeed}
               onFirst={handleFirst}
-              onPrevious={handlePrev}
+              onPrevious={handlePrevious}
               onTogglePlay={handleTogglePlay}
               onNext={handleNext}
               onLast={handleLast}
-              onReset={handleReset}
+              onReset={handleResetWithStop}
               onSpeedChange={setPlaybackSpeed}
             />
 
