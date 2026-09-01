@@ -50,6 +50,18 @@
   --pointer-target: #10b981;
   --pointer-current: #ec4899;
 
+  --shiki-token-keyword: #f43f5e;
+  --shiki-token-constant: #38bdf8;
+  --shiki-token-string: #34d399;
+  --shiki-token-comment: #64748b;
+  --shiki-token-function: #c084fc;
+  --shiki-token-parameter: #fb923c;
+  --shiki-token-punctuation: #94a3b8;
+  --shiki-token-string-expression: #34d399;
+  --shiki-token-link: #38bdf8;
+  --shiki-foreground: #f8fafc;
+  --shiki-background: #090d16;
+
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace;
 
@@ -117,6 +129,18 @@
   --viz-node-discarded-bg: #f8fafc;
   --viz-node-discarded-border: #e2e8f0;
   --viz-node-discarded-opacity: 0.45;
+
+  --shiki-token-keyword: #cf222e;
+  --shiki-token-constant: #0550ae;
+  --shiki-token-string: #116329;
+  --shiki-token-comment: #6e7781;
+  --shiki-token-function: #8250df;
+  --shiki-token-parameter: #953800;
+  --shiki-token-punctuation: #24292f;
+  --shiki-token-string-expression: #116329;
+  --shiki-token-link: #0550ae;
+  --shiki-foreground: #0f172a;
+  --shiki-background: #f8fafc;
 
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);

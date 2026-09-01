@@ -124,11 +124,12 @@ describe('StackLab Component', () => {
 
     const pseudocodeTab = screen.getByRole('button', { name: /06\. pseudocode/i });
     fireEvent.click(pseudocodeTab);
-    expect(screen.getAllByText(/procedure push/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('procedure').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('push').length).toBeGreaterThan(0);
 
     const codeTab = screen.getByRole('button', { name: /07\. code/i });
     fireEvent.click(codeTab);
-    expect(screen.getAllByText(/export class BoundedStack/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('BoundedStack').length).toBeGreaterThan(0);
 
     const modifyTab = screen.getByRole('button', { name: /08\. modify/i });
     fireEvent.click(modifyTab);
