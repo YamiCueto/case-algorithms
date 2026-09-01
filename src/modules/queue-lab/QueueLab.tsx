@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { simulateQueueOperations, QueueCommand } from '@/core/algorithms';
 import { QueueState } from '@/core/data-structures/queue';
 import { QueueVisualizerAdapter } from '@/components/visualizer';
+import { CodeViewer } from '@/components/code-viewer';
 import {
   LabShell,
   Button,
@@ -15,12 +16,87 @@ import {
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
 
 interface PresetItem {
-  readonly label: string;
-  readonly commands: readonly QueueCommand[];
-  readonly capacity: number;
+  label: string;
+  commands: QueueCommand[];
+  capacity: number;
 }
 
-const PRESET_SEQUENCES: readonly PresetItem[] = [
+const PSEUDOCODE_SNIPPET = `procedure enqueue(queue: Queue, value: Item)
+  if isFull(queue) then
+    throw QueueOverflowError
+  end if
+  queue.buffer[queue.rear] := value
+  queue.rear := (queue.rear + 1) mod queue.capacity
+  queue.count := queue.count + 1
+end procedure
+
+procedure dequeue(queue: Queue) -> Item
+  if isEmpty(queue) then
+    throw QueueUnderflowError
+  end if
+  value := queue.buffer[queue.front]
+  queue.buffer[queue.front] := null
+  queue.front := (queue.front + 1) mod queue.capacity
+  queue.count := queue.count - 1
+  return value
+end procedure
+
+procedure peek(queue: Queue) -> Item
+  if isEmpty(queue) then
+    throw QueueUnderflowError
+  end if
+  return queue.buffer[queue.front]
+end procedure`;
+
+const TYPESCRIPT_SNIPPET = `export class BoundedQueue<T> {
+  private readonly buffer: (T | null)[];
+  private front: number = 0;
+  private rear: number = 0;
+  private count: number = 0;
+  private readonly capacity: number;
+
+  constructor(capacity: number = 8) {
+    this.capacity = capacity;
+    this.buffer = new Array<T | null>(capacity).fill(null);
+  }
+
+  enqueue(item: T): void {
+    if (this.isFull()) {
+      throw new Error('Queue Overflow: capacity reached');
+    }
+    this.buffer[this.rear] = item;
+    this.rear = (this.rear + 1) % this.capacity;
+    this.count++;
+  }
+
+  dequeue(): T {
+    if (this.isEmpty()) {
+      throw new Error('Queue Underflow: queue is empty');
+    }
+    const item = this.buffer[this.front]!;
+    this.buffer[this.front] = null;
+    this.front = (this.front + 1) % this.capacity;
+    this.count--;
+    return item;
+  }
+
+  peek(): T {
+    if (this.isEmpty()) {
+      throw new Error('Queue Underflow: queue is empty');
+    }
+    return this.buffer[this.front]!;
+  }
+
+  isEmpty(): boolean {
+    return this.count === 0;
+  }
+
+  isFull(): boolean {
+    return this.count >= this.capacity;
+  }
+}`;
+
+const PRESET_SEQUENCES: PresetItem[] = [
   {
     label: 'Standard [Enqueue 10, 20, 30, Dequeue, Enqueue 40]',
     capacity: 6,
@@ -30,7 +106,21 @@ const PRESET_SEQUENCES: readonly PresetItem[] = [
       { type: 'ENQUEUE', value: 30 },
       { type: 'DEQUEUE' },
       { type: 'ENQUEUE', value: 40 },
-      { type: 'PEEK_FRONT' },
+    ],
+  },
+  {
+    label: 'Wrap-Around Demo [Fill 5, Deq 2, Enq 2]',
+    capacity: 5,
+    commands: [
+      { type: 'ENQUEUE', value: 10 },
+      { type: 'ENQUEUE', value: 20 },
+      { type: 'ENQUEUE', value: 30 },
+      { type: 'ENQUEUE', value: 40 },
+      { type: 'ENQUEUE', value: 50 },
+      { type: 'DEQUEUE' },
+      { type: 'DEQUEUE' },
+      { type: 'ENQUEUE', value: 60 },
+      { type: 'ENQUEUE', value: 70 },
     ],
   },
   {
@@ -46,7 +136,7 @@ const PRESET_SEQUENCES: readonly PresetItem[] = [
     ],
   },
   {
-    label: 'Underflow Demo [Enqueue 50, Dequeue, Dequeue]',
+    label: 'Underflow Demo [Enqueue 50, Deq, Deq]',
     capacity: 5,
     commands: [
       { type: 'ENQUEUE', value: 50 },
@@ -105,105 +195,34 @@ const PEDAGOGICAL_PHASES = [
     id: '06',
     name: '06. Pseudocode',
     title: 'Algorithm Pseudocode (Circular Buffer Queue ADT)',
-    content: `procedure enqueue(queue: Queue, value: Item)
-  if isFull(queue) then
-    throw QueueOverflowError
-  end if
-  queue.buffer[queue.rear] := value
-  queue.rear := (queue.rear + 1) mod queue.capacity
-  queue.count := queue.count + 1
-end procedure
-
-procedure dequeue(queue: Queue) -> Item
-  if isEmpty(queue) then
-    throw QueueUnderflowError
-  end if
-  value := queue.buffer[queue.front]
-  queue.buffer[queue.front] := null
-  queue.front := (queue.front + 1) mod queue.capacity
-  queue.count := queue.count - 1
-  return value
-end procedure
-
-procedure peek(queue: Queue) -> Item
-  if isEmpty(queue) then
-    throw QueueUnderflowError
-  end if
-  return queue.buffer[queue.front]
-end procedure`,
+    content: PSEUDOCODE_SNIPPET,
   },
   {
     id: '07',
     name: '07. Code',
     title: 'TypeScript Implementation (Two-Pointer Circular Queue)',
-    content: `export class BoundedQueue<T> {
-  private readonly buffer: (T | null)[];
-  private front: number = 0;
-  private rear: number = 0;
-  private count: number = 0;
-  private readonly capacity: number;
-
-  constructor(capacity: number = 8) {
-    this.capacity = capacity;
-    this.buffer = new Array<T | null>(capacity).fill(null);
-  }
-
-  enqueue(item: T): void {
-    if (this.isFull()) {
-      throw new Error('Queue Overflow: capacity reached');
-    }
-    this.buffer[this.rear] = item;
-    this.rear = (this.rear + 1) % this.capacity;
-    this.count++;
-  }
-
-  dequeue(): T {
-    if (this.isEmpty()) {
-      throw new Error('Queue Underflow: queue is empty');
-    }
-    const item = this.buffer[this.front]!;
-    this.buffer[this.front] = null;
-    this.front = (this.front + 1) % this.capacity;
-    this.count--;
-    return item;
-  }
-
-  peek(): T {
-    if (this.isEmpty()) {
-      throw new Error('Queue Underflow: queue is empty');
-    }
-    return this.buffer[this.front]!;
-  }
-
-  isEmpty(): boolean {
-    return this.count === 0;
-  }
-
-  isFull(): boolean {
-    return this.count >= this.capacity;
-  }
-}`,
+    content: TYPESCRIPT_SNIPPET,
   },
   {
     id: '08',
     name: '08. Modify',
     title: 'Modify & Boundary Conditions',
     content:
-      'A Bounded Queue enforces strict capacity limits: Queue Overflow occurs when attempting to ENQUEUE into a full queue, and Queue Underflow occurs when attempting to DEQUEUE or PEEK an empty queue. Try triggering both boundary conditions using the demo presets!',
+      'A Bounded Queue introduces strict boundary enforcement: Queue Overflow occurs when attempting to ENQUEUE into a full buffer, and Queue Underflow occurs when attempting to DEQUEUE or PEEK an empty queue. Try triggering both conditions using the demo presets!',
   },
   {
     id: '09',
     name: '09. Practice',
-    title: 'Practice: Breadth-First Search (BFS)',
+    title: 'Practice: Task Scheduling & Event Loops',
     content:
-      'Queues are the foundational engine behind Breadth-First Search (BFS) in trees and graphs, level-order traversals, and web crawler URL frontiers. By visiting neighbors in FIFO order, BFS guarantees discovering the shortest path in unweighted graphs.',
+      'Queues are the foundational engine of asynchronous systems: JavaScript macro-task event loops, background print spoolers, and web server request dispatchers all rely on FIFO queues to ensure fair and deterministic processing order.',
   },
   {
     id: '10',
     name: '10. Challenge',
     title: 'Algorithm Mastery Challenge',
     content:
-      'Challenge Question: Given an initial empty queue with capacity 5, we perform: ENQUEUE(10), ENQUEUE(20), ENQUEUE(30), DEQUEUE(), ENQUEUE(40), ENQUEUE(50), DEQUEUE(), PEEK(). What value is returned by PEEK(), and what is the final queue contents? (Answer: PEEK returns 30, and the queue contains [30, 40, 50]). Load the Standard preset to verify!',
+      'Challenge Question: Given an empty queue with capacity 5, we perform: ENQUEUE(10), ENQUEUE(20), ENQUEUE(30), DEQUEUE(), ENQUEUE(40), ENQUEUE(50), DEQUEUE(), PEEK(). What value is returned by PEEK(), and what are the front and rear indices in the circular buffer? (Answer: PEEK returns 30; frontIndex is 2, rearIndex is 0). Load the Wrap-Around Demo preset to verify!',
   },
 ];
 
@@ -212,9 +231,8 @@ export const QueueLab: React.FC = () => {
   const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [queueCapacity, setQueueCapacity] = useState<number>(6);
-  const [currentCommands, setCurrentCommands] = useState<readonly QueueCommand[]>(
-    PRESET_SEQUENCES[0]?.commands || []
-  );
+  const [selectedCodeLang, setSelectedCodeLang] = useState<'pseudocode' | 'typescript'>('typescript');
+  const [currentCommands, setCurrentCommands] = useState<QueueCommand[]>(PRESET_SEQUENCES[0]?.commands || []);
 
   const {
     currentStep,
@@ -243,7 +261,7 @@ export const QueueLab: React.FC = () => {
   });
 
   const initController = useCallback(
-    (commands: readonly QueueCommand[], capacity: number) => {
+    (commands: QueueCommand[], capacity: number) => {
       stopPlayback();
       const result = simulateQueueOperations(commands, capacity);
       loadSteps(result.steps);
@@ -269,10 +287,7 @@ export const QueueLab: React.FC = () => {
 
     setInputError(null);
     const val = Number(trimmed);
-    const newCommands: QueueCommand[] = [
-      ...currentCommands,
-      { type: 'ENQUEUE', value: Math.round(val) },
-    ];
+    const newCommands: QueueCommand[] = [...currentCommands, { type: 'ENQUEUE', value: Math.round(val) }];
     setCurrentCommands(newCommands);
     initController(newCommands, queueCapacity);
     handleLast();
@@ -328,7 +343,7 @@ export const QueueLab: React.FC = () => {
   });
 
   const currentAction = currentStep?.action || 'INITIALIZE';
-  const stateData = currentStep?.state || {
+  const stateData: QueueState = currentStep?.state || {
     buffer: new Array(queueCapacity).fill(null),
     items: [],
     frontIndex: -1,
@@ -362,11 +377,60 @@ export const QueueLab: React.FC = () => {
         category="Interactive Laboratory: Queue Data Structure"
         title="Queue & FIFO Principle Exploration"
         subtitle="Understand First-In, First-Out (FIFO) discipline, dual-ended O(1) enqueue and dequeue operations, and boundary conditions through an interactive 10-step pedagogical laboratory."
-        viewportSlot={
+        visualizationSlot={
           <QueueVisualizerAdapter
             step={currentStep}
             viewBoxWidth={800}
             viewBoxHeight={360}
+          />
+        }
+        codeSlot={
+          <div className="code-stage-container">
+            <div className="panel-header">
+              <span className="panel-title">Algorithm Code</span>
+              <div className="code-lang-selector">
+                <Button
+                  variant={selectedCodeLang === 'pseudocode' ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCodeLang('pseudocode')}
+                >
+                  Pseudocode
+                </Button>
+                <Button
+                  variant={selectedCodeLang === 'typescript' ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCodeLang('typescript')}
+                >
+                  TypeScript
+                </Button>
+              </div>
+            </div>
+            <div className="code-stage-body">
+              <CodeViewer
+                code={selectedCodeLang === 'pseudocode' ? PSEUDOCODE_SNIPPET : TYPESCRIPT_SNIPPET}
+                language={selectedCodeLang}
+                activeLine={
+                  selectedCodeLang === 'pseudocode'
+                    ? currentStep?.codeHighlight?.pseudocodeLine
+                    : currentStep?.codeHighlight?.typescriptLine
+                }
+              />
+            </div>
+          </div>
+        }
+        timeTravelSlot={
+          <TimeTravelControls
+            isPlaying={isPlaying}
+            currentIndex={currentIndex}
+            totalSteps={totalSteps}
+            playbackSpeed={playbackSpeed}
+            onFirst={handleFirst}
+            onPrevious={handlePrevious}
+            onTogglePlay={handleTogglePlay}
+            onNext={handleNext}
+            onLast={handleLast}
+            onReset={handleResetWithStop}
+            onSpeedChange={setPlaybackSpeed}
           />
         }
         controlsSlot={
@@ -458,82 +522,69 @@ export const QueueLab: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            <TimeTravelControls
-              isPlaying={isPlaying}
-              currentIndex={currentIndex}
-              totalSteps={totalSteps}
-              playbackSpeed={playbackSpeed}
-              onFirst={handleFirst}
-              onPrevious={handlePrevious}
-              onTogglePlay={handleTogglePlay}
-              onNext={handleNext}
-              onLast={handleLast}
-              onReset={handleResetWithStop}
-              onSpeedChange={setPlaybackSpeed}
-            />
-
-            <Card title="State & Capacity Inspector">
-              <div className="inspector-list">
-                <div>
-                  <span className="inspector-label">Action: </span>
-                  <Badge variant={getActionBadgeVariant(currentAction)}>
-                    {currentAction}
-                  </Badge>
-                </div>
-                <div>
-                  <span className="inspector-label">Step Index: </span>
-                  <span className="inspector-val-index">
-                    {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">Items in Queue: </span>
-                  <span className="inspector-val-total">
-                    {stateData.count} / {stateData.capacity}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">FRONT Element: </span>
-                  <span className="inspector-val-index">
-                    {stateData.frontIndex >= 0 && stateData.buffer[stateData.frontIndex] !== null
-                      ? `${stateData.buffer[stateData.frontIndex]} (slot [${stateData.frontIndex}])`
-                      : 'null (empty)'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">REAR Element: </span>
-                  <span className="inspector-val-index">
-                    {stateData.rearIndex >= 0 && stateData.buffer[stateData.rearIndex] !== null
-                      ? `${stateData.buffer[stateData.rearIndex]} (slot [${stateData.rearIndex}])`
-                      : 'null (empty)'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">Status: </span>
-                  <span
-                    className={
-                      currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
-                        ? 'input-error-badge'
-                        : stateData.count === stateData.capacity
-                          ? 'inspector-val-idle'
-                          : 'inspector-val-index'
-                    }
-                  >
-                    {currentAction === 'OVERFLOW'
-                      ? 'Overflow Error'
-                      : currentAction === 'UNDERFLOW'
-                        ? 'Underflow Error'
-                        : stateData.count === 0
-                          ? 'Empty'
-                          : stateData.count === stateData.capacity
-                            ? 'Full (Cap Reached)'
-                            : 'Normal'}
-                  </span>
-                </div>
-              </div>
-            </Card>
           </div>
+        }
+        inspectorSlot={
+          <Card title="State & Capacity Inspector">
+            <div className="inspector-list">
+              <div>
+                <span className="inspector-label">Action: </span>
+                <Badge variant={getActionBadgeVariant(currentAction)}>
+                  {currentAction}
+                </Badge>
+              </div>
+              <div>
+                <span className="inspector-label">Step Index: </span>
+                <span className="inspector-val-index">
+                  {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">Items in Queue: </span>
+                <span className="inspector-val-total">
+                  {stateData.count} / {stateData.capacity}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">FRONT Element: </span>
+                <span className="inspector-val-index">
+                  {stateData.frontIndex >= 0 && stateData.buffer[stateData.frontIndex] !== null
+                    ? `${stateData.buffer[stateData.frontIndex]} (slot [${stateData.frontIndex}])`
+                    : 'null (empty)'}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">REAR Element: </span>
+                <span className="inspector-val-index">
+                  {stateData.rearIndex >= 0 && stateData.buffer[stateData.rearIndex] !== null
+                    ? `${stateData.buffer[stateData.rearIndex]} (slot [${stateData.rearIndex}])`
+                    : 'null (empty)'}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">Status: </span>
+                <span
+                  className={
+                    currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
+                      ? 'input-error-badge'
+                      : stateData.count === stateData.capacity
+                        ? 'inspector-val-idle'
+                        : 'inspector-val-index'
+                  }
+                >
+                  {currentAction === 'OVERFLOW'
+                    ? 'Overflow Error'
+                    : currentAction === 'UNDERFLOW'
+                      ? 'Underflow Error'
+                      : stateData.count === 0
+                        ? 'Empty'
+                        : stateData.count === stateData.capacity
+                          ? 'Full (Cap Reached)'
+                          : 'Normal'}
+                </span>
+              </div>
+            </div>
+          </Card>
         }
         knowledgeSlot={
           <PedagogicalKnowledgePanel

@@ -15,11 +15,11 @@ describe('ArrayLab Component', () => {
     render(<ArrayLab />);
 
     expect(screen.getByText('Array & Bubble Sort Exploration')).toBeInTheDocument();
-    expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText('4')).toBeInTheDocument();
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('8')).toBeInTheDocument();
+    expect(screen.getAllByText('5').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('1').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('4').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('2').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('8').length).toBeGreaterThan(0);
 
     expect(screen.getByRole('button', { name: /play auto execution/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /step forward/i })).toBeInTheDocument();
@@ -32,8 +32,8 @@ describe('ArrayLab Component', () => {
     const input = screen.getByLabelText(/array input values/i);
     fireEvent.change(input, { target: { value: '99, 11, 44' } });
 
-    expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getAllByText('5').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('1').length).toBeGreaterThan(0);
     expect(screen.queryByText('99')).toBeNull();
   });
 
@@ -47,7 +47,7 @@ describe('ArrayLab Component', () => {
     fireEvent.click(loadBtn);
 
     expect(screen.getByText('99')).toBeInTheDocument();
-    expect(screen.getByText('11')).toBeInTheDocument();
+    expect(screen.getAllByText('11').length).toBeGreaterThan(0);
     expect(screen.getByText('44')).toBeInTheDocument();
   });
 
@@ -69,9 +69,9 @@ describe('ArrayLab Component', () => {
     const reversePresetBtn = screen.getByRole('button', { name: /reverse \[/i });
     fireEvent.click(reversePresetBtn);
 
-    expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText('4')).toBeInTheDocument();
-    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getAllByText('5').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('4').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('3').length).toBeGreaterThan(0);
   });
 
   it('navigates through steps using next, previous, first, and last buttons', () => {
@@ -131,16 +131,16 @@ describe('ArrayLab Component', () => {
 
     const explainTab = screen.getByRole('button', { name: /04\. explain/i });
     fireEvent.click(explainTab);
-    expect(screen.getByText(/explain time & space complexity/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mathematical Complexity & Invariants/i)).toBeInTheDocument();
     expect(screen.getByText(/O\(n²\)/i)).toBeInTheDocument();
 
     const pseudocodeTab = screen.getByRole('button', { name: /06\. pseudocode/i });
     fireEvent.click(pseudocodeTab);
-    expect(screen.getByText(/procedure bubbleSort/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/procedure bubbleSort/i).length).toBeGreaterThan(0);
 
     const codeTab = screen.getByRole('button', { name: /07\. code/i });
     fireEvent.click(codeTab);
-    expect(screen.getByText(/export function bubbleSort/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/export function bubbleSort/i).length).toBeGreaterThan(0);
 
     const modifyTab = screen.getByRole('button', { name: /08\. modify/i });
     fireEvent.click(modifyTab);
@@ -151,23 +151,20 @@ describe('ArrayLab Component', () => {
     expect(screen.getByText(/algorithm mastery challenge/i)).toBeInTheDocument();
   });
 
-  it('synchronizes active line in pseudocode and code during step execution', () => {
+  it('synchronizes active line in pseudocode and code during step execution in dual-stage layout', () => {
     render(<ArrayLab />);
 
-    const pseudocodeTab = screen.getByRole('button', { name: /06\. pseudocode/i });
-    fireEvent.click(pseudocodeTab);
-
-    expect(screen.getByText('Pseudocode')).toBeInTheDocument();
+    expect(screen.getAllByText('Pseudocode').length).toBeGreaterThan(0);
 
     const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
     fireEvent.click(stepForwardBtn);
 
     expect(screen.getByText(/Line 6 Active/i)).toBeInTheDocument();
 
-    const codeTab = screen.getByRole('button', { name: /07\. code/i });
-    fireEvent.click(codeTab);
+    const codeLangBtns = screen.getAllByRole('button', { name: 'TypeScript' });
+    fireEvent.click(codeLangBtns[0]!);
 
-    expect(screen.getByText('TypeScript')).toBeInTheDocument();
+    expect(screen.getAllByText('TypeScript').length).toBeGreaterThan(0);
     expect(screen.getByText(/Line 7 Active/i)).toBeInTheDocument();
   });
 

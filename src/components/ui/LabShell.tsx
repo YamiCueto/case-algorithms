@@ -2,22 +2,32 @@ import React from 'react';
 import { Card } from './Card';
 
 export interface LabShellProps {
-  title: string;
-  subtitle?: string;
-  category?: string;
-  viewportSlot: React.ReactNode;
-  controlsSlot: React.ReactNode;
-  knowledgeSlot?: React.ReactNode;
+  readonly title: string;
+  readonly subtitle?: string;
+  readonly category?: string;
+  readonly visualizationSlot?: React.ReactNode;
+  readonly codeSlot?: React.ReactNode;
+  readonly timeTravelSlot?: React.ReactNode;
+  readonly controlsSlot?: React.ReactNode;
+  readonly inspectorSlot?: React.ReactNode;
+  readonly knowledgeSlot?: React.ReactNode;
+  readonly viewportSlot?: React.ReactNode;
 }
 
 export const LabShell: React.FC<LabShellProps> = ({
   title,
   subtitle,
   category = 'Data Structures & Algorithms',
-  viewportSlot,
+  visualizationSlot,
+  codeSlot,
+  timeTravelSlot,
   controlsSlot,
+  inspectorSlot,
   knowledgeSlot,
+  viewportSlot,
 }) => {
+  const activeVizSlot = visualizationSlot || viewportSlot;
+
   return (
     <main role="main" className="lab-shell">
       <section aria-labelledby="topic-heading" className="lab-topic-header">
@@ -28,22 +38,54 @@ export const LabShell: React.FC<LabShellProps> = ({
         {subtitle && <p className="lab-topic-subtitle">{subtitle}</p>}
       </section>
 
-      <div className="lab-grid">
-        <section aria-label="Interactive Visualization Area" className="viewport-panel">
-          <div className="panel-header">
-            <span className="panel-title">Interactive Laboratory Viewport</span>
-          </div>
-          <div className="panel-body">{viewportSlot}</div>
-        </section>
+      {codeSlot ? (
+        <div className="lab-stage-grid">
+          <section aria-label="Interactive Visualization Area" className="visualization-stage-panel">
+            <div className="panel-header">
+              <span className="panel-title">Interactive Laboratory Viewport</span>
+            </div>
+            <div className="panel-body">{activeVizSlot}</div>
+          </section>
 
-        <aside aria-label="Control & Inspection Panel" className="control-panel">
-          <div className="control-panel-heading">Controls & State Inspector</div>
-          {controlsSlot}
-        </aside>
-      </div>
+          <section aria-label="Synchronized Code Surface" className="code-stage-panel">
+            {codeSlot}
+          </section>
+        </div>
+      ) : (
+        <div className="lab-stage-grid">
+          <section aria-label="Interactive Visualization Area" className="viewport-panel">
+            <div className="panel-header">
+              <span className="panel-title">Interactive Laboratory Viewport</span>
+            </div>
+            <div className="panel-body">{activeVizSlot}</div>
+          </section>
+        </div>
+      )}
+
+      {timeTravelSlot && (
+        <section aria-label="Time Travel Step Controller" className="time-travel-panel">
+          {timeTravelSlot}
+        </section>
+      )}
+
+      {(controlsSlot || inspectorSlot) && (
+        <div className="lab-controls-grid">
+          {controlsSlot && (
+            <section aria-label="Interactive Operations" className="lab-controls-section">
+              <div className="control-panel-heading">Interactive Operations</div>
+              {controlsSlot}
+            </section>
+          )}
+          {inspectorSlot && (
+            <section aria-label="State & Metrics Inspector" className="lab-inspector-section">
+              {inspectorSlot}
+            </section>
+          )}
+        </div>
+      )}
 
       {knowledgeSlot && (
-        <section aria-label="Algorithmic Knowledge & Code">
+        <section aria-label="Multi-Dimensional Pedagogical Knowledge" className="lab-knowledge-section">
           <Card title="Multi-Dimensional Knowledge">{knowledgeSlot}</Card>
         </section>
       )}

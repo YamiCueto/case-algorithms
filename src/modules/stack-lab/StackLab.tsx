@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { simulateStackOperations, StackCommand } from '@/core/algorithms';
 import { StackState } from '@/core/data-structures/stack';
 import { StackVisualizerAdapter } from '@/components/visualizer';
+import { CodeViewer } from '@/components/code-viewer';
 import {
   LabShell,
   Button,
@@ -20,6 +21,68 @@ interface PresetItem {
   capacity: number;
 }
 
+const PSEUDOCODE_SNIPPET = `procedure push(stack: Stack, value: Item)
+  if isFull(stack) then
+    throw StackOverflowError
+  end if
+  stack.top := stack.top + 1
+  stack.items[stack.top] := value
+end procedure
+
+procedure pop(stack: Stack) -> Item
+  if isEmpty(stack) then
+    throw StackUnderflowError
+  end if
+  value := stack.items[stack.top]
+  stack.top := stack.top - 1
+  return value
+end procedure
+
+procedure peek(stack: Stack) -> Item
+  if isEmpty(stack) then
+    throw StackUnderflowError
+  end if
+  return stack.items[stack.top]
+end procedure`;
+
+const TYPESCRIPT_SNIPPET = `export class BoundedStack<T> {
+  private items: T[] = [];
+  private readonly capacity: number;
+
+  constructor(capacity: number = 8) {
+    this.capacity = capacity;
+  }
+
+  push(item: T): void {
+    if (this.isFull()) {
+      throw new Error('Stack Overflow: capacity reached');
+    }
+    this.items.push(item);
+  }
+
+  pop(): T {
+    if (this.isEmpty()) {
+      throw new Error('Stack Underflow: stack is empty');
+    }
+    return this.items.pop()!;
+  }
+
+  peek(): T {
+    if (this.isEmpty()) {
+      throw new Error('Stack Underflow: stack is empty');
+    }
+    return this.items[this.items.length - 1];
+  }
+
+  isEmpty(): boolean {
+    return this.items.length === 0;
+  }
+
+  isFull(): boolean {
+    return this.items.length >= this.capacity;
+  }
+}`;
+
 const PRESET_SEQUENCES: PresetItem[] = [
   {
     label: 'Standard [Push 10, 20, 30, Pop, Push 40]',
@@ -30,7 +93,6 @@ const PRESET_SEQUENCES: PresetItem[] = [
       { type: 'PUSH', value: 30 },
       { type: 'POP' },
       { type: 'PUSH', value: 40 },
-      { type: 'PEEK' },
     ],
   },
   {
@@ -105,71 +167,13 @@ const PEDAGOGICAL_PHASES = [
     id: '06',
     name: '06. Pseudocode',
     title: 'Algorithm Pseudocode (Bounded Stack ADT)',
-    content: `procedure push(stack: Stack, value: Item)
-  if isFull(stack) then
-    throw StackOverflowError
-  end if
-  stack.top := stack.top + 1
-  stack.items[stack.top] := value
-end procedure
-
-procedure pop(stack: Stack) -> Item
-  if isEmpty(stack) then
-    throw StackUnderflowError
-  end if
-  value := stack.items[stack.top]
-  stack.top := stack.top - 1
-  return value
-end procedure
-
-procedure peek(stack: Stack) -> Item
-  if isEmpty(stack) then
-    throw StackUnderflowError
-  end if
-  return stack.items[stack.top]
-end procedure`,
+    content: PSEUDOCODE_SNIPPET,
   },
   {
     id: '07',
     name: '07. Code',
     title: 'TypeScript Implementation (Generic Bounded Stack)',
-    content: `export class BoundedStack<T> {
-  private items: T[] = [];
-  private readonly capacity: number;
-
-  constructor(capacity: number = 8) {
-    this.capacity = capacity;
-  }
-
-  push(item: T): void {
-    if (this.isFull()) {
-      throw new Error('Stack Overflow: capacity reached');
-    }
-    this.items.push(item);
-  }
-
-  pop(): T {
-    if (this.isEmpty()) {
-      throw new Error('Stack Underflow: stack is empty');
-    }
-    return this.items.pop()!;
-  }
-
-  peek(): T {
-    if (this.isEmpty()) {
-      throw new Error('Stack Underflow: stack is empty');
-    }
-    return this.items[this.items.length - 1];
-  }
-
-  isEmpty(): boolean {
-    return this.items.length === 0;
-  }
-
-  isFull(): boolean {
-    return this.items.length >= this.capacity;
-  }
-}`,
+    content: TYPESCRIPT_SNIPPET,
   },
   {
     id: '08',
@@ -199,6 +203,7 @@ export const StackLab: React.FC = () => {
   const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [stackCapacity, setStackCapacity] = useState<number>(6);
+  const [selectedCodeLang, setSelectedCodeLang] = useState<'pseudocode' | 'typescript'>('typescript');
   const [currentCommands, setCurrentCommands] = useState<StackCommand[]>(PRESET_SEQUENCES[0]?.commands || []);
 
   const {
@@ -337,11 +342,60 @@ export const StackLab: React.FC = () => {
         category="Interactive Laboratory: Stack Data Structure"
         title="Stack & LIFO Principle Exploration"
         subtitle="Understand Last-In, First-Out (LIFO) discipline, constant-time O(1) top operations, and boundary conditions through an interactive 10-step pedagogical laboratory."
-        viewportSlot={
+        visualizationSlot={
           <StackVisualizerAdapter
             step={currentStep}
             viewBoxWidth={800}
             viewBoxHeight={360}
+          />
+        }
+        codeSlot={
+          <div className="code-stage-container">
+            <div className="panel-header">
+              <span className="panel-title">Algorithm Code</span>
+              <div className="code-lang-selector">
+                <Button
+                  variant={selectedCodeLang === 'pseudocode' ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCodeLang('pseudocode')}
+                >
+                  Pseudocode
+                </Button>
+                <Button
+                  variant={selectedCodeLang === 'typescript' ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCodeLang('typescript')}
+                >
+                  TypeScript
+                </Button>
+              </div>
+            </div>
+            <div className="code-stage-body">
+              <CodeViewer
+                code={selectedCodeLang === 'pseudocode' ? PSEUDOCODE_SNIPPET : TYPESCRIPT_SNIPPET}
+                language={selectedCodeLang}
+                activeLine={
+                  selectedCodeLang === 'pseudocode'
+                    ? currentStep?.codeHighlight?.pseudocodeLine
+                    : currentStep?.codeHighlight?.typescriptLine
+                }
+              />
+            </div>
+          </div>
+        }
+        timeTravelSlot={
+          <TimeTravelControls
+            isPlaying={isPlaying}
+            currentIndex={currentIndex}
+            totalSteps={totalSteps}
+            playbackSpeed={playbackSpeed}
+            onFirst={handleFirst}
+            onPrevious={handlePrevious}
+            onTogglePlay={handleTogglePlay}
+            onNext={handleNext}
+            onLast={handleLast}
+            onReset={handleResetWithStop}
+            onSpeedChange={setPlaybackSpeed}
           />
         }
         controlsSlot={
@@ -433,72 +487,59 @@ export const StackLab: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            <TimeTravelControls
-              isPlaying={isPlaying}
-              currentIndex={currentIndex}
-              totalSteps={totalSteps}
-              playbackSpeed={playbackSpeed}
-              onFirst={handleFirst}
-              onPrevious={handlePrevious}
-              onTogglePlay={handleTogglePlay}
-              onNext={handleNext}
-              onLast={handleLast}
-              onReset={handleResetWithStop}
-              onSpeedChange={setPlaybackSpeed}
-            />
-
-            <Card title="State & Capacity Inspector">
-              <div className="inspector-list">
-                <div>
-                  <span className="inspector-label">Action: </span>
-                  <Badge variant={getActionBadgeVariant(currentAction)}>
-                    {currentAction}
-                  </Badge>
-                </div>
-                <div>
-                  <span className="inspector-label">Step Index: </span>
-                  <span className="inspector-val-index">
-                    {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">Items in Stack: </span>
-                  <span className="inspector-val-total">
-                    {stateData.items.length} / {stateData.capacity}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">TOP Element: </span>
-                  <span className="inspector-val-index">
-                    {stateData.topIndex >= 0 ? `${stateData.items[stateData.topIndex]} (idx: ${stateData.topIndex})` : 'null (empty)'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">Status: </span>
-                  <span
-                    className={
-                      currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
-                        ? 'input-error-badge'
-                        : stateData.items.length === stateData.capacity
-                          ? 'inspector-val-idle'
-                          : 'inspector-val-index'
-                    }
-                  >
-                    {currentAction === 'OVERFLOW'
-                      ? 'Overflow Error'
-                      : currentAction === 'UNDERFLOW'
-                        ? 'Underflow Error'
-                        : stateData.items.length === 0
-                          ? 'Empty'
-                          : stateData.items.length === stateData.capacity
-                            ? 'Full (Cap Reached)'
-                            : 'Normal'}
-                  </span>
-                </div>
-              </div>
-            </Card>
           </div>
+        }
+        inspectorSlot={
+          <Card title="State & Capacity Inspector">
+            <div className="inspector-list">
+              <div>
+                <span className="inspector-label">Action: </span>
+                <Badge variant={getActionBadgeVariant(currentAction)}>
+                  {currentAction}
+                </Badge>
+              </div>
+              <div>
+                <span className="inspector-label">Step Index: </span>
+                <span className="inspector-val-index">
+                  {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">Items in Stack: </span>
+                <span className="inspector-val-total">
+                  {stateData.items.length} / {stateData.capacity}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">TOP Element: </span>
+                <span className="inspector-val-index">
+                  {stateData.topIndex >= 0 ? `${stateData.items[stateData.topIndex]} (idx: ${stateData.topIndex})` : 'null (empty)'}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">Status: </span>
+                <span
+                  className={
+                    currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
+                      ? 'input-error-badge'
+                      : stateData.items.length === stateData.capacity
+                        ? 'inspector-val-idle'
+                        : 'inspector-val-index'
+                  }
+                >
+                  {currentAction === 'OVERFLOW'
+                    ? 'Overflow Error'
+                    : currentAction === 'UNDERFLOW'
+                      ? 'Underflow Error'
+                      : stateData.items.length === 0
+                        ? 'Empty'
+                        : stateData.items.length === stateData.capacity
+                          ? 'Full (Cap Reached)'
+                          : 'Normal'}
+                </span>
+              </div>
+            </div>
+          </Card>
         }
         knowledgeSlot={
           <PedagogicalKnowledgePanel

@@ -124,11 +124,11 @@ describe('StackLab Component', () => {
 
     const pseudocodeTab = screen.getByRole('button', { name: /06\. pseudocode/i });
     fireEvent.click(pseudocodeTab);
-    expect(screen.getByText(/procedure push/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/procedure push/i).length).toBeGreaterThan(0);
 
     const codeTab = screen.getByRole('button', { name: /07\. code/i });
     fireEvent.click(codeTab);
-    expect(screen.getByText(/export class BoundedStack/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/export class BoundedStack/i).length).toBeGreaterThan(0);
 
     const modifyTab = screen.getByRole('button', { name: /08\. modify/i });
     fireEvent.click(modifyTab);
@@ -143,23 +143,23 @@ describe('StackLab Component', () => {
     expect(screen.getByText(/algorithm mastery challenge/i)).toBeInTheDocument();
   });
 
-  it('synchronizes active line in pseudocode and code during stack operations', () => {
+  it('synchronizes active line in pseudocode and code during stack operations in dual-stage layout', () => {
     render(<StackLab />);
 
-    const pseudocodeTab = screen.getByRole('button', { name: /06\. pseudocode/i });
-    fireEvent.click(pseudocodeTab);
+    const pseudocodeBtn = screen.getByRole('button', { name: 'Pseudocode' });
+    fireEvent.click(pseudocodeBtn);
 
-    expect(screen.getByText('Pseudocode')).toBeInTheDocument();
+    expect(screen.getAllByText('Pseudocode').length).toBeGreaterThan(0);
 
     const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
     fireEvent.click(stepForwardBtn);
 
     expect(screen.getByText(/Line 4 Active/i)).toBeInTheDocument();
 
-    const codeTab = screen.getByRole('button', { name: /07\. code/i });
-    fireEvent.click(codeTab);
+    const codeLangBtns = screen.getAllByRole('button', { name: 'TypeScript' });
+    fireEvent.click(codeLangBtns[0]!);
 
-    expect(screen.getByText('TypeScript')).toBeInTheDocument();
+    expect(screen.getAllByText('TypeScript').length).toBeGreaterThan(0);
     expect(screen.getByText(/Line 5 Active/i)).toBeInTheDocument();
   });
 

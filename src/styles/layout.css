@@ -24,20 +24,22 @@
   }
 }
 
-.lab-grid {
+.lab-stage-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-4);
-  flex: 1;
+  width: 100%;
 }
 
 @media (min-width: 1024px) {
-  .lab-grid {
-    grid-template-columns: 1fr 380px;
+  .lab-stage-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     gap: var(--space-6);
+    align-items: stretch;
   }
 }
 
+.visualization-stage-panel,
 .viewport-panel {
   background-color: var(--bg-surface-primary);
   border: 1px solid var(--border-default);
@@ -47,8 +49,79 @@
   overflow: hidden;
   box-shadow: var(--shadow-md);
   min-height: 380px;
+  flex: 1;
 }
 
+.code-stage-panel {
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  min-height: 380px;
+  flex: 1;
+}
+
+.code-stage-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+.code-stage-body {
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.code-stage-body .code-viewer-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.code-stage-body .code-viewer-scroll-box {
+  flex: 1;
+  max-height: 330px;
+}
+
+.code-lang-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.time-travel-panel {
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.lab-controls-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+  .lab-controls-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: start;
+  }
+}
+
+.lab-controls-section,
 .control-panel {
   background-color: var(--bg-surface-primary);
   border: 1px solid var(--border-default);
@@ -60,6 +133,13 @@
   box-shadow: var(--shadow-md);
 }
 
+.lab-inspector-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.lab-knowledge-section,
 .knowledge-panel {
   background-color: var(--bg-surface-primary);
   border: 1px solid var(--border-default);

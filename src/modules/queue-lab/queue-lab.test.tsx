@@ -96,7 +96,7 @@ describe('QueueLab Component', () => {
     const phaseBtn = screen.getByRole('button', { name: /06\. pseudocode/i });
     fireEvent.click(phaseBtn);
 
-    expect(screen.getByText('Pseudocode')).toBeInTheDocument();
+    expect(screen.getAllByText('Pseudocode').length).toBeGreaterThan(0);
   });
 
   it('handles auto-play playback loop', () => {
