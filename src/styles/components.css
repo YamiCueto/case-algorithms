@@ -465,6 +465,13 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .svg-viewport-container {
+    min-height: clamp(380px, 44vh, 520px);
+  }
 }
 
 .svg-viewport {
@@ -783,7 +790,8 @@
 
 .code-viewer-scroll-box {
   overflow-x: auto;
-  max-height: 380px;
+  overflow-y: auto;
+  max-height: 420px;
   padding: var(--space-2) 0;
 }
 
