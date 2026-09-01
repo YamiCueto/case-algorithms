@@ -83,17 +83,11 @@ export function getHighlighterPromise(): Promise<HighlighterCore> {
 getHighlighterPromise();
 
 export function getTokenClassName(color: string | undefined): string {
-  if (!color) return 'shiki-token-default';
-  if (color.includes('keyword')) return 'shiki-token-keyword';
-  if (color.includes('constant')) return 'shiki-token-constant';
-  if (color.includes('string-expression')) return 'shiki-token-string-expression';
-  if (color.includes('string')) return 'shiki-token-string';
-  if (color.includes('comment')) return 'shiki-token-comment';
-  if (color.includes('function')) return 'shiki-token-function';
-  if (color.includes('parameter')) return 'shiki-token-parameter';
-  if (color.includes('punctuation')) return 'shiki-token-punctuation';
-  if (color.includes('link')) return 'shiki-token-link';
-  return 'shiki-token-default';
+  if (!color || !color.startsWith('var(--shiki-token-')) {
+    return 'shiki-token-default';
+  }
+  const tokenType = color.slice('var(--shiki-token-'.length, -1);
+  return tokenType ? `shiki-token-${tokenType}` : 'shiki-token-default';
 }
 
 export function highlightCode(
