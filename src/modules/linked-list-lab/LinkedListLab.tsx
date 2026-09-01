@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { simulateLinkedListOperations, LinkedListCommand } from '@/core/algorithms';
 import { LinkedListState } from '@/core/data-structures/linked-list';
 import { LinkedListVisualizerAdapter } from '@/components/visualizer';
+import { CodeViewer } from '@/components/code-viewer';
 import {
   LabShell,
   Button,
@@ -15,25 +16,96 @@ import {
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
 
 interface PresetItem {
-  readonly label: string;
-  readonly initialItems: readonly number[];
-  readonly commands: readonly LinkedListCommand[];
+  label: string;
+  initialItems: number[];
+  commands: LinkedListCommand[];
 }
 
-const PRESET_SEQUENCES: readonly PresetItem[] = [
-  {
-    label: 'Standard [Prepend 10, Append 20, Append 30, InsertAt 1 (15)]',
-    initialItems: [],
-    commands: [
-      { type: 'PREPEND', value: 10 },
-      { type: 'APPEND', value: 20 },
-      { type: 'APPEND', value: 30 },
-      { type: 'INSERT_AT', index: 1, value: 15 },
-    ],
-  },
+const PSEUDOCODE_SNIPPET = `procedure prepend(list: LinkedList, value: Item)
+  newNode := Node(value)
+  newNode.next := list.head
+  list.head := newNode
+  if list.tail = null then list.tail := newNode
+end procedure
+
+procedure append(list: LinkedList, value: Item)
+  newNode := Node(value)
+  if list.head = null then
+    list.head := newNode; list.tail := newNode
+  else
+    list.tail.next := newNode; list.tail := newNode
+  end if
+end procedure
+
+procedure insertAt(list: LinkedList, index: Integer, value: Item)
+  if index = 0 then prepend(list, value); return
+  prev := list.head
+  for i from 0 to index - 2 do prev := prev.next
+  newNode := Node(value)
+  newNode.next := prev.next
+  prev.next := newNode
+end procedure
+
+procedure removeAt(list: LinkedList, index: Integer) -> Item
+  if index = 0 then
+    value := list.head.value
+    list.head := list.head.next
+    return value
+  end if
+  prev := list.head
+  for i from 0 to index - 2 do prev := prev.next
+  target := prev.next
+  prev.next := target.next
+  return target.value
+end procedure`;
+
+const TYPESCRIPT_SNIPPET = `export class SinglyLinkedList<T> {
+  private head: Node<T> | null = null;
+  private tail: Node<T> | null = null;
+
+  prepend(value: T): void {
+    const node = new Node(value);
+    node.next = this.head;
+    this.head = node;
+    if (!this.tail) this.tail = node;
+  }
+
+  append(value: T): void {
+    const node = new Node(value);
+    if (!this.head || !this.tail) {
+      this.head = node; this.tail = node;
+    } else {
+      this.tail.next = node; this.tail = node;
+    }
+  }
+
+  insertAt(index: number, value: T): void {
+    if (index === 0) return this.prepend(value);
+    let prev = this.head!;
+    for (let i = 0; i < index - 1; i++) prev = prev.next!;
+    const node = new Node(value);
+    node.next = prev.next;
+    prev.next = node;
+  }
+
+  removeAt(index: number): T {
+    if (index === 0) {
+      const val = this.head!.value;
+      this.head = this.head!.next;
+      return val;
+    }
+    let prev = this.head!;
+    for (let i = 0; i < index - 1; i++) prev = prev.next!;
+    const target = prev.next!;
+    prev.next = target.next;
+    return target.value;
+  }
+}`;
+
+const PRESET_SEQUENCES: PresetItem[] = [
   {
     label: 'Prepend & Append Mix [Prepend 5, 2, Append 8, 12]',
-    initialItems: [],
+    initialItems: [10, 20, 30, 40],
     commands: [
       { type: 'PREPEND', value: 5 },
       { type: 'PREPEND', value: 2 },
@@ -98,90 +170,13 @@ const PEDAGOGICAL_PHASES = [
     id: '06',
     name: '06. Pseudocode',
     title: 'Algorithm Pseudocode (Singly Linked List ADT)',
-    content: `procedure prepend(list: LinkedList, value: Item)
-  newNode := Node(value)
-  newNode.next := list.head
-  list.head := newNode
-  if list.tail = null then list.tail := newNode
-end procedure
-
-procedure append(list: LinkedList, value: Item)
-  newNode := Node(value)
-  if list.head = null then
-    list.head := newNode; list.tail := newNode
-  else
-    list.tail.next := newNode; list.tail := newNode
-  end if
-end procedure
-
-procedure insertAt(list: LinkedList, index: Integer, value: Item)
-  if index = 0 then prepend(list, value); return
-  prev := list.head
-  for i from 0 to index - 2 do prev := prev.next
-  newNode := Node(value)
-  newNode.next := prev.next
-  prev.next := newNode
-end procedure
-
-procedure removeAt(list: LinkedList, index: Integer) -> Item
-  if index = 0 then
-    value := list.head.value
-    list.head := list.head.next
-    return value
-  end if
-  prev := list.head
-  for i from 0 to index - 2 do prev := prev.next
-  target := prev.next
-  prev.next := target.next
-  return target.value
-end procedure`,
+    content: PSEUDOCODE_SNIPPET,
   },
   {
     id: '07',
     name: '07. Code',
     title: 'TypeScript Implementation (Generic Singly Linked List)',
-    content: `export class SinglyLinkedList<T> {
-  private head: Node<T> | null = null;
-  private tail: Node<T> | null = null;
-
-  prepend(value: T): void {
-    const node = new Node(value);
-    node.next = this.head;
-    this.head = node;
-    if (!this.tail) this.tail = node;
-  }
-
-  append(value: T): void {
-    const node = new Node(value);
-    if (!this.head || !this.tail) {
-      this.head = node; this.tail = node;
-    } else {
-      this.tail.next = node; this.tail = node;
-    }
-  }
-
-  insertAt(index: number, value: T): void {
-    if (index === 0) return this.prepend(value);
-    let prev = this.head!;
-    for (let i = 0; i < index - 1; i++) prev = prev.next!;
-    const node = new Node(value);
-    node.next = prev.next;
-    prev.next = node;
-  }
-
-  removeAt(index: number): T {
-    if (index === 0) {
-      const val = this.head!.value;
-      this.head = this.head!.next;
-      return val;
-    }
-    let prev = this.head!;
-    for (let i = 0; i < index - 1; i++) prev = prev.next!;
-    const target = prev.next!;
-    prev.next = target.next;
-    return target.value;
-  }
-}`,
+    content: TYPESCRIPT_SNIPPET,
   },
   {
     id: '08',
@@ -193,16 +188,16 @@ end procedure`,
   {
     id: '09',
     name: '09. Practice',
-    title: 'Practice: Dynamic Memory & Chained Structures',
+    title: 'Practice: Implementing a Music Playlist',
     content:
-      'Linked Lists form the structural backbone of Hash Table separate chaining collision resolution, LRU (Least Recently Used) cache doubly-linked lists, symbol tables in compilers, and polynomial arithmetic representations in algebraic systems.',
+      'A common real-world application of linked structures is a music playlist or browser navigation history, where songs or URLs are dynamically inserted or removed without requiring array re-indexing.',
   },
   {
     id: '10',
     name: '10. Challenge',
     title: 'Algorithm Mastery Challenge',
     content:
-      'Challenge Question: Starting with an empty list, we execute: PREPEND(10), APPEND(20), PREPEND(5), INSERT_AT(1, 8), REMOVE_AT(2). What is the final sequence of values from HEAD to NULL? (Answer: [5 -> 8 -> 20 -> null]). Load the Standard preset to verify pointer transitions!',
+      'Challenge Question: Given a list [10, 20, 30, 40], what sequence of pointer updates occurs when calling removeAt(1)? (Answer: Traversal locates prev at node 10; target is node 20; prev.next is set to target.next (node 30); resulting list is [10, 30, 40]). Load the Removal Demo preset to verify!',
   },
 ];
 
@@ -211,11 +206,9 @@ export const LinkedListLab: React.FC = () => {
   const [nodeIndexText, setNodeIndexText] = useState('0');
   const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
-
-  const [currentInitialItems, setCurrentInitialItems] = useState<readonly number[]>(
-    PRESET_SEQUENCES[0]?.initialItems || []
-  );
-  const [currentCommands, setCurrentCommands] = useState<readonly LinkedListCommand[]>(
+  const [selectedCodeLang, setSelectedCodeLang] = useState<'pseudocode' | 'typescript'>('typescript');
+  const [currentInitialItems, setCurrentInitialItems] = useState<number[]>([10, 20, 30, 40]);
+  const [currentCommands, setCurrentCommands] = useState<LinkedListCommand[]>(
     PRESET_SEQUENCES[0]?.commands || []
   );
 
@@ -246,9 +239,9 @@ export const LinkedListLab: React.FC = () => {
   });
 
   const initController = useCallback(
-    (commands: readonly LinkedListCommand[], initialItems: readonly number[]) => {
+    (commands: LinkedListCommand[], items: number[]) => {
       stopPlayback();
-      const result = simulateLinkedListOperations(commands, initialItems);
+      const result = simulateLinkedListOperations(commands, items);
       loadSteps(result.steps);
     },
     [stopPlayback, loadSteps]
@@ -377,25 +370,31 @@ export const LinkedListLab: React.FC = () => {
   });
 
   const currentAction = currentStep?.action || 'INITIALIZE';
-  const stateData = currentStep?.state || {
+  const stateData: LinkedListState = currentStep?.state || {
     nodes: [],
     headId: null,
     tailId: null,
     size: 0,
   };
 
+  const headNode = stateData.nodes.find((n) => n.id === stateData.headId);
+  const tailNode = stateData.nodes.find((n) => n.id === stateData.tailId);
+
   const getActionBadgeVariant = (action: string) => {
     switch (action) {
       case 'PREPEND':
       case 'APPEND':
       case 'INSERT_AT':
+      case 'INSERT':
         return 'cyan';
       case 'REMOVE_AT':
+      case 'DELETE':
         return 'rose';
       case 'FOUND':
         return 'emerald';
       case 'SEARCH':
       case 'TRAVERSE':
+      case 'VISIT':
         return 'amber';
       case 'UNDERFLOW':
       case 'NOT_FOUND':
@@ -407,9 +406,6 @@ export const LinkedListLab: React.FC = () => {
     }
   };
 
-  const headNode = stateData.nodes.find((n) => n.id === stateData.headId);
-  const tailNode = stateData.nodes.find((n) => n.id === stateData.tailId);
-
   return (
     <>
       <A11yAnnouncer message={currentStep?.a11yMessage} />
@@ -417,11 +413,60 @@ export const LinkedListLab: React.FC = () => {
         category="Interactive Laboratory: Singly Linked List"
         title="Singly Linked List & Pointer Chains"
         subtitle="Understand non-contiguous dynamic node allocation, directed pointer reconnections, O(1) head/tail operations, and O(n) sequential access through an interactive 10-step pedagogical laboratory."
-        viewportSlot={
+        visualizationSlot={
           <LinkedListVisualizerAdapter
             step={currentStep}
             viewBoxWidth={800}
             viewBoxHeight={360}
+          />
+        }
+        codeSlot={
+          <div className="code-stage-container">
+            <div className="panel-header">
+              <span className="panel-title">Algorithm Code</span>
+              <div className="code-lang-selector">
+                <Button
+                  variant={selectedCodeLang === 'pseudocode' ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCodeLang('pseudocode')}
+                >
+                  Pseudocode
+                </Button>
+                <Button
+                  variant={selectedCodeLang === 'typescript' ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCodeLang('typescript')}
+                >
+                  TypeScript
+                </Button>
+              </div>
+            </div>
+            <div className="code-stage-body">
+              <CodeViewer
+                code={selectedCodeLang === 'pseudocode' ? PSEUDOCODE_SNIPPET : TYPESCRIPT_SNIPPET}
+                language={selectedCodeLang}
+                activeLine={
+                  selectedCodeLang === 'pseudocode'
+                    ? currentStep?.codeHighlight?.pseudocodeLine
+                    : currentStep?.codeHighlight?.typescriptLine
+                }
+              />
+            </div>
+          </div>
+        }
+        timeTravelSlot={
+          <TimeTravelControls
+            isPlaying={isPlaying}
+            currentIndex={currentIndex}
+            totalSteps={totalSteps}
+            playbackSpeed={playbackSpeed}
+            onFirst={handleFirst}
+            onPrevious={handlePrevious}
+            onTogglePlay={handleTogglePlay}
+            onNext={handleNext}
+            onLast={handleLast}
+            onReset={handleResetWithStop}
+            onSpeedChange={setPlaybackSpeed}
           />
         }
         controlsSlot={
@@ -529,78 +574,65 @@ export const LinkedListLab: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            <TimeTravelControls
-              isPlaying={isPlaying}
-              currentIndex={currentIndex}
-              totalSteps={totalSteps}
-              playbackSpeed={playbackSpeed}
-              onFirst={handleFirst}
-              onPrevious={handlePrevious}
-              onTogglePlay={handleTogglePlay}
-              onNext={handleNext}
-              onLast={handleLast}
-              onReset={handleResetWithStop}
-              onSpeedChange={setPlaybackSpeed}
-            />
-
-            <Card title="State & Pointer Inspector">
-              <div className="inspector-list">
-                <div>
-                  <span className="inspector-label">Action: </span>
-                  <Badge variant={getActionBadgeVariant(currentAction)}>
-                    {currentAction}
-                  </Badge>
-                </div>
-                <div>
-                  <span className="inspector-label">Step Index: </span>
-                  <span className="inspector-val-index">
-                    {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">List Size: </span>
-                  <span className="inspector-val-total">
-                    {stateData.size} node{stateData.size === 1 ? '' : 's'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">HEAD Node: </span>
-                  <span className="inspector-val-index">
-                    {headNode ? `${headNode.value} (id: ${headNode.id})` : 'null'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">TAIL Node: </span>
-                  <span className="inspector-val-index">
-                    {tailNode ? `${tailNode.value} (id: ${tailNode.id})` : 'null'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inspector-label">Status: </span>
-                  <span
-                    className={
-                      currentAction === 'UNDERFLOW' || currentAction === 'NOT_FOUND'
-                        ? 'input-error-badge'
-                        : stateData.size === 0
-                          ? 'inspector-val-idle'
-                          : 'inspector-val-index'
-                    }
-                  >
-                    {currentAction === 'UNDERFLOW'
-                      ? 'Index Error'
-                      : currentAction === 'NOT_FOUND'
-                        ? 'Not Found'
-                        : currentAction === 'FOUND'
-                          ? 'Match Found'
-                          : stateData.size === 0
-                            ? 'Empty (HEAD -> null)'
-                            : 'Normal'}
-                  </span>
-                </div>
-              </div>
-            </Card>
           </div>
+        }
+        inspectorSlot={
+          <Card title="State & Pointer Inspector">
+            <div className="inspector-list">
+              <div>
+                <span className="inspector-label">Action: </span>
+                <Badge variant={getActionBadgeVariant(currentAction)}>
+                  {currentAction}
+                </Badge>
+              </div>
+              <div>
+                <span className="inspector-label">Step Index: </span>
+                <span className="inspector-val-index">
+                  {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">List Size: </span>
+                <span className="inspector-val-total">
+                  {stateData.size} node{stateData.size === 1 ? '' : 's'}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">HEAD Node: </span>
+                <span className="inspector-val-index">
+                  {headNode ? `${headNode.value} (id: ${headNode.id})` : 'null'}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">TAIL Node: </span>
+                <span className="inspector-val-index">
+                  {tailNode ? `${tailNode.value} (id: ${tailNode.id})` : 'null'}
+                </span>
+              </div>
+              <div>
+                <span className="inspector-label">Status: </span>
+                <span
+                  className={
+                    currentAction === 'UNDERFLOW' || currentAction === 'NOT_FOUND'
+                      ? 'input-error-badge'
+                      : stateData.size === 0
+                        ? 'inspector-val-idle'
+                        : 'inspector-val-index'
+                  }
+                >
+                  {currentAction === 'UNDERFLOW'
+                    ? 'Index Error'
+                    : currentAction === 'NOT_FOUND'
+                      ? 'Not Found'
+                      : currentAction === 'FOUND'
+                        ? 'Match Found'
+                        : stateData.size === 0
+                          ? 'Empty (HEAD -> null)'
+                          : 'Normal'}
+                </span>
+              </div>
+            </div>
+          </Card>
         }
         knowledgeSlot={
           <PedagogicalKnowledgePanel

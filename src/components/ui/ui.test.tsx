@@ -108,7 +108,7 @@ describe('Design System UI Components', () => {
   });
 
   describe('LabShell component', () => {
-    it('renders main landmark, viewport, controls, and knowledge slots', () => {
+    it('renders main landmark, viewport, controls, and knowledge slots for backwards compatibility', () => {
       render(
         <LabShell
           title="Stack Laboratory"
@@ -124,6 +124,32 @@ describe('Design System UI Components', () => {
       expect(screen.getByTestId('viewport-content')).toBeInTheDocument();
       expect(screen.getByTestId('controls-content')).toBeInTheDocument();
       expect(screen.getByTestId('knowledge-content')).toBeInTheDocument();
+    });
+
+    it('renders all dual-stage slots: visualization, code, time-travel, controls, inspector, and knowledge', () => {
+      render(
+        <LabShell
+          category="Data Structures"
+          title="Dual Stage Laboratory"
+          subtitle="Synchronized Viewport and Code"
+          visualizationSlot={<div data-testid="viz-stage">SVG Canvas</div>}
+          codeSlot={<div data-testid="code-stage">Code Surface</div>}
+          timeTravelSlot={<div data-testid="tt-stage">Time Travel Bar</div>}
+          controlsSlot={<div data-testid="controls-stage">Inputs & Buttons</div>}
+          inspectorSlot={<div data-testid="inspector-stage">State Inspector</div>}
+          knowledgeSlot={<div data-testid="knowledge-stage">10 Dimensions</div>}
+        />
+      );
+
+      expect(screen.getByRole('main')).toBeInTheDocument();
+      expect(screen.getByText('Data Structures')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /dual stage laboratory/i })).toBeInTheDocument();
+      expect(screen.getByTestId('viz-stage')).toBeInTheDocument();
+      expect(screen.getByTestId('code-stage')).toBeInTheDocument();
+      expect(screen.getByTestId('tt-stage')).toBeInTheDocument();
+      expect(screen.getByTestId('controls-stage')).toBeInTheDocument();
+      expect(screen.getByTestId('inspector-stage')).toBeInTheDocument();
+      expect(screen.getByTestId('knowledge-stage')).toBeInTheDocument();
     });
   });
 
