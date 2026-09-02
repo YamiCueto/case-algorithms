@@ -13,28 +13,28 @@
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: var(--space-4);
-  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  gap: var(--space-3);
 }
 
 @media (min-width: 768px) {
   .lab-shell {
-    padding: var(--space-6);
-    gap: var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    gap: var(--space-4);
   }
 }
 
 .lab-stage-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4);
+  gap: var(--space-3);
   width: 100%;
 }
 
 @media (min-width: 1024px) {
   .lab-stage-grid {
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    gap: var(--space-6);
+    gap: var(--space-4);
     align-items: stretch;
   }
 }
@@ -48,8 +48,16 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  min-height: 380px;
+  min-height: 320px;
   flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .visualization-stage-panel,
+  .viewport-panel {
+    min-height: 380px;
+    max-height: 440px;
+  }
 }
 
 .code-stage-panel {
@@ -60,8 +68,15 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  min-height: 380px;
+  min-height: 320px;
   flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .code-stage-panel {
+    min-height: 380px;
+    max-height: 440px;
+  }
 }
 
 .code-stage-container {
@@ -69,13 +84,15 @@
   flex-direction: column;
   height: 100%;
   flex: 1;
+  overflow: hidden;
 }
 
 .code-stage-body {
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .code-stage-body .code-viewer-container {
@@ -83,11 +100,13 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
 }
 
 .code-stage-body .code-viewer-scroll-box {
   flex: 1;
-  max-height: 330px;
+  max-height: 360px;
+  overflow-y: auto;
 }
 
 .code-lang-selector {
@@ -100,23 +119,52 @@
   background-color: var(--bg-surface-primary);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
+}
+
+@media (max-height: 768px) and (min-width: 1024px) {
+  .lab-shell {
+    padding: var(--space-2) var(--space-4);
+    gap: var(--space-2);
+  }
+
+  .lab-stage-grid {
+    min-height: 320px;
+    max-height: 360px;
+    gap: var(--space-3);
+  }
+
+  .visualization-stage-panel,
+  .viewport-panel,
+  .code-stage-panel {
+    min-height: 320px;
+    max-height: 360px;
+  }
+
+  .code-stage-body .code-viewer-scroll-box {
+    max-height: 290px;
+  }
+
+  .time-travel-panel {
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-1);
+  }
 }
 
 .lab-controls-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 @media (min-width: 1024px) {
   .lab-controls-grid {
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
+    gap: var(--space-4);
     align-items: start;
   }
 }
@@ -129,14 +177,14 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-4);
-  gap: var(--space-4);
+  gap: var(--space-3);
   box-shadow: var(--shadow-md);
 }
 
 .lab-inspector-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .lab-knowledge-section,
@@ -147,7 +195,7 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-4);
-  gap: var(--space-4);
+  gap: var(--space-3);
   box-shadow: var(--shadow-md);
 }
 
@@ -155,13 +203,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
   background-color: var(--bg-surface-secondary);
 }
 
 .panel-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   font-family: var(--font-mono);
   color: var(--text-secondary);
@@ -170,8 +218,9 @@
 }
 
 .panel-body {
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
