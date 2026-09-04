@@ -392,6 +392,11 @@
   flex-wrap: wrap;
 }
 
+.control-actions .btn {
+  max-width: 100%;
+  white-space: normal;
+}
+
 .inspector-list {
   font-size: 12px;
   font-family: var(--font-mono);
@@ -702,6 +707,11 @@
 .input-action-row {
   display: flex;
   gap: var(--space-2);
+  min-width: 0;
+}
+
+.input-action-row input {
+  min-width: 0;
 }
 
 .speed-control-row {
@@ -747,6 +757,8 @@
   padding: var(--space-2) var(--space-6);
   background-color: var(--bg-surface-secondary);
   border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 .stack-container-outline {
