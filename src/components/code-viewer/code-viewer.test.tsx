@@ -151,6 +151,162 @@ describe('CodeViewer Component', () => {
     expect(screen.getByText('Line 35 Active')).toBeInTheDocument();
   });
 
+  it('does not scroll when active line is already within the pedagogical comfort zone', () => {
+    const code = Array.from({ length: 30 }, (_, i) => `const val${i + 1} = ${i + 1};`).join('\n');
+    const { container, rerender } = render(
+      <CodeViewer code={code} language="typescript" activeLine={5} />
+    );
+
+    const scrollBox = container.querySelector('.code-viewer-scroll-box') as HTMLDivElement;
+    Object.defineProperty(scrollBox, 'clientHeight', { value: 300, configurable: true });
+    Object.defineProperty(scrollBox, 'scrollHeight', { value: 900, configurable: true });
+    scrollBox.scrollTop = 0;
+
+    const rows = container.querySelectorAll('.code-line-row');
+    rows.forEach((row, idx) => {
+      Object.defineProperty(row, 'offsetTop', { value: idx * 24, configurable: true });
+      Object.defineProperty(row, 'offsetHeight', { value: 24, configurable: true });
+    });
+
+    const scrollToMock = vi.fn();
+    scrollBox.scrollTo = scrollToMock;
+
+    rerender(<CodeViewer code={code} language="typescript" activeLine={6} />);
+    expect(scrollToMock).not.toHaveBeenCalled();
+  });
+
+  it('scrolls with buffer when active line approaches the lower boundary', () => {
+    const code = Array.from({ length: 30 }, (_, i) => `const val${i + 1} = ${i + 1};`).join('\n');
+    const { container, rerender } = render(
+      <CodeViewer code={code} language="typescript" activeLine={1} />
+    );
+
+    const scrollBox = container.querySelector('.code-viewer-scroll-box') as HTMLDivElement;
+    Object.defineProperty(scrollBox, 'clientHeight', { value: 300, configurable: true });
+    Object.defineProperty(scrollBox, 'scrollHeight', { value: 900, configurable: true });
+    scrollBox.scrollTop = 0;
+
+    const rows = container.querySelectorAll('.code-line-row');
+    rows.forEach((row, idx) => {
+      Object.defineProperty(row, 'offsetTop', { value: idx * 24, configurable: true });
+      Object.defineProperty(row, 'offsetHeight', { value: 24, configurable: true });
+    });
+
+    const scrollToMock = vi.fn();
+    scrollBox.scrollTo = scrollToMock;
+
+    rerender(<CodeViewer code={code} language="typescript" activeLine={12} />);
+    expect(scrollToMock).toHaveBeenCalledTimes(1);
+    expect(scrollToMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        top: expect.any(Number),
+      })
+    );
+    const scrollArg = scrollToMock.mock.calls[0]?.[0] as { top: number; behavior: string };
+    expect(scrollArg.top).toBeGreaterThan(0);
+  });
+
+  it('scrolls with buffer when active line approaches the upper boundary', () => {
+    const code = Array.from({ length: 30 }, (_, i) => `const val${i + 1} = ${i + 1};`).join('\n');
+    const { container, rerender } = render(
+      <CodeViewer code={code} language="typescript" activeLine={20} />
+    );
+
+    const scrollBox = container.querySelector('.code-viewer-scroll-box') as HTMLDivElement;
+    Object.defineProperty(scrollBox, 'clientHeight', { value: 300, configurable: true });
+    Object.defineProperty(scrollBox, 'scrollHeight', { value: 900, configurable: true });
+    scrollBox.scrollTop = 400;
+
+    const rows = container.querySelectorAll('.code-line-row');
+    rows.forEach((row, idx) => {
+      Object.defineProperty(row, 'offsetTop', { value: idx * 24, configurable: true });
+      Object.defineProperty(row, 'offsetHeight', { value: 24, configurable: true });
+    });
+
+    const scrollToMock = vi.fn();
+    scrollBox.scrollTo = scrollToMock;
+
+    rerender(<CodeViewer code={code} language="typescript" activeLine={8} />);
+    expect(scrollToMock).toHaveBeenCalledTimes(1);
+    const scrollArg = scrollToMock.mock.calls[0]?.[0] as { top: number; behavior: string };
+    expect(scrollArg.top).toBeLessThan(400);
+  });
+
+  it('handles first line without negative scroll and last line within bounds', () => {
+    const code = Array.from({ length: 25 }, (_, i) => `const val${i + 1} = ${i + 1};`).join('\n');
+    const { container, rerender } = render(
+      <CodeViewer code={code} language="typescript" activeLine={15} />
+    );
+
+    const scrollBox = container.querySelector('.code-viewer-scroll-box') as HTMLDivElement;
+    Object.defineProperty(scrollBox, 'clientHeight', { value: 300, configurable: true });
+    Object.defineProperty(scrollBox, 'scrollHeight', { value: 600, configurable: true });
+    scrollBox.scrollTop = 200;
+
+    const rows = container.querySelectorAll('.code-line-row');
+    rows.forEach((row, idx) => {
+      Object.defineProperty(row, 'offsetTop', { value: idx * 24, configurable: true });
+      Object.defineProperty(row, 'offsetHeight', { value: 24, configurable: true });
+    });
+
+    const scrollToMock = vi.fn();
+    scrollBox.scrollTo = scrollToMock;
+
+    rerender(<CodeViewer code={code} language="typescript" activeLine={1} />);
+    expect(scrollToMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        top: 0,
+      })
+    );
+
+    rerender(<CodeViewer code={code} language="typescript" activeLine={25} />);
+    const lastCall = scrollToMock.mock.calls[scrollToMock.mock.calls.length - 1]?.[0] as {
+      top: number;
+    };
+    expect(lastCall.top).toBeLessThanOrEqual(300);
+    expect(lastCall.top).toBeGreaterThanOrEqual(0);
+  });
+
+  it('uses instant behavior when prefers-reduced-motion is requested', () => {
+    const matchMediaMock = vi.fn().mockImplementation((query: string) => ({
+      matches: query.includes('prefers-reduced-motion: reduce'),
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+    window.matchMedia = matchMediaMock;
+
+    const code = Array.from({ length: 30 }, (_, i) => `const val${i + 1} = ${i + 1};`).join('\n');
+    const { container, rerender } = render(
+      <CodeViewer code={code} language="typescript" activeLine={1} />
+    );
+
+    const scrollBox = container.querySelector('.code-viewer-scroll-box') as HTMLDivElement;
+    Object.defineProperty(scrollBox, 'clientHeight', { value: 300, configurable: true });
+    Object.defineProperty(scrollBox, 'scrollHeight', { value: 900, configurable: true });
+    scrollBox.scrollTop = 0;
+
+    const rows = container.querySelectorAll('.code-line-row');
+    rows.forEach((row, idx) => {
+      Object.defineProperty(row, 'offsetTop', { value: idx * 24, configurable: true });
+      Object.defineProperty(row, 'offsetHeight', { value: 24, configurable: true });
+    });
+
+    const scrollToMock = vi.fn();
+    scrollBox.scrollTo = scrollToMock;
+
+    rerender(<CodeViewer code={code} language="typescript" activeLine={20} />);
+    expect(scrollToMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        behavior: 'auto',
+      })
+    );
+  });
+
   it('maps Shiki token colors to standard CSS classes accurately via getTokenClassName', () => {
     expect(getTokenClassName('var(--shiki-token-keyword)')).toBe('shiki-token-keyword');
     expect(getTokenClassName('var(--shiki-token-constant)')).toBe('shiki-token-constant');
