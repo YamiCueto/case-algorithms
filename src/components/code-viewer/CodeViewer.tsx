@@ -22,6 +22,7 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
   const [, setHighlighterReady] = useState(() => !!cachedHighlighter);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<Map<number, HTMLTableRowElement>>(new Map());
+  const lastScrollTimeRef = useRef<number>(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,20 +57,46 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
     if (!activeRow || !container) return;
 
     const rowTop = activeRow.offsetTop;
-    const rowHeight = activeRow.offsetHeight;
+    const rowHeight = activeRow.offsetHeight || 22;
     const containerTop = container.scrollTop;
     const containerHeight = container.clientHeight;
+    if (containerHeight <= 0) return;
 
-    const buffer = 24;
+    const maxAllowedBuffer = Math.floor(containerHeight * 0.25);
+    const idealBuffer = rowHeight * 3;
+    const buffer = Math.min(idealBuffer, Math.max(rowHeight, maxAllowedBuffer));
+
     const isAbove = rowTop < containerTop + buffer;
     const isBelow = rowTop + rowHeight > containerTop + containerHeight - buffer;
 
     if (isAbove || isBelow) {
-      const targetScroll = Math.max(0, rowTop - containerHeight / 2 + rowHeight / 2);
-      if (typeof container.scrollTo === 'function') {
-        container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      const maxScroll = Math.max(0, container.scrollHeight - containerHeight);
+      let targetScroll = containerTop;
+
+      if (isAbove) {
+        targetScroll = rowTop - buffer;
       } else {
-        container.scrollTop = targetScroll;
+        targetScroll = rowTop + rowHeight + buffer - containerHeight;
+      }
+
+      const clampedScroll = Math.min(Math.max(0, targetScroll), maxScroll);
+      if (Math.abs(clampedScroll - containerTop) < 1) return;
+
+      const now = Date.now();
+      const isRapidStep = now - lastScrollTimeRef.current < 350;
+      lastScrollTimeRef.current = now;
+
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const behavior: ScrollBehavior = prefersReducedMotion || isRapidStep ? 'auto' : 'smooth';
+
+      if (typeof container.scrollTo === 'function') {
+        container.scrollTo({ top: clampedScroll, behavior });
+      } else {
+        container.scrollTop = clampedScroll;
       }
     }
   }, [validActiveLine]);
