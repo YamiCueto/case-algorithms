@@ -6,6 +6,7 @@
   color: var(--text-primary);
 }
 
+
 .lab-shell {
   flex: 1;
   display: flex;
@@ -15,6 +16,7 @@
   margin: 0 auto;
   padding: var(--space-3) var(--space-4);
   gap: var(--space-3);
+  min-width: 0;
 }
 
 @media (min-width: 768px) {
@@ -26,9 +28,10 @@
 
 .lab-stage-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
   width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
@@ -49,6 +52,8 @@
   overflow: hidden;
   box-shadow: var(--shadow-md);
   min-height: 320px;
+  min-width: 0;
+  max-width: 100%;
   flex: 1;
 }
 
@@ -69,6 +74,8 @@
   overflow: hidden;
   box-shadow: var(--shadow-md);
   min-height: 320px;
+  min-width: 0;
+  max-width: 100%;
   flex: 1;
 }
 
@@ -157,13 +164,14 @@
 
 .lab-controls-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
   .lab-controls-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-4);
     align-items: start;
   }
@@ -179,12 +187,14 @@
   padding: var(--space-4);
   gap: var(--space-3);
   box-shadow: var(--shadow-md);
+  min-width: 0;
 }
 
 .lab-inspector-section {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .lab-knowledge-section,
@@ -197,6 +207,7 @@
   padding: var(--space-4);
   gap: var(--space-3);
   box-shadow: var(--shadow-md);
+  min-width: 0;
 }
 
 .panel-header {
