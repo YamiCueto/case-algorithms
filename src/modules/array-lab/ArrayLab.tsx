@@ -172,6 +172,7 @@ export const ArrayLab: React.FC = () => {
   const {
     isPlaying,
     playbackSpeed,
+    setIsPlaying,
     setPlaybackSpeed,
     handleTogglePlay,
     stopPlayback,
@@ -204,6 +205,7 @@ export const ArrayLab: React.FC = () => {
 
     setInputError(null);
     initController(numbers);
+    setIsPlaying(true);
   };
 
   const handleResetWithStop = () => {

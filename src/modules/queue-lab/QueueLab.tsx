@@ -272,10 +272,10 @@ export const QueueLab: React.FC = () => {
   });
 
   const initController = useCallback(
-    (commands: QueueCommand[], capacity: number) => {
+    (commands: QueueCommand[], capacity: number, targetIndex: number = 0) => {
       stopPlayback();
       const result = simulateQueueOperations(commands, capacity);
-      loadSteps(result.steps);
+      loadSteps(result.steps, targetIndex);
     },
     [stopPlayback, loadSteps]
   );
@@ -287,7 +287,7 @@ export const QueueLab: React.FC = () => {
     if (defaultPreset) {
       setQueueCapacity(defaultPreset.capacity);
       setCurrentCommands(defaultPreset.commands);
-      initController(defaultPreset.commands, defaultPreset.capacity);
+      initController(defaultPreset.commands, defaultPreset.capacity, 0);
     }
   }, [initController]);
 
@@ -300,45 +300,52 @@ export const QueueLab: React.FC = () => {
 
     setInputError(null);
     const val = Number(trimmed);
-    const newCommands: QueueCommand[] = [...currentCommands, { type: 'ENQUEUE', value: Math.round(val) }];
+    const executedCount = Math.min(currentIndex, currentCommands.length);
+    const effectiveCommands = currentCommands.slice(0, executedCount);
+    const newCommands: QueueCommand[] = [...effectiveCommands, { type: 'ENQUEUE', value: Math.round(val) }];
+    const targetIndex = newCommands.length;
     setCurrentCommands(newCommands);
-    initController(newCommands, queueCapacity);
-    handleLast();
+    initController(newCommands, queueCapacity, targetIndex);
   };
 
   const handleDequeue = () => {
     setInputError(null);
-    const newCommands: QueueCommand[] = [...currentCommands, { type: 'DEQUEUE' }];
+    const executedCount = Math.min(currentIndex, currentCommands.length);
+    const effectiveCommands = currentCommands.slice(0, executedCount);
+    const newCommands: QueueCommand[] = [...effectiveCommands, { type: 'DEQUEUE' }];
+    const targetIndex = newCommands.length;
     setCurrentCommands(newCommands);
-    initController(newCommands, queueCapacity);
-    handleLast();
+    initController(newCommands, queueCapacity, targetIndex);
   };
 
   const handlePeekFront = () => {
     setInputError(null);
-    const newCommands: QueueCommand[] = [...currentCommands, { type: 'PEEK_FRONT' }];
+    const executedCount = Math.min(currentIndex, currentCommands.length);
+    const effectiveCommands = currentCommands.slice(0, executedCount);
+    const newCommands: QueueCommand[] = [...effectiveCommands, { type: 'PEEK_FRONT' }];
+    const targetIndex = newCommands.length;
     setCurrentCommands(newCommands);
-    initController(newCommands, queueCapacity);
-    handleLast();
+    initController(newCommands, queueCapacity, targetIndex);
   };
 
   const handleClear = () => {
     setInputError(null);
     const newCommands: QueueCommand[] = [];
     setCurrentCommands(newCommands);
-    initController(newCommands, queueCapacity);
+    initController(newCommands, queueCapacity, 0);
   };
 
   const handlePresetSelect = (preset: PresetItem) => {
     setInputError(null);
     setQueueCapacity(preset.capacity);
     setCurrentCommands(preset.commands);
-    initController(preset.commands, preset.capacity);
+    initController(preset.commands, preset.capacity, 0);
   };
 
   const handleCapacityChange = (cap: number) => {
+    const targetIndex = Math.min(currentIndex, currentCommands.length);
     setQueueCapacity(cap);
-    initController(currentCommands, cap);
+    initController(currentCommands, cap, targetIndex);
   };
 
   const handleResetWithStop = () => {

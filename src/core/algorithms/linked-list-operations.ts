@@ -113,6 +113,7 @@ export function simulateLinkedListOperations(
   });
 
   for (let c = 0; c < commands.length; c++) {
+    const cmdStartIndex = steps.length;
     const cmd = commands[c]!;
 
     if (cmd.type === 'PREPEND') {
@@ -477,6 +478,15 @@ export function simulateLinkedListOperations(
         },
       });
     }
+    for (let s = cmdStartIndex; s < steps.length; s++) {
+      steps[s] = {
+        ...steps[s]!,
+        state: {
+          ...steps[s]!.state,
+          commandIndex: c,
+        },
+      };
+    }
   }
 
   steps.push({
@@ -491,6 +501,7 @@ export function simulateLinkedListOperations(
       size: list.size(),
       lastAction: 'COMPLETE',
       statusMessage: `Sequence completed. Final list contains ${list.size()} nodes.`,
+      commandIndex: commands.length > 0 ? commands.length - 1 : undefined,
     },
     description: `Linked List sequence completed. Final size: ${list.size()} nodes.`,
     a11yMessage: `Sequence completed. Linked List has ${list.size()} nodes.`,

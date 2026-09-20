@@ -170,4 +170,43 @@ test.describe('Stack Laboratory (LIFO Principle)', () => {
     await pauseBtnEn.click();
     await expect(page.getByRole('button', { name: 'Play auto execution' })).toBeVisible();
   });
+
+  test('playground contract: push into empty stack creates single element without preset residual', async ({ page }) => {
+    const input = page.locator('.lab-controls-section').getByRole('textbox');
+    const pushBtn = page.getByRole('button', { name: 'Apilar valor en la pila' });
+    const inspector = page.locator('.lab-inspector-section');
+
+    await expect(inspector).toContainText('Elementos en la pila: 0 / 6');
+    await input.fill('77');
+    await pushBtn.click();
+
+    await expect(inspector).toContainText('Elementos en la pila: 1 / 6');
+    await expect(inspector).toContainText('77');
+    await expect(inspector).toContainText('2 / 3');
+    await expect(page.locator('.viz-node:has-text("77")')).toHaveCount(1);
+    await expect(page.locator('.viz-node')).toHaveCount(1);
+  });
+
+  test('playground contract: pop from intermediate step pops visible top without future preset commands', async ({ page }) => {
+    const stepForwardBtn = page.getByRole('button', { name: 'Avanzar un paso' });
+    const popBtn = page.getByRole('button', { name: 'Desapilar valor del tope de la pila' });
+    const inspector = page.locator('.lab-inspector-section');
+
+    await stepForwardBtn.click();
+    await stepForwardBtn.click();
+
+    await expect(inspector).toContainText('Elementos en la pila: 2 / 6');
+    await expect(inspector).toContainText('20');
+
+    await popBtn.click();
+
+    await expect(inspector).toContainText('Elementos en la pila: 1 / 6');
+    await expect(inspector).toContainText('10');
+    await expect(inspector).toContainText('4 / 5');
+    await expect(page.locator('.viz-node')).toHaveCount(1);
+
+    const stepBackwardBtn = page.getByRole('button', { name: 'Retroceder un paso' });
+    await stepBackwardBtn.click();
+    await expect(inspector).toContainText('Elementos en la pila: 2 / 6');
+  });
 });

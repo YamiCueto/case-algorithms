@@ -15,6 +15,7 @@ export interface LinkedListState {
   readonly targetIndex?: number;
   readonly lastAction?: string;
   readonly statusMessage?: string;
+  readonly commandIndex?: number;
 }
 
 export class SinglyLinkedListNode<T> {

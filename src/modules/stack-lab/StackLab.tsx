@@ -305,10 +305,10 @@ export const StackLab: React.FC = () => {
   );
 
   const initController = useCallback(
-    (commands: StackCommand[], capacity: number) => {
+    (commands: StackCommand[], capacity: number, targetIndex: number = 0) => {
       stopPlayback();
       const result = simulateStackOperations(commands, capacity);
-      loadSteps(result.steps);
+      loadSteps(result.steps, targetIndex);
     },
     [stopPlayback, loadSteps]
   );
@@ -320,7 +320,7 @@ export const StackLab: React.FC = () => {
       const initialHistoryId = `stack-hist-${historyCountRef.current}`;
       setStackCapacity(6);
       setCurrentCommands(DEFAULT_STACK_COMMANDS);
-      initController(DEFAULT_STACK_COMMANDS, 6);
+      initController(DEFAULT_STACK_COMMANDS, 6, 0);
       emitTransition('INITIAL_MOUNT', 0, initialHistoryId);
     }
   }, [initController, emitTransition]);
@@ -336,33 +336,39 @@ export const StackLab: React.FC = () => {
     const val = Number(trimmed);
     historyCountRef.current += 1;
     const newHistId = `stack-hist-${historyCountRef.current}`;
-    const newCommands: StackCommand[] = [...currentCommands, { type: 'PUSH', value: Math.round(val) }];
+    const executedCount = Math.min(currentIndexRef.current, currentCommands.length);
+    const effectiveCommands = currentCommands.slice(0, executedCount);
+    const newCommands: StackCommand[] = [...effectiveCommands, { type: 'PUSH', value: Math.round(val) }];
+    const targetIndex = newCommands.length;
     setCurrentCommands(newCommands);
-    initController(newCommands, stackCapacity);
-    handleLast();
-    emitTransition('SANDBOX_PUSH', newCommands.length, newHistId);
+    initController(newCommands, stackCapacity, targetIndex);
+    emitTransition('SANDBOX_PUSH', targetIndex, newHistId);
   };
 
   const handlePop = () => {
     setInputError(null);
     historyCountRef.current += 1;
     const newHistId = `stack-hist-${historyCountRef.current}`;
-    const newCommands: StackCommand[] = [...currentCommands, { type: 'POP' }];
+    const executedCount = Math.min(currentIndexRef.current, currentCommands.length);
+    const effectiveCommands = currentCommands.slice(0, executedCount);
+    const newCommands: StackCommand[] = [...effectiveCommands, { type: 'POP' }];
+    const targetIndex = newCommands.length;
     setCurrentCommands(newCommands);
-    initController(newCommands, stackCapacity);
-    handleLast();
-    emitTransition('SANDBOX_POP', newCommands.length, newHistId);
+    initController(newCommands, stackCapacity, targetIndex);
+    emitTransition('SANDBOX_POP', targetIndex, newHistId);
   };
 
   const handlePeek = () => {
     setInputError(null);
     historyCountRef.current += 1;
     const newHistId = `stack-hist-${historyCountRef.current}`;
-    const newCommands: StackCommand[] = [...currentCommands, { type: 'PEEK' }];
+    const executedCount = Math.min(currentIndexRef.current, currentCommands.length);
+    const effectiveCommands = currentCommands.slice(0, executedCount);
+    const newCommands: StackCommand[] = [...effectiveCommands, { type: 'PEEK' }];
+    const targetIndex = newCommands.length;
     setCurrentCommands(newCommands);
-    initController(newCommands, stackCapacity);
-    handleLast();
-    emitTransition('SANDBOX_PEEK', newCommands.length, newHistId);
+    initController(newCommands, stackCapacity, targetIndex);
+    emitTransition('SANDBOX_PEEK', targetIndex, newHistId);
   };
 
   const handleClear = () => {
@@ -371,7 +377,7 @@ export const StackLab: React.FC = () => {
     const newHistId = `stack-hist-${historyCountRef.current}`;
     const newCommands: StackCommand[] = [];
     setCurrentCommands(newCommands);
-    initController(newCommands, stackCapacity);
+    initController(newCommands, stackCapacity, 0);
     emitTransition('SANDBOX_CLEAR', 0, newHistId);
   };
 
@@ -381,16 +387,17 @@ export const StackLab: React.FC = () => {
     const newHistId = `stack-hist-${historyCountRef.current}`;
     setStackCapacity(preset.capacity);
     setCurrentCommands(preset.commands);
-    initController(preset.commands, preset.capacity);
+    initController(preset.commands, preset.capacity, 0);
     emitTransition('LOAD_PRESET', 0, newHistId);
   };
 
   const handleCapacityChange = (cap: number) => {
     historyCountRef.current += 1;
     const newHistId = `stack-hist-${historyCountRef.current}`;
+    const targetIndex = Math.min(currentIndexRef.current, currentCommands.length);
     setStackCapacity(cap);
-    initController(currentCommands, cap);
-    emitTransition('CAPACITY_CHANGE', 0, newHistId);
+    initController(currentCommands, cap, targetIndex);
+    emitTransition('CAPACITY_CHANGE', targetIndex, newHistId);
   };
 
   const handleResetWithStop = () => {

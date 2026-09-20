@@ -250,10 +250,16 @@ export const LinkedListLab: React.FC = () => {
   });
 
   const initController = useCallback(
-    (commands: LinkedListCommand[], items: number[]) => {
+    (commands: LinkedListCommand[], items: number[], selectLastStep: boolean = false) => {
       stopPlayback();
       const result = simulateLinkedListOperations(commands, items);
-      loadSteps(result.steps);
+      const targetIndex =
+        selectLastStep && result.steps.length > 2
+          ? result.steps.length - 2
+          : selectLastStep && result.steps.length > 1
+            ? result.steps.length - 1
+            : 0;
+      loadSteps(result.steps, targetIndex);
     },
     [stopPlayback, loadSteps]
   );
@@ -265,7 +271,7 @@ export const LinkedListLab: React.FC = () => {
     if (defaultPreset) {
       setCurrentInitialItems(defaultPreset.initialItems);
       setCurrentCommands(defaultPreset.commands);
-      initController(defaultPreset.commands, defaultPreset.initialItems);
+      initController(defaultPreset.commands, defaultPreset.initialItems, false);
     }
   }, [initController]);
 
@@ -287,30 +293,40 @@ export const LinkedListLab: React.FC = () => {
     return Number(trimmed);
   };
 
+  const getExecutedCommands = (): LinkedListCommand[] => {
+    if (!currentStep) return [];
+    const { commandIndex } = currentStep.state;
+    if (commandIndex === undefined || commandIndex < 0) {
+      return [];
+    }
+    const count = currentStep.action === 'TRAVERSE' ? commandIndex : commandIndex + 1;
+    return currentCommands.slice(0, Math.min(count, currentCommands.length));
+  };
+
   const handlePrepend = () => {
     const val = parseValue();
     if (val === null) return;
     setInputError(null);
+    const effectiveCommands = getExecutedCommands();
     const newCommands: LinkedListCommand[] = [
-      ...currentCommands,
+      ...effectiveCommands,
       { type: 'PREPEND', value: val },
     ];
     setCurrentCommands(newCommands);
-    initController(newCommands, currentInitialItems);
-    handleLast();
+    initController(newCommands, currentInitialItems, true);
   };
 
   const handleAppend = () => {
     const val = parseValue();
     if (val === null) return;
     setInputError(null);
+    const effectiveCommands = getExecutedCommands();
     const newCommands: LinkedListCommand[] = [
-      ...currentCommands,
+      ...effectiveCommands,
       { type: 'APPEND', value: val },
     ];
     setCurrentCommands(newCommands);
-    initController(newCommands, currentInitialItems);
-    handleLast();
+    initController(newCommands, currentInitialItems, true);
   };
 
   const handleInsertAt = () => {
@@ -318,39 +334,39 @@ export const LinkedListLab: React.FC = () => {
     const idx = parseIndex();
     if (val === null || idx === null) return;
     setInputError(null);
+    const effectiveCommands = getExecutedCommands();
     const newCommands: LinkedListCommand[] = [
-      ...currentCommands,
+      ...effectiveCommands,
       { type: 'INSERT_AT', index: idx, value: val },
     ];
     setCurrentCommands(newCommands);
-    initController(newCommands, currentInitialItems);
-    handleLast();
+    initController(newCommands, currentInitialItems, true);
   };
 
   const handleRemoveAt = () => {
     const idx = parseIndex();
     if (idx === null) return;
     setInputError(null);
+    const effectiveCommands = getExecutedCommands();
     const newCommands: LinkedListCommand[] = [
-      ...currentCommands,
+      ...effectiveCommands,
       { type: 'REMOVE_AT', index: idx },
     ];
     setCurrentCommands(newCommands);
-    initController(newCommands, currentInitialItems);
-    handleLast();
+    initController(newCommands, currentInitialItems, true);
   };
 
   const handleFind = () => {
     const val = parseValue();
     if (val === null) return;
     setInputError(null);
+    const effectiveCommands = getExecutedCommands();
     const newCommands: LinkedListCommand[] = [
-      ...currentCommands,
+      ...effectiveCommands,
       { type: 'FIND', value: val },
     ];
     setCurrentCommands(newCommands);
-    initController(newCommands, currentInitialItems);
-    handleLast();
+    initController(newCommands, currentInitialItems, true);
   };
 
   const handleClear = () => {
@@ -358,14 +374,14 @@ export const LinkedListLab: React.FC = () => {
     const newCommands: LinkedListCommand[] = [];
     setCurrentCommands(newCommands);
     setCurrentInitialItems([]);
-    initController(newCommands, []);
+    initController(newCommands, [], false);
   };
 
   const handlePresetSelect = (preset: PresetItem) => {
     setInputError(null);
     setCurrentInitialItems(preset.initialItems);
     setCurrentCommands(preset.commands);
-    initController(preset.commands, preset.initialItems);
+    initController(preset.commands, preset.initialItems, false);
   };
 
   const handleResetWithStop = () => {

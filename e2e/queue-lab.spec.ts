@@ -51,4 +51,32 @@ test.describe('Queue Laboratory (FIFO Principle & Circular Buffer)', () => {
     await expect(page.getByRole('button', { name: 'Enqueue value into queue' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Clear queue' })).toBeVisible();
   });
+
+  test('playground contract: enqueue and dequeue from intermediate step preserves circular buffer state', async ({ page }) => {
+    const stepForwardBtn = page.getByRole('button', { name: 'Avanzar un paso' });
+    const inspector = page.locator('.lab-inspector-section');
+    const input = page.locator('.lab-controls-section').getByRole('textbox');
+    const enqueueBtn = page.getByRole('button', { name: 'Encolar valor en la cola' });
+    const dequeueBtn = page.getByRole('button', { name: 'Desencolar valor del frente' });
+
+    await stepForwardBtn.click();
+    await expect(inspector).toContainText('Elementos en la cola: 1 / 6');
+    await expect(inspector).toContainText('10');
+
+    await input.fill('99');
+    await enqueueBtn.click();
+
+    await expect(inspector).toContainText('Elementos en la cola: 2 / 6');
+    await expect(inspector).toContainText('99');
+    await expect(inspector).toContainText('3 / 4');
+
+    await dequeueBtn.click();
+    await expect(inspector).toContainText('Elementos en la cola: 1 / 6');
+    await expect(inspector).toContainText('DEQUEUE');
+    await expect(inspector).toContainText('4 / 5');
+
+    const stepBackwardBtn = page.getByRole('button', { name: 'Retroceder un paso' });
+    await stepBackwardBtn.click();
+    await expect(inspector).toContainText('Elementos en la cola: 2 / 6');
+  });
 });

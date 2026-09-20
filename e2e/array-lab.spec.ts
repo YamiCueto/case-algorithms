@@ -66,4 +66,21 @@ test.describe('Array Laboratory & Bubble Sort Exploration', () => {
     await expect(page.locator('.code-viewer-lang-badge')).toHaveText('TypeScript');
     await expect(page.locator('.shiki-token-keyword').first()).toBeVisible();
   });
+
+  test('playground contract: loading custom array auto-starts playback and updates visualization', async ({ page }) => {
+    const input = page.locator('#array-input');
+    const loadAndRunBtn = page.getByRole('button', { name: 'Cargar y ejecutar ordenamiento' });
+    const inspector = page.locator('.lab-inspector-section');
+
+    await input.fill('9, 3, 7, 1');
+    await loadAndRunBtn.click();
+
+    await expect(page.locator('.viz-node')).toHaveCount(4);
+    await expect(page.getByRole('button', { name: 'Pausar ejecución' })).toBeVisible();
+
+    await expect.poll(async () => {
+      const text = await inspector.textContent();
+      return text || '';
+    }).toMatch(/COMPARE|SWAP/);
+  });
 });

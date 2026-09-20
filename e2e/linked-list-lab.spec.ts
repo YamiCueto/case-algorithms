@@ -47,4 +47,36 @@ test.describe('Linked List Laboratory (Pointer Chains & Dynamic Nodes)', () => {
     await expect(page.getByRole('button', { name: 'Prepend node at head' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Clear linked list' })).toBeVisible();
   });
+
+  test('playground contract: insert_at and remove_at from intermediate step acts upon visible list state', async ({ page }) => {
+    const stepForwardBtn = page.getByRole('button', { name: 'Avanzar un paso' });
+    const inspector = page.locator('.lab-inspector-section');
+    const valueInput = page.locator('.lab-controls-section input').first();
+    const indexInput = page.locator('.lab-controls-section input').nth(1);
+    const insertBtn = page.getByRole('button', { name: 'Insertar nodo en el índice' });
+    const removeBtn = page.getByRole('button', { name: 'Eliminar nodo en el índice' });
+
+    await stepForwardBtn.click();
+    await expect(inspector).toContainText('PREPEND');
+    await expect(inspector).toContainText('5 nodos');
+
+    await valueInput.fill('99');
+    await indexInput.fill('1');
+    await insertBtn.click();
+
+    await expect(inspector).toContainText('INSERT_AT');
+    await expect(inspector).toContainText('6 nodos');
+    await expect(inspector).toContainText('4 / 5');
+
+    await indexInput.fill('1');
+    await removeBtn.click();
+
+    await expect(inspector).toContainText('REMOVE_AT');
+    await expect(inspector).toContainText('5 nodos');
+    await expect(inspector).toContainText('6 / 7');
+
+    const stepBackwardBtn = page.getByRole('button', { name: 'Retroceder un paso' });
+    await stepBackwardBtn.click();
+    await expect(inspector).toContainText('6 nodos');
+  });
 });
