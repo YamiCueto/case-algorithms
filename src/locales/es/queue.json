@@ -1,0 +1,89 @@
+{
+  "category": "Laboratorio interactivo: Estructura de datos Cola",
+  "title": "Exploración de Colas y Principio FIFO",
+  "subtitle": "Comprende la disciplina Primero en Entrar, Primero en Salir (FIFO), las operaciones en ambos extremos O(1) de encolar y desencolar, y las condiciones límite mediante un laboratorio pedagógico interactivo de 10 pasos.",
+  "operationsLabel": "Operaciones interactivas de cola",
+  "enqueueInputPlaceholder": "ej. 42",
+  "enqueueInputAria": "Valor a encolar",
+  "enqueueBtn": "Enqueue",
+  "enqueueBtnAria": "Encolar valor en la cola",
+  "dequeueBtn": "Dequeue",
+  "dequeueBtnAria": "Desencolar valor del frente",
+  "peekBtn": "Peek Front",
+  "peekBtnAria": "Mirar valor del frente",
+  "clearBtn": "Vaciar",
+  "clearBtnAria": "Vaciar cola",
+  "invalidNumber": "Número inválido: \"{{value}}\". Por favor ingresa un número válido.",
+  "capacityLabel": "Capacidad:",
+  "presets": {
+    "standard": "Estándar [Enqueue 10, 20, 30, Dequeue, Enqueue 40]",
+    "wrapAround": "Demostración circular [Llenar 5, Desencolar 2, Encolar 2]",
+    "overflow": "Demostración de desbordamiento [Llenar Cap 5 + 1]",
+    "underflow": "Demostración de subdesbordamiento [Enqueue 50, Deq, Deq]",
+    "peek": "Mirar e inspeccionar [Enqueue 12, 24, Peek]"
+  },
+  "inspector": {
+    "title": "Inspector de estado y capacidad",
+    "itemsInQueue": "Elementos en la cola:",
+    "frontElement": "Elemento FRONT:",
+    "rearElement": "Elemento REAR:",
+    "nullEmpty": "null (vacía)",
+    "slot": "ranura [{{index}}]",
+    "statusOverflow": "Error de desbordamiento (Overflow)",
+    "statusUnderflow": "Error de subdesbordamiento (Underflow)",
+    "statusEmpty": "Vacía",
+    "statusFull": "Llena (capacidad alcanzada)",
+    "statusNormal": "Normal"
+  },
+  "canvas": {
+    "title": "Lienzo de visualización de cola",
+    "emptyTitle": "Visualizador de cola",
+    "emptyDescription": "No hay estado de cola disponible. Usa los controles para realizar operaciones de cola.",
+    "noData": "No hay datos de cola disponibles. Realiza una operación para comenzar.",
+    "outflow": "⮜ Salida (FRONT)",
+    "inflow": "⮜ Entrada (REAR)",
+    "bufferCapacity": "Capacidad de búfer: {{capacity}} | Elementos: {{count}}",
+    "frontLabel": "FRONT",
+    "rearLabel": "REAR"
+  },
+  "phases": {
+    "p01": {
+      "title": "Descubrir el principio FIFO (Primero en entrar, primero en salir)",
+      "content": "Una Cola (Queue) es una estructura de datos lineal fundamental gobernada por una regla de acceso estricta: el primer elemento insertado es siempre el primero en ser retirado (FIFO: First-In, First-Out). Piensa en una fila de clientes en una ventanilla, una cola de impresión procesando trabajos en orden o la cola de mensajes de un sistema operativo."
+    },
+    "p02": {
+      "title": "Interactuar con Enqueue, Dequeue y Peek",
+      "content": "Usa el panel de operaciones a la derecha para agregar valores al final (REAR) con ENQUEUE, inspeccionar el elemento más antiguo al frente (FRONT) con PEEK o retirar el elemento frontal con DEQUEUE. Avanza en la línea de tiempo usando los controles de Time-Travel inferiores para ver cómo se actualizan los punteros FRONT y REAR."
+    },
+    "p03": {
+      "title": "Observar la disciplina de acceso por dos extremos",
+      "content": "Observa que los elementos en una Cola solo pueden ingresar por un extremo (REAR) y salir por el otro extremo (FRONT). El contrato del TAD prohíbe el acceso aleatorio a elementos intermedios por índice. ¡Nota cómo DEQUEUE avanza el puntero FRONT sin desplazar físicamente ninguno de los elementos restantes en la memoria!"
+    },
+    "p04": {
+      "title": "Explicar la complejidad temporal y espacial (¿Por qué O(1)?)",
+      "content": "En una implementación ingenua sobre arreglos, eliminar el elemento frontal requiere desplazar los N-1 elementos restantes a la izquierda, lo que cuesta tiempo O(N). En CASE Algorithms, la Cola Acotada se implementa como un auténtico Búfer Circular de Dos Punteros: ENQUEUE inserta en buffer[rear] y avanza rear = (rear + 1) % capacidad; DEQUEUE extrae buffer[front] y avanza front = (front + 1) % capacidad. ¡Dado que se desplazan cero elementos, ENQUEUE, DEQUEUE y PEEK se ejecutan en tiempo constante estricto O(1)! La complejidad espacial es O(N) de memoria auxiliar para el búfer, mientras que la traza inmutable ExecutionStep[] registra capturas pedagógicas para el viaje en el tiempo."
+    },
+    "p05": {
+      "title": "Representación visual y punteros del búfer circular",
+      "content": "El lienzo SVG renderiza la cola como un búfer físico acotado. El puntero FRONT (cian) rastrea el elemento válido más antiguo, mientras que el puntero REAR (ámbar) indica el elemento agregado más recientemente. Observa cómo las ranuras vacías permanecen fijas en su lugar mientras los punteros avanzan a través del búfer."
+    },
+    "p06": {
+      "title": "Pseudocódigo del algoritmo (TAD Cola en búfer circular)"
+    },
+    "p07": {
+      "title": "Implementación en TypeScript (Cola circular de dos punteros)"
+    },
+    "p08": {
+      "title": "Modificar y condiciones límite",
+      "content": "Una Cola Acotada introduce una estricta aplicación de límites: el Desbordamiento (Queue Overflow) ocurre al intentar encolar (ENQUEUE) en un búfer lleno, y el Subdesbordamiento (Queue Underflow) ocurre al intentar desencolar (DEQUEUE) o mirar (PEEK) una cola vacía. ¡Intenta desencadenar ambas condiciones usando los preajustes de demostración!"
+    },
+    "p09": {
+      "title": "Práctica: Planificación de tareas y bucles de eventos",
+      "content": "Las colas son el motor fundamental de los sistemas asíncronos: el bucle de eventos de macrotareas de JavaScript, los gestores de colas de impresión en segundo plano y los distribuidores de solicitudes de servidores web dependen de colas FIFO para garantizar un orden de procesamiento justo y determinista."
+    },
+    "p10": {
+      "title": "Desafío de dominio del algoritmo",
+      "content": "Pregunta del desafío: Dada una cola vacía con capacidad 5, realizamos: ENQUEUE(10), ENQUEUE(20), ENQUEUE(30), DEQUEUE(), ENQUEUE(40), ENQUEUE(50), DEQUEUE(), PEEK(). ¿Qué valor devuelve PEEK() y cuáles son los índices front y rear en el búfer circular? (Respuesta: PEEK devuelve 30; frontIndex es 2, rearIndex es 0). ¡Carga el preajuste de Demostración Circular para verificarlo!"
+    }
+  }
+}

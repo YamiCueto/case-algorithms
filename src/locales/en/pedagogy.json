@@ -1,0 +1,14 @@
+{
+  "phases": {
+    "discover": "01. Discover",
+    "interact": "02. Interact",
+    "observe": "03. Observe",
+    "explain": "04. Explain",
+    "visualize": "05. Visualize",
+    "pseudocode": "06. Pseudocode",
+    "code": "07. Code",
+    "modify": "08. Modify",
+    "practice": "09. Practice",
+    "challenge": "10. Challenge"
+  }
+}

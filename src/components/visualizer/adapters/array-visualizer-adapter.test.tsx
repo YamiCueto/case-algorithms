@@ -1,16 +1,25 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ArrayVisualizerAdapter } from './ArrayVisualizerAdapter';
 import { ExecutionStep } from '@/core/types';
 import { ArrayState } from '@/core/data-structures/array';
+import { changeLanguage } from '@/i18n';
 
 describe('ArrayVisualizerAdapter', () => {
-  it('renders fallback when step is null', () => {
-    render(<ArrayVisualizerAdapter step={null} />);
-    expect(screen.getByText('No array data available. Provide input to begin.')).toBeInTheDocument();
+  beforeEach(async () => {
+    await changeLanguage('es');
   });
 
-  it('renders empty array state when array is empty', () => {
+  it('renders fallback when step is null in both languages', async () => {
+    const { rerender } = render(<ArrayVisualizerAdapter step={null} />);
+    expect(screen.getAllByText('No hay datos de arreglo disponibles. Proporciona una entrada para comenzar.')[0]).toBeInTheDocument();
+
+    await changeLanguage('en');
+    rerender(<ArrayVisualizerAdapter step={null} />);
+    expect(screen.getAllByText('No array data available. Provide input to begin.')[0]).toBeInTheDocument();
+  });
+
+  it('renders empty array state when array is empty in both languages', async () => {
     const emptyStep: ExecutionStep<ArrayState> = {
       id: 'step-0',
       stepIndex: 0,
@@ -25,8 +34,12 @@ describe('ArrayVisualizerAdapter', () => {
       },
     };
 
-    render(<ArrayVisualizerAdapter step={emptyStep} />);
-    expect(screen.getByText('Empty Array []')).toBeInTheDocument();
+    const { rerender } = render(<ArrayVisualizerAdapter step={emptyStep} />);
+    expect(screen.getAllByText('Arreglo vacío []')[0]).toBeInTheDocument();
+
+    await changeLanguage('en');
+    rerender(<ArrayVisualizerAdapter step={emptyStep} />);
+    expect(screen.getAllByText('Empty Array []')[0]).toBeInTheDocument();
   });
 
   it('renders array elements as VisualNodes and calls onNodeClick', () => {

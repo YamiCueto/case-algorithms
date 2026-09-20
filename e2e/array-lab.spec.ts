@@ -3,14 +3,14 @@ import { test, expect } from '@playwright/test';
 test.describe('Array Laboratory & Bubble Sort Exploration', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: /(Switch to Array Laboratory|Cambiar al laboratorio de arreglos)/i }).click();
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Array & Bubble Sort');
+    await page.getByRole('button', { name: 'Cambiar al laboratorio de arreglos' }).click();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Exploración de Arreglos y Ordenamiento Burbuja');
   });
 
-  test('executes step-by-step sorting with synchronized code highlighting and visual state', async ({ page }) => {
-    const stepForwardBtn = page.getByRole('button', { name: /(Step forward|Avanzar un paso)/i });
-    const stepBackwardBtn = page.getByRole('button', { name: /(Step backward|Retroceder un paso)/i });
-    const resetBtn = page.getByRole('button', { name: /(Reset to initial step|Reiniciar al paso inicial)/i });
+  test('executes step-by-step sorting with synchronized code highlighting and visual state in Spanish', async ({ page }) => {
+    const stepForwardBtn = page.getByRole('button', { name: 'Avanzar un paso' });
+    const stepBackwardBtn = page.getByRole('button', { name: 'Retroceder un paso' });
+    const resetBtn = page.getByRole('button', { name: 'Reiniciar al paso inicial' });
     const inspector = page.locator('.lab-inspector-section');
 
     await expect(inspector).toContainText('1 / 19');
@@ -38,20 +38,28 @@ test.describe('Array Laboratory & Bubble Sort Exploration', () => {
     await expect(page.locator('.viz-node-comparing')).toHaveCount(0);
   });
 
-  test('controls playback timer and toggles between Pseudocode and TypeScript', async ({ page }) => {
-    const playBtn = page.getByRole('button', { name: /(Play auto execution|Reproducir ejecución automática)/i });
-    await expect(playBtn).toBeVisible();
+  test('controls playback timer and switches to English verifying localized controls', async ({ page }) => {
+    const playBtnEs = page.getByRole('button', { name: 'Reproducir ejecución automática' });
+    await expect(playBtnEs).toBeVisible();
 
-    await playBtn.click();
-    const pauseBtn = page.getByRole('button', { name: /(Pause execution|Pausar ejecución)/i });
-    await expect(pauseBtn).toBeVisible();
+    await playBtnEs.click();
+    const pauseBtnEs = page.getByRole('button', { name: 'Pausar ejecución' });
+    await expect(pauseBtnEs).toBeVisible();
 
     const inspector = page.locator('.lab-inspector-section');
-    await expect(inspector).toContainText(/Step Index: [1-9]/);
+    await expect(inspector).toContainText(/Índice de paso: [1-9]/);
 
-    await pauseBtn.click();
-    await expect(page.getByRole('button', { name: /(Play auto execution|Reproducir ejecución automática)/i })).toBeVisible();
+    await pauseBtnEs.click();
+    await expect(page.getByRole('button', { name: 'Reproducir ejecución automática' })).toBeVisible();
 
+    const enRadio = page.getByRole('radio', { name: 'Switch to English' });
+    await enRadio.click();
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Array & Bubble Sort Exploration');
+    await expect(page.locator('.lab-inspector-section')).toContainText('State & Metrics Inspector');
+
+    const playBtnEn = page.getByRole('button', { name: 'Play auto execution' });
+    await expect(playBtnEn).toBeVisible();
 
     const tsBtn = page.locator('.code-stage-panel').getByRole('button', { name: 'TypeScript' });
     await tsBtn.click();

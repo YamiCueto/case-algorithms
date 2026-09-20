@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ExecutionStep } from '@/core/types';
 import { LinkedListState } from '@/core/data-structures/linked-list';
 import { NodeVisualState, HighlightVariant } from '../types';
@@ -22,17 +23,19 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
   viewBoxHeight = 360,
   onNodeClick,
 }) => {
+  const { t } = useTranslation(['linkedList']);
+
   if (!step) {
     return (
       <SVGViewport
         viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-        title="Linked List Visualization Canvas"
-        description="No linked list data available. Perform an operation to begin."
+        title={t('linkedList:canvas.title')}
+        description={t('linkedList:canvas.noData')}
       >
         <VisualLabel
           x={viewBoxWidth / 2}
           y={viewBoxHeight / 2}
-          text="No linked list data available. Perform an operation to begin."
+          text={t('linkedList:canvas.noData')}
           variant="muted"
           fontType="sans"
         />
@@ -78,7 +81,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
   return (
     <SVGViewport
       viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-      title="Linked List Visualization Canvas"
+      title={t('linkedList:canvas.title')}
       description={step.a11yMessage}
     >
       <VisualLabel
@@ -93,7 +96,10 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
       <VisualLabel
         x={viewBoxWidth / 2}
         y={50}
-        text={`Size: ${size} node${size === 1 ? '' : 's'}`}
+        text={t('linkedList:canvas.size', {
+          size,
+          units: size === 1 ? t('linkedList:canvas.nodeSingle') : t('linkedList:canvas.nodePlural'),
+        })}
         variant="muted"
         fontType="mono"
         anchor="middle"
@@ -105,7 +111,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
           <VisualPointer
             x={viewBoxWidth / 2 - 30}
             y={centerY - 24}
-            label="HEAD"
+            label={t('linkedList:canvas.headLabel')}
             direction="top"
             colorVar="var(--accent-cyan)"
             length={24}
@@ -131,7 +137,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
             <VisualLabel
               x={viewBoxWidth / 2 + 10 + nullBoxWidth / 2}
               y={centerY}
-              text="NULL"
+              text={t('linkedList:canvas.nullTerminal')}
               variant="muted"
               fontType="mono"
               fontSize={11}
@@ -216,7 +222,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
                     <VisualLabel
                       x={nodeCenterX + nodeWidth / 2 + edgeLength + nullBoxWidth / 2}
                       y={centerY}
-                      text="NULL"
+                      text={t('linkedList:canvas.nullTerminal')}
                       variant="muted"
                       fontType="mono"
                       fontSize={11}
@@ -235,7 +241,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
                   ? centerY + nodeHeight / 2 + 28
                   : centerY - nodeHeight / 2 - 28
               }
-              label="HEAD"
+              label={t('linkedList:canvas.headLabel')}
               direction={headIdx === tailIdx ? 'bottom' : 'top'}
               colorVar="var(--accent-cyan)"
               length={24}
@@ -246,7 +252,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
             <VisualPointer
               x={getNodeCenterX(tailIdx)}
               y={centerY - nodeHeight / 2 - 28}
-              label="TAIL"
+              label={t('linkedList:canvas.tailLabel')}
               direction="top"
               colorVar="var(--accent-amber)"
               length={24}
@@ -257,7 +263,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
             <VisualPointer
               x={getNodeCenterX(activeIdx)}
               y={centerY + nodeHeight / 2 + 28}
-              label="CURR"
+              label={t('linkedList:canvas.currLabel')}
               direction="bottom"
               colorVar="var(--accent-primary)"
               length={24}

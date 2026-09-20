@@ -1,0 +1,85 @@
+{
+  "category": "Laboratorio interactivo: Estructura de datos Pila",
+  "title": "Exploración de Pilas y Principio LIFO",
+  "subtitle": "Comprende la disciplina Último en Entrar, Primero en Salir (LIFO), las operaciones en el tope en tiempo constante O(1) y las condiciones límite mediante un laboratorio pedagógico interactivo de 10 pasos.",
+  "operationsLabel": "Operaciones interactivas de pila",
+  "pushInputPlaceholder": "ej. 42",
+  "pushInputAria": "Valor a apilar en la pila",
+  "pushBtn": "Push",
+  "pushBtnAria": "Apilar valor en la pila",
+  "popBtn": "Pop",
+  "popBtnAria": "Desapilar valor del tope de la pila",
+  "peekBtn": "Peek",
+  "peekBtnAria": "Mirar valor del tope",
+  "clearBtn": "Vaciar",
+  "clearBtnAria": "Vaciar pila",
+  "invalidNumber": "Número inválido: \"{{value}}\". Por favor ingresa un número válido.",
+  "capacityLabel": "Capacidad:",
+  "presets": {
+    "standard": "Estándar [Push 10, 20, 30, Pop, Push 40]",
+    "overflow": "Demostración de desbordamiento [Llenar Cap 5 + 1]",
+    "underflow": "Demostración de subdesbordamiento [Push 50, Pop, Pop]",
+    "peek": "Mirar e inspeccionar [Push 12, 24, Peek]"
+  },
+  "inspector": {
+    "title": "Inspector de estado y capacidad",
+    "itemsInStack": "Elementos en la pila:",
+    "topElement": "Elemento TOP:",
+    "nullEmpty": "null (vacía)",
+    "statusOverflow": "Error de desbordamiento (Overflow)",
+    "statusUnderflow": "Error de subdesbordamiento (Underflow)",
+    "statusEmpty": "Vacía",
+    "statusFull": "Llena (capacidad alcanzada)",
+    "statusNormal": "Normal"
+  },
+  "canvas": {
+    "title": "Lienzo de visualización de pila",
+    "emptyTitle": "Visualizador de pila",
+    "noData": "No hay datos de pila disponibles. Realiza una operación para comenzar.",
+    "emptyStack": "Pila vacía []",
+    "emptyNotice": "La pila está vacía (0 elementos)",
+    "capacity": "Cap: {{capacity}}",
+    "bottomLabel": "FONDO",
+    "topLabel": "TOPE"
+  },
+  "phases": {
+    "p01": {
+      "title": "Descubrir el principio LIFO (Último en entrar, primero en salir)",
+      "content": "Una Pila (Stack) es una estructura de datos lineal gobernada por una regla estricta de acceso: el último elemento agregado es siempre el primero en ser retirado (LIFO: Last-In, First-Out). Piensa en una pila física de platos en una cafetería, el historial de \"Deshacer\" en un editor de texto o la pila de llamadas a funciones en entornos de ejecución. Solo puedes insertar o extraer desde un extremo designado: el TOPE (TOP)."
+    },
+    "p02": {
+      "title": "Interactuar con Push, Pop y Peek",
+      "content": "Usa el panel de operaciones a la derecha para agregar valores con PUSH, inspeccionar el valor superior actual con PEEK o extraer el tope con POP. Avanza en la línea de tiempo usando los controles de Time-Travel inferiores para observar cómo el puntero TOP sigue cada operación de manera determinista."
+    },
+    "p03": {
+      "title": "Observar el confinamiento del acceso",
+      "content": "Observa que los elementos debajo del índice superior son completamente inaccesibles. A diferencia de un Arreglo donde cualquier elemento se puede leer en el índice i, una Pila protege deliberadamente los elementos internos contra el acceso aleatorio. Para recuperar el primer elemento apilado (en el fondo), cada elemento por encima de él debe ser desapilado primero."
+    },
+    "p04": {
+      "title": "Explicar la complejidad temporal y espacial",
+      "content": "Debido a que todas las operaciones (PUSH, POP, PEEK) ocurren estrictamente en el tope de la estructura, no se requiere desplazamiento de elementos. Por lo tanto, PUSH, POP y PEEK se ejecutan en tiempo constante estricto O(1). La complejidad espacial es O(N) de memoria auxiliar para almacenar N elementos, mientras que la traza pedagógica ExecutionStep[] registra capturas inmutables para el viaje en el tiempo."
+    },
+    "p05": {
+      "title": "Representación visual y puntero Top",
+      "content": "El lienzo SVG renderiza la pila como un contenedor vertical abierto. La base está en el fondo (índice [0]), los nodos apilados crecen hacia arriba hacia la abertura y el puntero TOP rastrea dinámicamente el índice del elemento válido superior. Cuando está vacía, TOP apunta a null."
+    },
+    "p06": {
+      "title": "Pseudocódigo del algoritmo (TAD Pila acotada)"
+    },
+    "p07": {
+      "title": "Implementación en TypeScript (Pila genérica acotada)"
+    },
+    "p08": {
+      "title": "Modificar y condiciones límite",
+      "content": "Una Pila Acotada introduce una estricta aplicación de límites: el Desbordamiento (Stack Overflow) ocurre al intentar hacer PUSH en un contenedor lleno, y el Subdesbordamiento (Stack Underflow) ocurre al intentar hacer POP o PEEK en un contenedor vacío. ¡Intenta desencadenar ambas condiciones usando los preajustes de demostración!"
+    },
+    "p09": {
+      "title": "Práctica: Emparejamiento de paréntesis balanceados",
+      "content": "Una aplicación clásica del mundo real de las pilas es el análisis sintáctico en compiladores: verificar corchetes balanceados como \"{[()]}\". A medida que el analizador escanea de izquierda a derecha, cada corchete de apertura se apila con PUSH. Cuando se encuentra un corchete de cierre, se desapila (POP) el elemento superior y se verifica si forman un par coincidente. Si la pila está vacía al final, ¡la cadena está balanceada!"
+    },
+    "p10": {
+      "title": "Desafío de dominio del algoritmo",
+      "content": "Pregunta del desafío: Dada una pila vacía inicial con capacidad 5, realizamos la siguiente secuencia: PUSH(10), PUSH(20), PUSH(30), POP(), PUSH(40), PUSH(50), POP(), PEEK(). ¿Qué valor devuelve PEEK() y cuántos elementos quedan en la pila? (Respuesta: PEEK devuelve 40 y quedan 2 elementos: [10, 40]). ¡Carga el preajuste Estándar para verificarlo!"
+    }
+  }
+}

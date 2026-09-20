@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ExecutionStep } from '@/core/types';
 import { QueueState } from '@/core/data-structures/queue';
 import { NodeVisualState, HighlightVariant } from '../types';
@@ -21,17 +22,19 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
   viewBoxHeight = 360,
   onNodeClick,
 }) => {
+  const { t } = useTranslation(['queue']);
+
   if (!step) {
     return (
       <SVGViewport
         viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-        title="Queue Visualization Canvas"
-        description="No queue state available. Use controls to perform queue operations."
+        title={t('queue:canvas.title')}
+        description={t('queue:canvas.emptyDescription')}
       >
         <VisualLabel
           x={viewBoxWidth / 2}
           y={viewBoxHeight / 2}
-          text="No queue data available. Perform an operation to begin."
+          text={t('queue:canvas.noData')}
           variant="muted"
           fontType="sans"
         />
@@ -72,7 +75,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
   return (
     <SVGViewport
       viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-      title="Queue Visualization Canvas"
+      title={t('queue:canvas.title')}
       description={step.a11yMessage}
     >
       <VisualLabel
@@ -106,7 +109,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
       <VisualLabel
         x={pipeLeft - 10}
         y={centerY}
-        text="⮜ Outflow (FRONT)"
+        text={t('queue:canvas.outflow')}
         variant="muted"
         fontType="mono"
         anchor="end"
@@ -116,7 +119,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
       <VisualLabel
         x={pipeRight + 10}
         y={centerY}
-        text="⮜ Inflow (REAR)"
+        text={t('queue:canvas.inflow')}
         variant="muted"
         fontType="mono"
         anchor="start"
@@ -126,7 +129,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
       <VisualLabel
         x={startX}
         y={pipeTop - 12}
-        text={`Buffer Capacity: ${maxCapacity} | Count: ${count}`}
+        text={t('queue:canvas.bufferCapacity', { capacity: maxCapacity, count })}
         variant="muted"
         fontType="mono"
         anchor="start"
@@ -214,7 +217,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
         <VisualPointer
           x={frontNodeX}
           y={centerY + nodeHeight / 2 + 28}
-          label="FRONT"
+          label={t('queue:canvas.frontLabel')}
           direction="bottom"
           colorVar="var(--accent-cyan)"
           length={24}
@@ -225,7 +228,7 @@ export const QueueVisualizerAdapter: React.FC<QueueVisualizerAdapterProps> = ({
         <VisualPointer
           x={rearNodeX}
           y={centerY - nodeHeight / 2 - 28}
-          label="REAR"
+          label={t('queue:canvas.rearLabel')}
           direction="top"
           colorVar="var(--accent-amber)"
           length={24}

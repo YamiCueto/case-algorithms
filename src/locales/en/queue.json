@@ -1,0 +1,89 @@
+{
+  "category": "Interactive Laboratory: Queue Data Structure",
+  "title": "Queue & FIFO Principle Exploration",
+  "subtitle": "Understand First-In, First-Out (FIFO) discipline, dual-ended O(1) enqueue and dequeue operations, and boundary conditions through an interactive 10-step pedagogical laboratory.",
+  "operationsLabel": "Interactive Queue Operations",
+  "enqueueInputPlaceholder": "e.g. 42",
+  "enqueueInputAria": "Value to enqueue",
+  "enqueueBtn": "Enqueue",
+  "enqueueBtnAria": "Enqueue value into queue",
+  "dequeueBtn": "Dequeue",
+  "dequeueBtnAria": "Dequeue front value",
+  "peekBtn": "Peek Front",
+  "peekBtnAria": "Peek front value",
+  "clearBtn": "Clear",
+  "clearBtnAria": "Clear queue",
+  "invalidNumber": "Invalid number: \"{{value}}\". Please enter a valid number.",
+  "capacityLabel": "Capacity:",
+  "presets": {
+    "standard": "Standard [Enqueue 10, 20, 30, Dequeue, Enqueue 40]",
+    "wrapAround": "Wrap-Around Demo [Fill 5, Deq 2, Enq 2]",
+    "overflow": "Overflow Demo [Fill Cap 5 + 1]",
+    "underflow": "Underflow Demo [Enqueue 50, Deq, Deq]",
+    "peek": "Peek & Inspect [Enqueue 12, 24, Peek]"
+  },
+  "inspector": {
+    "title": "State & Capacity Inspector",
+    "itemsInQueue": "Items in Queue:",
+    "frontElement": "FRONT Element:",
+    "rearElement": "REAR Element:",
+    "nullEmpty": "null (empty)",
+    "slot": "slot [{{index}}]",
+    "statusOverflow": "Overflow Error",
+    "statusUnderflow": "Underflow Error",
+    "statusEmpty": "Empty",
+    "statusFull": "Full (Cap Reached)",
+    "statusNormal": "Normal"
+  },
+  "canvas": {
+    "title": "Queue Visualization Canvas",
+    "emptyTitle": "Queue Visualizer",
+    "emptyDescription": "No queue state available. Use controls to perform queue operations.",
+    "noData": "No queue data available. Perform an operation to begin.",
+    "outflow": "⮜ Outflow (FRONT)",
+    "inflow": "⮜ Inflow (REAR)",
+    "bufferCapacity": "Buffer Capacity: {{capacity}} | Count: {{count}}",
+    "frontLabel": "FRONT",
+    "rearLabel": "REAR"
+  },
+  "phases": {
+    "p01": {
+      "title": "Discover the FIFO Principle (First-In, First-Out)",
+      "content": "A Queue is a fundamental linear data structure governed by a strict access rule: the first element inserted is always the first one to be removed (FIFO: First-In, First-Out). Think of a line of customers at a ticket counter, a printer spooler processing print jobs in order, or an operating system message queue."
+    },
+    "p02": {
+      "title": "Interact with Enqueue, Dequeue & Peek",
+      "content": "Use the operations panel on the right to append values at the REAR with ENQUEUE, inspect the earliest item at the FRONT with PEEK, or remove the front element with DEQUEUE. Step through the timeline using the time-travel buttons below to watch the FRONT and REAR pointers update."
+    },
+    "p03": {
+      "title": "Observe Dual-End Access Discipline",
+      "content": "Notice that elements in a Queue can only enter from one end (REAR) and exit from the other end (FRONT). Random index access into middle elements is prohibited by the ADT contract. Notice how DEQUEUE advances the FRONT pointer without physically shifting any remaining elements in memory!"
+    },
+    "p04": {
+      "title": "Explain Time & Space Complexity (Why O(1)?)",
+      "content": "In a naive array implementation, removing the front element requires shifting all remaining N-1 elements to the left, which costs O(N) time. In CASE Algorithms, the Bounded Queue is implemented as an authentic Two-Pointer Circular Buffer: ENQUEUE inserts at buffer[rear] and advances rear = (rear + 1) % capacity; DEQUEUE extracts buffer[front] and advances front = (front + 1) % capacity. Because zero elements are shifted, ENQUEUE, DEQUEUE, and PEEK all execute in strict O(1) constant time! Space complexity is O(N) auxiliary memory for the buffer, while the immutable ExecutionStep[] trace records pedagogical snapshots for time-travel."
+    },
+    "p05": {
+      "title": "Visual Representation & Circular Buffer Pointers",
+      "content": "The SVG Viewport renders the queue as a bounded physical buffer. The FRONT pointer (cyan) tracks the earliest valid element, while the REAR pointer (amber) indicates the most recently appended element. Notice how empty slots remain fixed in place while pointers advance across the buffer."
+    },
+    "p06": {
+      "title": "Algorithm Pseudocode (Circular Buffer Queue ADT)"
+    },
+    "p07": {
+      "title": "TypeScript Implementation (Two-Pointer Circular Queue)"
+    },
+    "p08": {
+      "title": "Modify & Boundary Conditions",
+      "content": "A Bounded Queue introduces strict boundary enforcement: Queue Overflow occurs when attempting to ENQUEUE into a full buffer, and Queue Underflow occurs when attempting to DEQUEUE or PEEK an empty queue. Try triggering both conditions using the demo presets!"
+    },
+    "p09": {
+      "title": "Practice: Task Scheduling & Event Loops",
+      "content": "Queues are the foundational engine of asynchronous systems: JavaScript macro-task event loops, background print spoolers, and web server request dispatchers all rely on FIFO queues to ensure fair and deterministic processing order."
+    },
+    "p10": {
+      "title": "Algorithm Mastery Challenge",
+      "content": "Challenge Question: Given an empty queue with capacity 5, we perform: ENQUEUE(10), ENQUEUE(20), ENQUEUE(30), DEQUEUE(), ENQUEUE(40), ENQUEUE(50), DEQUEUE(), PEEK(). What value is returned by PEEK(), and what are the front and rear indices in the circular buffer? (Answer: PEEK returns 30; frontIndex is 2, rearIndex is 0). Load the Wrap-Around Demo preset to verify!"
+    }
+  }
+}

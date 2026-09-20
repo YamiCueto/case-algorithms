@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ExecutionStep } from '@/core/types';
 import { ArrayState } from '@/core/data-structures/array';
 import {
@@ -23,17 +24,19 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
   viewBoxHeight = 360,
   onNodeClick,
 }) => {
+  const { t } = useTranslation(['array']);
+
   if (!step) {
     return (
       <SVGViewport
         viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-        title="Array Visualizer"
-        description="No array step loaded"
+        title={t('array:canvas.emptyTitle')}
+        description={t('array:canvas.noData')}
       >
         <VisualLabel
           x={viewBoxWidth / 2}
           y={viewBoxHeight / 2}
-          text="No array data available. Provide input to begin."
+          text={t('array:canvas.noData')}
           variant="muted"
           fontType="sans"
         />
@@ -49,13 +52,13 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
     return (
       <SVGViewport
         viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-        title="Array Visualizer"
-        description="Empty array"
+        title={t('array:canvas.emptyTitle')}
+        description={t('array:canvas.emptyArray')}
       >
         <VisualLabel
           x={viewBoxWidth / 2}
           y={viewBoxHeight / 2}
-          text="Empty Array []"
+          text={t('array:canvas.emptyArray')}
           variant="muted"
           fontType="mono"
         />
@@ -89,7 +92,7 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
   return (
     <SVGViewport
       viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-      title="Array Visualization Canvas"
+      title={t('array:canvas.title')}
       description={step.a11yMessage}
     >
       <VisualLabel

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import { changeLanguage } from '@/i18n';
 import {
   Button,
   Badge,
@@ -12,9 +13,12 @@ import {
 } from './index';
 
 describe('Design System UI Components', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
     document.documentElement.removeAttribute('data-theme');
+    await act(async () => {
+      await changeLanguage('es');
+    });
   });
 
   describe('Button component', () => {
@@ -94,6 +98,22 @@ describe('Design System UI Components', () => {
       localStorage.setItem('case_theme', 'invalid_theme');
       render(<ThemeToggle />);
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    });
+
+    it('renders localized aria-label and title in Spanish and English', async () => {
+      const { rerender } = render(<ThemeToggle />);
+      const btn = screen.getByRole('button');
+
+      expect(btn).toHaveAttribute('aria-label', 'Cambiar a tema claro');
+      expect(btn).toHaveAttribute('title', 'Cambiar a tema claro');
+
+      await act(async () => {
+        await changeLanguage('en');
+      });
+
+      rerender(<ThemeToggle />);
+      expect(btn).toHaveAttribute('aria-label', 'Switch to light theme');
+      expect(btn).toHaveAttribute('title', 'Switch to light theme');
     });
   });
 

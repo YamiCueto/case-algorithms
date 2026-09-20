@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ExecutionStep } from '@/core/types';
 import { StackState } from '@/core/data-structures/stack';
 import { SVGViewport } from '../SVGViewport';
@@ -24,6 +25,7 @@ export const StackVisualizerAdapter: React.FC<StackVisualizerAdapterProps> = ({
   onNodeClick,
   transitionContext,
 }) => {
+  const { t } = useTranslation(['stack']);
   const containerRef = useRef<SVGGElement | null>(null);
 
   const nodeWidth = 160;
@@ -56,13 +58,13 @@ export const StackVisualizerAdapter: React.FC<StackVisualizerAdapterProps> = ({
     return (
       <SVGViewport
         viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-        title="Stack Visualization Canvas"
-        description="No stack state available. Use controls to perform stack operations."
+        title={t('stack:canvas.title')}
+        description={t('stack:canvas.noData')}
       >
         <VisualLabel
           x={viewBoxWidth / 2}
           y={viewBoxHeight / 2}
-          text="No stack data available. Perform an operation to begin."
+          text={t('stack:canvas.noData')}
           variant="muted"
           fontType="sans"
         />
@@ -81,7 +83,7 @@ export const StackVisualizerAdapter: React.FC<StackVisualizerAdapterProps> = ({
   return (
     <SVGViewport
       viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
-      title="Stack Visualization Canvas"
+      title={t('stack:canvas.title')}
       description={step.a11yMessage}
     >
       <g ref={containerRef} className="stack-visualizer-root">
@@ -117,7 +119,7 @@ export const StackVisualizerAdapter: React.FC<StackVisualizerAdapterProps> = ({
         <VisualLabel
           x={stackWallLeft - 12}
           y={stackWallTop + 12}
-          text={`Cap: ${maxCapacity}`}
+          text={t('stack:canvas.capacity', { capacity: maxCapacity })}
           variant="muted"
           fontType="mono"
           anchor="end"
@@ -148,7 +150,7 @@ export const StackVisualizerAdapter: React.FC<StackVisualizerAdapterProps> = ({
           <VisualLabel
             x={centerX}
             y={baseY - 30}
-            text="Stack is Empty (0 items)"
+            text={t('stack:canvas.emptyNotice')}
             variant="muted"
             fontType="sans"
             fontSize={12}

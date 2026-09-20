@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from './Card';
 
 export interface LabShellProps {
@@ -17,7 +18,7 @@ export interface LabShellProps {
 export const LabShell: React.FC<LabShellProps> = ({
   title,
   subtitle,
-  category = 'Data Structures & Algorithms',
+  category,
   visualizationSlot,
   codeSlot,
   timeTravelSlot,
@@ -26,12 +27,14 @@ export const LabShell: React.FC<LabShellProps> = ({
   knowledgeSlot,
   viewportSlot,
 }) => {
+  const { t } = useTranslation(['common']);
   const activeVizSlot = visualizationSlot || viewportSlot;
+  const displayCategory = category || t('common:defaultCategory');
 
   return (
     <main role="main" className="lab-shell">
       <section aria-labelledby="topic-heading" className="lab-topic-header">
-        <span className="lab-category-tag">{category}</span>
+        <span className="lab-category-tag">{displayCategory}</span>
         <h1 id="topic-heading" className="lab-topic-title">
           {title}
         </h1>
@@ -40,22 +43,22 @@ export const LabShell: React.FC<LabShellProps> = ({
 
       {codeSlot ? (
         <div className="lab-stage-grid">
-          <section aria-label="Interactive Visualization Area" className="visualization-stage-panel">
+          <section aria-label={t('common:viewportAria')} className="visualization-stage-panel">
             <div className="panel-header">
-              <span className="panel-title">Interactive Laboratory Viewport</span>
+              <span className="panel-title">{t('common:viewportTitle')}</span>
             </div>
             <div className="panel-body">{activeVizSlot}</div>
           </section>
 
-          <section aria-label="Synchronized Code Surface" className="code-stage-panel">
+          <section aria-label={t('common:codeStageAria')} className="code-stage-panel">
             {codeSlot}
           </section>
         </div>
       ) : (
         <div className="lab-stage-grid">
-          <section aria-label="Interactive Visualization Area" className="viewport-panel">
+          <section aria-label={t('common:viewportAria')} className="viewport-panel">
             <div className="panel-header">
-              <span className="panel-title">Interactive Laboratory Viewport</span>
+              <span className="panel-title">{t('common:viewportTitle')}</span>
             </div>
             <div className="panel-body">{activeVizSlot}</div>
           </section>
@@ -63,7 +66,7 @@ export const LabShell: React.FC<LabShellProps> = ({
       )}
 
       {timeTravelSlot && (
-        <section aria-label="Time Travel Step Controller" className="time-travel-panel">
+        <section aria-label={t('common:timeTravelAria')} className="time-travel-panel">
           {timeTravelSlot}
         </section>
       )}
@@ -71,13 +74,13 @@ export const LabShell: React.FC<LabShellProps> = ({
       {(controlsSlot || inspectorSlot) && (
         <div className="lab-controls-grid">
           {controlsSlot && (
-            <section aria-label="Interactive Operations" className="lab-controls-section">
-              <div className="control-panel-heading">Interactive Operations</div>
+            <section aria-label={t('common:operationsAria')} className="lab-controls-section">
+              <div className="control-panel-heading">{t('common:operationsHeading')}</div>
               {controlsSlot}
             </section>
           )}
           {inspectorSlot && (
-            <section aria-label="State & Metrics Inspector" className="lab-inspector-section">
+            <section aria-label={t('common:inspectorAria')} className="lab-inspector-section">
               {inspectorSlot}
             </section>
           )}
@@ -85,10 +88,11 @@ export const LabShell: React.FC<LabShellProps> = ({
       )}
 
       {knowledgeSlot && (
-        <section aria-label="Multi-Dimensional Pedagogical Knowledge" className="lab-knowledge-section">
-          <Card title="Multi-Dimensional Knowledge">{knowledgeSlot}</Card>
+        <section aria-label={t('common:knowledgeAria')} className="lab-knowledge-section">
+          <Card title={t('common:knowledgeTitle')}>{knowledgeSlot}</Card>
         </section>
       )}
     </main>
   );
 };
+

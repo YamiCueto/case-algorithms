@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { simulateStackOperations, StackCommand } from '@/core/algorithms';
 import { StackState } from '@/core/data-structures/stack';
 import {
@@ -87,132 +88,140 @@ const TYPESCRIPT_SNIPPET = `export class BoundedStack<T> {
   }
 }`;
 
-const PRESET_SEQUENCES: PresetItem[] = [
-  {
-    label: 'Standard [Push 10, 20, 30, Pop, Push 40]',
-    capacity: 6,
-    commands: [
-      { type: 'PUSH', value: 10 },
-      { type: 'PUSH', value: 20 },
-      { type: 'PUSH', value: 30 },
-      { type: 'POP' },
-      { type: 'PUSH', value: 40 },
-    ],
-  },
-  {
-    label: 'Overflow Demo [Fill Cap 5 + 1]',
-    capacity: 5,
-    commands: [
-      { type: 'PUSH', value: 1 },
-      { type: 'PUSH', value: 2 },
-      { type: 'PUSH', value: 3 },
-      { type: 'PUSH', value: 4 },
-      { type: 'PUSH', value: 5 },
-      { type: 'PUSH', value: 99 },
-    ],
-  },
-  {
-    label: 'Underflow Demo [Push 50, Pop, Pop]',
-    capacity: 5,
-    commands: [
-      { type: 'PUSH', value: 50 },
-      { type: 'POP' },
-      { type: 'POP' },
-    ],
-  },
-  {
-    label: 'Peek & Inspect [Push 12, 24, Peek]',
-    capacity: 6,
-    commands: [
-      { type: 'PUSH', value: 12 },
-      { type: 'PUSH', value: 24 },
-      { type: 'PEEK' },
-    ],
-  },
-];
-
-const PEDAGOGICAL_PHASES = [
-  {
-    id: '01',
-    name: '01. Discover',
-    title: 'Discover the LIFO Principle (Last-In, First-Out)',
-    content:
-      'A Stack is a linear data structure governed by a strict access rule: the last element added is always the first one to be removed (LIFO: Last-In, First-Out). Think of a physical stack of plates in a cafeteria, the "Undo" history in a text editor, or the function call stack in programming runtimes. You can only insert or extract from one designated end: the TOP.',
-  },
-  {
-    id: '02',
-    name: '02. Interact',
-    title: 'Interact with Push, Pop & Peek',
-    content:
-      'Use the operations panel on the right to append values with PUSH, inspect the current topmost value with PEEK, or extract the top with POP. Step through the timeline using the time-travel buttons below to watch the TOP pointer follow each operation deterministically.',
-  },
-  {
-    id: '03',
-    name: '03. Observe',
-    title: 'Observe Confinement of Access',
-    content:
-      'Notice that elements below the top index are completely inaccessible. Unlike an Array where any element can be read at index i, a Stack deliberately shields internal elements from random access. To retrieve the very first element pushed (at the bottom), every single element above it must first be popped.',
-  },
-  {
-    id: '04',
-    name: '04. Explain',
-    title: 'Explain Time & Space Complexity',
-    content:
-      'Because all operations (PUSH, POP, PEEK) occur strictly at the top of the structure, no element shifting is required. Therefore, PUSH, POP, and PEEK all execute in strict O(1) constant time. Space complexity is O(N) auxiliary memory to store N items, while the pedagogical ExecutionStep[] trace records immutable snapshots for time travel.',
-  },
-  {
-    id: '05',
-    name: '05. Visualize',
-    title: 'Visual Representation & Top Pointer',
-    content:
-      'The SVG Viewport renders the stack as an open vertical container. The base plate is at the bottom (index [0]), stacked nodes grow upward toward the opening, and the TOP pointer dynamically tracks the index of the uppermost valid element. When empty, TOP points to null.',
-  },
-  {
-    id: '06',
-    name: '06. Pseudocode',
-    title: 'Algorithm Pseudocode (Bounded Stack ADT)',
-    content: PSEUDOCODE_SNIPPET,
-  },
-  {
-    id: '07',
-    name: '07. Code',
-    title: 'TypeScript Implementation (Generic Bounded Stack)',
-    content: TYPESCRIPT_SNIPPET,
-  },
-  {
-    id: '08',
-    name: '08. Modify',
-    title: 'Modify & Boundary Conditions',
-    content:
-      'A Bounded Stack introduces strict boundary enforcement: Stack Overflow occurs when attempting to PUSH into a full container, and Stack Underflow occurs when attempting to POP or PEEK an empty container. Try triggering both conditions using the demo presets!',
-  },
-  {
-    id: '09',
-    name: '09. Practice',
-    title: 'Practice: Balanced Parentheses Matching',
-    content:
-      'A classic real-world application of stacks is compiler syntax parsing: verifying balanced brackets like "{[()]}". As the parser scans from left to right, every opening bracket is PUSHed onto the stack. When a closing bracket is encountered, the parser POPs the top element and verifies if they form a matching pair. If the stack is empty at the end, the string is balanced!',
-  },
-  {
-    id: '10',
-    name: '10. Challenge',
-    title: 'Algorithm Mastery Challenge',
-    content:
-      'Challenge Question: Given an initial empty stack with capacity 5, we perform the following sequence: PUSH(10), PUSH(20), PUSH(30), POP(), PUSH(40), PUSH(50), POP(), PEEK(). What value is returned by PEEK(), and how many items remain in the stack? (Answer: PEEK returns 40, and 2 items remain: [10, 40]). Load the Standard preset to verify!',
-  },
+const DEFAULT_STACK_COMMANDS: StackCommand[] = [
+  { type: 'PUSH', value: 10 },
+  { type: 'PUSH', value: 20 },
+  { type: 'PUSH', value: 30 },
+  { type: 'POP' },
+  { type: 'PUSH', value: 40 },
 ];
 
 export const StackLab: React.FC = () => {
+  const { t } = useTranslation(['stack', 'pedagogy', 'common']);
   const [pushInputText, setPushInputText] = useState('42');
   const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [stackCapacity, setStackCapacity] = useState<number>(6);
   const [selectedCodeLang, setSelectedCodeLang] = useState<'pseudocode' | 'typescript'>('typescript');
-  const [currentCommands, setCurrentCommands] = useState<StackCommand[]>(PRESET_SEQUENCES[0]?.commands || []);
+  const [currentCommands, setCurrentCommands] = useState<StackCommand[]>(DEFAULT_STACK_COMMANDS);
+
+  const presetSequences: PresetItem[] = useMemo(
+    () => [
+      {
+        label: t('stack:presets.standard'),
+        capacity: 6,
+        commands: [
+          { type: 'PUSH', value: 10 },
+          { type: 'PUSH', value: 20 },
+          { type: 'PUSH', value: 30 },
+          { type: 'POP' },
+          { type: 'PUSH', value: 40 },
+        ],
+      },
+      {
+        label: t('stack:presets.overflow'),
+        capacity: 5,
+        commands: [
+          { type: 'PUSH', value: 1 },
+          { type: 'PUSH', value: 2 },
+          { type: 'PUSH', value: 3 },
+          { type: 'PUSH', value: 4 },
+          { type: 'PUSH', value: 5 },
+          { type: 'PUSH', value: 99 },
+        ],
+      },
+      {
+        label: t('stack:presets.underflow'),
+        capacity: 5,
+        commands: [
+          { type: 'PUSH', value: 50 },
+          { type: 'POP' },
+          { type: 'POP' },
+        ],
+      },
+      {
+        label: t('stack:presets.peek'),
+        capacity: 6,
+        commands: [
+          { type: 'PUSH', value: 12 },
+          { type: 'PUSH', value: 24 },
+          { type: 'PEEK' },
+        ],
+      },
+    ],
+    [t]
+  );
+
+  const pedagogicalPhases = useMemo(
+    () => [
+      {
+        id: '01',
+        name: t('pedagogy:phases.discover'),
+        title: t('stack:phases.p01.title'),
+        content: t('stack:phases.p01.content'),
+      },
+      {
+        id: '02',
+        name: t('pedagogy:phases.interact'),
+        title: t('stack:phases.p02.title'),
+        content: t('stack:phases.p02.content'),
+      },
+      {
+        id: '03',
+        name: t('pedagogy:phases.observe'),
+        title: t('stack:phases.p03.title'),
+        content: t('stack:phases.p03.content'),
+      },
+      {
+        id: '04',
+        name: t('pedagogy:phases.explain'),
+        title: t('stack:phases.p04.title'),
+        content: t('stack:phases.p04.content'),
+      },
+      {
+        id: '05',
+        name: t('pedagogy:phases.visualize'),
+        title: t('stack:phases.p05.title'),
+        content: t('stack:phases.p05.content'),
+      },
+      {
+        id: '06',
+        name: t('pedagogy:phases.pseudocode'),
+        title: t('stack:phases.p06.title'),
+        content: PSEUDOCODE_SNIPPET,
+      },
+      {
+        id: '07',
+        name: t('pedagogy:phases.code'),
+        title: t('stack:phases.p07.title'),
+        content: TYPESCRIPT_SNIPPET,
+      },
+      {
+        id: '08',
+        name: t('pedagogy:phases.modify'),
+        title: t('stack:phases.p08.title'),
+        content: t('stack:phases.p08.content'),
+      },
+      {
+        id: '09',
+        name: t('pedagogy:phases.practice'),
+        title: t('stack:phases.p09.title'),
+        content: t('stack:phases.p09.content'),
+      },
+      {
+        id: '10',
+        name: t('pedagogy:phases.challenge'),
+        title: t('stack:phases.p10.title'),
+        content: t('stack:phases.p10.content'),
+      },
+    ],
+    [t]
+  );
 
   const historyCountRef = useRef<number>(0);
   const transitionCountRef = useRef<number>(0);
   const historyIdRef = useRef<string>('stack-hist-0');
+  const isMountedRef = useRef<boolean>(false);
   const [transitionContext, setTransitionContext] = useState<StackTransitionContext | undefined>(undefined);
 
   const {
@@ -305,13 +314,13 @@ export const StackLab: React.FC = () => {
   );
 
   useEffect(() => {
-    const defaultPreset = PRESET_SEQUENCES[0];
-    if (defaultPreset) {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
       historyCountRef.current += 1;
       const initialHistoryId = `stack-hist-${historyCountRef.current}`;
-      setStackCapacity(defaultPreset.capacity);
-      setCurrentCommands(defaultPreset.commands);
-      initController(defaultPreset.commands, defaultPreset.capacity);
+      setStackCapacity(6);
+      setCurrentCommands(DEFAULT_STACK_COMMANDS);
+      initController(DEFAULT_STACK_COMMANDS, 6);
       emitTransition('INITIAL_MOUNT', 0, initialHistoryId);
     }
   }, [initController, emitTransition]);
@@ -319,7 +328,7 @@ export const StackLab: React.FC = () => {
   const handlePush = () => {
     const trimmed = pushInputText.trim();
     if (!trimmed || !Number.isFinite(Number(trimmed))) {
-      setInputError(`Invalid number: "${pushInputText}". Please enter a valid number.`);
+      setInputError(t('stack:invalidNumber', { value: pushInputText }));
       return;
     }
 
@@ -424,9 +433,9 @@ export const StackLab: React.FC = () => {
     <>
       <A11yAnnouncer message={currentStep?.a11yMessage} />
       <LabShell
-        category="Interactive Laboratory: Stack Data Structure"
-        title="Stack & LIFO Principle Exploration"
-        subtitle="Understand Last-In, First-Out (LIFO) discipline, constant-time O(1) top operations, and boundary conditions through an interactive 10-step pedagogical laboratory."
+        category={t('stack:category')}
+        title={t('stack:title')}
+        subtitle={t('stack:subtitle')}
         visualizationSlot={
           <StackVisualizerAdapter
             step={currentStep}
@@ -438,21 +447,21 @@ export const StackLab: React.FC = () => {
         codeSlot={
           <div className="code-stage-container">
             <div className="panel-header">
-              <span className="panel-title">Algorithm Code</span>
+              <span className="panel-title">{t('common:algorithmCode')}</span>
               <div className="code-lang-selector">
                 <Button
                   variant={selectedCodeLang === 'pseudocode' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCodeLang('pseudocode')}
                 >
-                  Pseudocode
+                  {t('common:pseudocode')}
                 </Button>
                 <Button
                   variant={selectedCodeLang === 'typescript' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCodeLang('typescript')}
                 >
-                  TypeScript
+                  {t('common:typescript')}
                 </Button>
               </div>
             </div>
@@ -487,7 +496,7 @@ export const StackLab: React.FC = () => {
         controlsSlot={
           <div className="control-group">
             <div className="control-group">
-              <span className="control-label">Interactive Stack Operations</span>
+              <span className="control-label">{t('stack:operationsLabel')}</span>
               <div className="input-action-row">
                 <input
                   type="text"
@@ -499,17 +508,17 @@ export const StackLab: React.FC = () => {
                       setInputError(null);
                     }
                   }}
-                  placeholder="e.g. 42"
-                  aria-label="Value to push onto stack"
+                  placeholder={t('stack:pushInputPlaceholder')}
+                  aria-label={t('stack:pushInputAria')}
                   className="array-input-field"
                 />
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={handlePush}
-                  aria-label="Push value onto stack"
+                  aria-label={t('stack:pushBtnAria')}
                 >
-                  Push
+                  {t('stack:pushBtn')}
                 </Button>
               </div>
 
@@ -518,25 +527,25 @@ export const StackLab: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={handlePop}
-                  aria-label="Pop top value from stack"
+                  aria-label={t('stack:popBtnAria')}
                 >
-                  Pop
+                  {t('stack:popBtn')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handlePeek}
-                  aria-label="Peek top value"
+                  aria-label={t('stack:peekBtnAria')}
                 >
-                  Peek
+                  {t('stack:peekBtn')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleClear}
-                  aria-label="Clear stack"
+                  aria-label={t('stack:clearBtnAria')}
                 >
-                  Clear
+                  {t('stack:clearBtn')}
                 </Button>
               </div>
 
@@ -547,7 +556,7 @@ export const StackLab: React.FC = () => {
               )}
 
               <div className="speed-control-row">
-                <span className="control-label">Capacity:</span>
+                <span className="control-label">{t('common:capacity')}</span>
                 {[4, 6, 8].map((cap) => (
                   <Button
                     key={`cap-${cap}`}
@@ -561,7 +570,7 @@ export const StackLab: React.FC = () => {
               </div>
 
               <div className="control-actions">
-                {PRESET_SEQUENCES.map((p) => (
+                {presetSequences.map((p) => (
                   <Button
                     key={p.label}
                     variant="outline"
@@ -576,34 +585,34 @@ export const StackLab: React.FC = () => {
           </div>
         }
         inspectorSlot={
-          <Card title="State & Capacity Inspector">
+          <Card title={t('stack:inspector.title')}>
             <div className="inspector-list">
               <div>
-                <span className="inspector-label">Action: </span>
+                <span className="inspector-label">{t('common:action')} </span>
                 <Badge variant={getActionBadgeVariant(currentAction)}>
                   {currentAction}
                 </Badge>
               </div>
               <div>
-                <span className="inspector-label">Step Index: </span>
+                <span className="inspector-label">{t('common:stepIndex')} </span>
                 <span className="inspector-val-index">
                   {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">Items in Stack: </span>
+                <span className="inspector-label">{t('stack:inspector.itemsInStack')} </span>
                 <span className="inspector-val-total">
                   {stateData.items.length} / {stateData.capacity}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">TOP Element: </span>
+                <span className="inspector-label">{t('stack:inspector.topElement')} </span>
                 <span className="inspector-val-index">
-                  {stateData.topIndex >= 0 ? `${stateData.items[stateData.topIndex]} (idx: ${stateData.topIndex})` : 'null (empty)'}
+                  {stateData.topIndex >= 0 ? `${stateData.items[stateData.topIndex]} (idx: ${stateData.topIndex})` : t('stack:inspector.nullEmpty')}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">Status: </span>
+                <span className="inspector-label">{t('common:status')} </span>
                 <span
                   className={
                     currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
@@ -614,14 +623,14 @@ export const StackLab: React.FC = () => {
                   }
                 >
                   {currentAction === 'OVERFLOW'
-                    ? 'Overflow Error'
+                    ? t('stack:inspector.statusOverflow')
                     : currentAction === 'UNDERFLOW'
-                      ? 'Underflow Error'
+                      ? t('stack:inspector.statusUnderflow')
                       : stateData.items.length === 0
-                        ? 'Empty'
+                        ? t('stack:inspector.statusEmpty')
                         : stateData.items.length === stateData.capacity
-                          ? 'Full (Cap Reached)'
-                          : 'Normal'}
+                          ? t('stack:inspector.statusFull')
+                          : t('stack:inspector.statusNormal')}
                 </span>
               </div>
             </div>
@@ -629,7 +638,7 @@ export const StackLab: React.FC = () => {
         }
         knowledgeSlot={
           <PedagogicalKnowledgePanel
-            phases={PEDAGOGICAL_PHASES}
+            phases={pedagogicalPhases}
             activePhaseIndex={activePhaseIndex}
             onPhaseSelect={setActivePhaseIndex}
             pseudocodeActiveLine={currentStep?.codeHighlight?.pseudocodeLine}

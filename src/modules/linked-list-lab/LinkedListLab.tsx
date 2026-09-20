@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { simulateLinkedListOperations, LinkedListCommand } from '@/core/algorithms';
 import { LinkedListState } from '@/core/data-structures/linked-list';
 import { LinkedListVisualizerAdapter } from '@/components/visualizer';
@@ -16,6 +17,7 @@ import {
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
 
 interface PresetItem {
+  id: string;
   label: string;
   initialItems: number[];
   commands: LinkedListCommand[];
@@ -102,9 +104,9 @@ const TYPESCRIPT_SNIPPET = `export class SinglyLinkedList<T> {
   }
 }`;
 
-const PRESET_SEQUENCES: PresetItem[] = [
+const PRESET_COMMANDS: { id: 'prependAppend' | 'removal' | 'search'; initialItems: number[]; commands: LinkedListCommand[] }[] = [
   {
-    label: 'Prepend & Append Mix [Prepend 5, 2, Append 8, 12]',
+    id: 'prependAppend',
     initialItems: [10, 20, 30, 40],
     commands: [
       { type: 'PREPEND', value: 5 },
@@ -114,7 +116,7 @@ const PRESET_SEQUENCES: PresetItem[] = [
     ],
   },
   {
-    label: 'Removal Demo [Start 10, 20, 30, 40 -> RemoveAt 1, RemoveAt 0]',
+    id: 'removal',
     initialItems: [10, 20, 30, 40],
     commands: [
       { type: 'REMOVE_AT', index: 1 },
@@ -122,7 +124,7 @@ const PRESET_SEQUENCES: PresetItem[] = [
     ],
   },
   {
-    label: 'Search & Traverse [Start 11, 22, 33, 44 -> Find 33]',
+    id: 'search',
     initialItems: [11, 22, 33, 44],
     commands: [
       { type: 'FIND', value: 33 },
@@ -130,78 +132,87 @@ const PRESET_SEQUENCES: PresetItem[] = [
   },
 ];
 
-const PEDAGOGICAL_PHASES = [
-  {
-    id: '01',
-    name: '01. Discover',
-    title: 'Discover Dynamic Linked Nodes vs Contiguous Memory',
-    content:
-      'Unlike an Array where elements occupy a contiguous physical memory block, a Singly Linked List consists of independent Node objects scattered in heap memory. Each Node stores two components: its payload data (value) and a reference pointer (next) directed to the subsequent node in the sequence. The chain terminates with a null reference.',
-  },
-  {
-    id: '02',
-    name: '02. Interact',
-    title: 'Interact with Prepend, Append, Insert, Remove & Find',
-    content:
-      'Use the operations panel on the right to prepend items at the HEAD in O(1), append items at the TAIL in O(1), or insert and remove elements at arbitrary positions. Step through the timeline using the time-travel buttons below to watch HEAD, TAIL, and CURR pointers dynamically reconnect.',
-  },
-  {
-    id: '03',
-    name: '03. Observe',
-    title: 'Observe Pointer Reconnection Mechanics',
-    content:
-      'Notice that inserting or removing an element in a Linked List does NOT physically shift any existing nodes in memory! Instead, insertion is achieved by setting newNode.next = prev.next and prev.next = newNode. Deletion is achieved by bypassing the target node: prev.next = target.next.',
-  },
-  {
-    id: '04',
-    name: '04. Explain',
-    title: 'Explain Time & Space Complexity Nuances',
-    content:
-      'Complexity in a Linked List is strictly operation-dependent: Access by index and Search by value are both O(N) because the list must be traversed sequentially from HEAD. Prepend is O(1) constant time as it only updates the head reference. Append is O(1) when maintaining a tail pointer reference (without a tail reference, append would cost O(N) traversal). Insert and Remove at an already-localized pointer take O(1) time, though reaching index i from HEAD incurs an O(i) traversal cost. Space complexity is O(N) auxiliary memory for node objects and pointers.',
-  },
-  {
-    id: '05',
-    name: '05. Visualize',
-    title: 'Visual Representation of Nodes & Directed Edges',
-    content:
-      'The SVG Viewport renders the linked list as individual rectangular nodes connected by cyan directed arrows. The HEAD pointer (cyan) tracks the first valid node, the TAIL pointer (amber) tracks the last node, and the trailing arrow leads into the NULL terminal box.',
-  },
-  {
-    id: '06',
-    name: '06. Pseudocode',
-    title: 'Algorithm Pseudocode (Singly Linked List ADT)',
-    content: PSEUDOCODE_SNIPPET,
-  },
-  {
-    id: '07',
-    name: '07. Code',
-    title: 'TypeScript Implementation (Generic Singly Linked List)',
-    content: TYPESCRIPT_SNIPPET,
-  },
-  {
-    id: '08',
-    name: '08. Modify',
-    title: 'Modify & Boundary Conditions',
-    content:
-      'Handling boundary conditions in Linked Lists requires careful pointer updates: removing the only element must set both HEAD and TAIL to null; removing the TAIL node requires traversing to the second-to-last node and updating tail = prev; invalid index insertions/deletions throw Out of Bounds errors.',
-  },
-  {
-    id: '09',
-    name: '09. Practice',
-    title: 'Practice: Implementing a Music Playlist',
-    content:
-      'A common real-world application of linked structures is a music playlist or browser navigation history, where songs or URLs are dynamically inserted or removed without requiring array re-indexing.',
-  },
-  {
-    id: '10',
-    name: '10. Challenge',
-    title: 'Algorithm Mastery Challenge',
-    content:
-      'Challenge Question: Given a list [10, 20, 30, 40], what sequence of pointer updates occurs when calling removeAt(1)? (Answer: Traversal locates prev at node 10; target is node 20; prev.next is set to target.next (node 30); resulting list is [10, 30, 40]). Load the Removal Demo preset to verify!',
-  },
-];
-
 export const LinkedListLab: React.FC = () => {
+  const { t } = useTranslation(['linkedList', 'pedagogy', 'common']);
+  const isMountedRef = useRef(false);
+
+  const presetSequences = useMemo<PresetItem[]>(
+    () =>
+      PRESET_COMMANDS.map((p) => ({
+        id: p.id,
+        label: t(`linkedList:presets.${p.id}`),
+        initialItems: p.initialItems,
+        commands: p.commands,
+      })),
+    [t]
+  );
+
+  const pedagogicalPhases = useMemo(
+    () => [
+      {
+        id: '01',
+        name: t('pedagogy:phases.discover'),
+        title: t('linkedList:phases.p01.title'),
+        content: t('linkedList:phases.p01.content'),
+      },
+      {
+        id: '02',
+        name: t('pedagogy:phases.interact'),
+        title: t('linkedList:phases.p02.title'),
+        content: t('linkedList:phases.p02.content'),
+      },
+      {
+        id: '03',
+        name: t('pedagogy:phases.observe'),
+        title: t('linkedList:phases.p03.title'),
+        content: t('linkedList:phases.p03.content'),
+      },
+      {
+        id: '04',
+        name: t('pedagogy:phases.explain'),
+        title: t('linkedList:phases.p04.title'),
+        content: t('linkedList:phases.p04.content'),
+      },
+      {
+        id: '05',
+        name: t('pedagogy:phases.visualize'),
+        title: t('linkedList:phases.p05.title'),
+        content: t('linkedList:phases.p05.content'),
+      },
+      {
+        id: '06',
+        name: t('pedagogy:phases.pseudocode'),
+        title: t('linkedList:phases.p06.title'),
+        content: PSEUDOCODE_SNIPPET,
+      },
+      {
+        id: '07',
+        name: t('pedagogy:phases.code'),
+        title: t('linkedList:phases.p07.title'),
+        content: TYPESCRIPT_SNIPPET,
+      },
+      {
+        id: '08',
+        name: t('pedagogy:phases.modify'),
+        title: t('linkedList:phases.p08.title'),
+        content: t('linkedList:phases.p08.content'),
+      },
+      {
+        id: '09',
+        name: t('pedagogy:phases.practice'),
+        title: t('linkedList:phases.p09.title'),
+        content: t('linkedList:phases.p09.content'),
+      },
+      {
+        id: '10',
+        name: t('pedagogy:phases.challenge'),
+        title: t('linkedList:phases.p10.title'),
+        content: t('linkedList:phases.p10.content'),
+      },
+    ],
+    [t]
+  );
+
   const [nodeValueText, setNodeValueText] = useState('42');
   const [nodeIndexText, setNodeIndexText] = useState('0');
   const [inputError, setInputError] = useState<string | null>(null);
@@ -209,7 +220,7 @@ export const LinkedListLab: React.FC = () => {
   const [selectedCodeLang, setSelectedCodeLang] = useState<'pseudocode' | 'typescript'>('typescript');
   const [currentInitialItems, setCurrentInitialItems] = useState<number[]>([10, 20, 30, 40]);
   const [currentCommands, setCurrentCommands] = useState<LinkedListCommand[]>(
-    PRESET_SEQUENCES[0]?.commands || []
+    PRESET_COMMANDS[0]?.commands || []
   );
 
   const {
@@ -248,7 +259,9 @@ export const LinkedListLab: React.FC = () => {
   );
 
   useEffect(() => {
-    const defaultPreset = PRESET_SEQUENCES[0];
+    if (isMountedRef.current) return;
+    isMountedRef.current = true;
+    const defaultPreset = PRESET_COMMANDS[0];
     if (defaultPreset) {
       setCurrentInitialItems(defaultPreset.initialItems);
       setCurrentCommands(defaultPreset.commands);
@@ -259,7 +272,7 @@ export const LinkedListLab: React.FC = () => {
   const parseValue = (): number | null => {
     const trimmed = nodeValueText.trim();
     if (!trimmed || !Number.isFinite(Number(trimmed))) {
-      setInputError(`Invalid value: "${nodeValueText}". Please enter a valid number.`);
+      setInputError(t('linkedList:errors.invalidValue', { value: nodeValueText }));
       return null;
     }
     return Math.round(Number(trimmed));
@@ -268,7 +281,7 @@ export const LinkedListLab: React.FC = () => {
   const parseIndex = (): number | null => {
     const trimmed = nodeIndexText.trim();
     if (!trimmed || !Number.isInteger(Number(trimmed))) {
-      setInputError(`Invalid index: "${nodeIndexText}". Please enter an integer.`);
+      setInputError(t('linkedList:errors.invalidIndex', { index: nodeIndexText }));
       return null;
     }
     return Number(trimmed);
@@ -410,9 +423,9 @@ export const LinkedListLab: React.FC = () => {
     <>
       <A11yAnnouncer message={currentStep?.a11yMessage} />
       <LabShell
-        category="Interactive Laboratory: Singly Linked List"
-        title="Singly Linked List & Pointer Chains"
-        subtitle="Understand non-contiguous dynamic node allocation, directed pointer reconnections, O(1) head/tail operations, and O(n) sequential access through an interactive 10-step pedagogical laboratory."
+        category={t('linkedList:category')}
+        title={t('linkedList:title')}
+        subtitle={t('linkedList:subtitle')}
         visualizationSlot={
           <LinkedListVisualizerAdapter
             step={currentStep}
@@ -423,21 +436,21 @@ export const LinkedListLab: React.FC = () => {
         codeSlot={
           <div className="code-stage-container">
             <div className="panel-header">
-              <span className="panel-title">Algorithm Code</span>
+              <span className="panel-title">{t('common:algorithmCode')}</span>
               <div className="code-lang-selector">
                 <Button
                   variant={selectedCodeLang === 'pseudocode' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCodeLang('pseudocode')}
                 >
-                  Pseudocode
+                  {t('common:pseudocode')}
                 </Button>
                 <Button
                   variant={selectedCodeLang === 'typescript' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCodeLang('typescript')}
                 >
-                  TypeScript
+                  {t('common:typescript')}
                 </Button>
               </div>
             </div>
@@ -472,7 +485,7 @@ export const LinkedListLab: React.FC = () => {
         controlsSlot={
           <div className="control-group">
             <div className="control-group">
-              <span className="control-label">Interactive Node Operations</span>
+              <span className="control-label">{t('linkedList:operationsLabel')}</span>
               <div className="input-action-row">
                 <input
                   type="text"
@@ -484,8 +497,8 @@ export const LinkedListLab: React.FC = () => {
                       setInputError(null);
                     }
                   }}
-                  placeholder="Value (e.g. 42)"
-                  aria-label="Node value input"
+                  placeholder={t('linkedList:valuePlaceholder')}
+                  aria-label={t('linkedList:valueAria')}
                   className="array-input-field"
                 />
                 <input
@@ -498,8 +511,8 @@ export const LinkedListLab: React.FC = () => {
                       setInputError(null);
                     }
                   }}
-                  placeholder="Index (e.g. 0)"
-                  aria-label="Node index input"
+                  placeholder={t('linkedList:indexPlaceholder')}
+                  aria-label={t('linkedList:indexAria')}
                   className="array-input-field"
                 />
               </div>
@@ -509,49 +522,49 @@ export const LinkedListLab: React.FC = () => {
                   variant="primary"
                   size="sm"
                   onClick={handlePrepend}
-                  aria-label="Prepend node at head"
+                  aria-label={t('linkedList:prependBtnAria')}
                 >
-                  Prepend
+                  {t('linkedList:prependBtn')}
                 </Button>
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={handleAppend}
-                  aria-label="Append node at tail"
+                  aria-label={t('linkedList:appendBtnAria')}
                 >
-                  Append
+                  {t('linkedList:appendBtn')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleInsertAt}
-                  aria-label="Insert node at index"
+                  aria-label={t('linkedList:insertAtBtnAria')}
                 >
-                  Insert At
+                  {t('linkedList:insertAtBtn')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleRemoveAt}
-                  aria-label="Remove node at index"
+                  aria-label={t('linkedList:removeAtBtnAria')}
                 >
-                  Remove At
+                  {t('linkedList:removeAtBtn')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleFind}
-                  aria-label="Find value in list"
+                  aria-label={t('linkedList:findBtnAria')}
                 >
-                  Find
+                  {t('linkedList:findBtn')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleClear}
-                  aria-label="Clear linked list"
+                  aria-label={t('linkedList:clearBtnAria')}
                 >
-                  Clear
+                  {t('linkedList:clearBtn')}
                 </Button>
               </div>
 
@@ -562,9 +575,9 @@ export const LinkedListLab: React.FC = () => {
               )}
 
               <div className="control-actions">
-                {PRESET_SEQUENCES.map((p) => (
+                {presetSequences.map((p) => (
                   <Button
-                    key={p.label}
+                    key={p.id}
                     variant="outline"
                     size="sm"
                     onClick={() => handlePresetSelect(p)}
@@ -577,40 +590,40 @@ export const LinkedListLab: React.FC = () => {
           </div>
         }
         inspectorSlot={
-          <Card title="State & Pointer Inspector">
+          <Card title={t('linkedList:inspector.title')}>
             <div className="inspector-list">
               <div>
-                <span className="inspector-label">Action: </span>
+                <span className="inspector-label">{t('common:action')} </span>
                 <Badge variant={getActionBadgeVariant(currentAction)}>
                   {currentAction}
                 </Badge>
               </div>
               <div>
-                <span className="inspector-label">Step Index: </span>
+                <span className="inspector-label">{t('common:stepIndex')} </span>
                 <span className="inspector-val-index">
                   {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">List Size: </span>
+                <span className="inspector-label">{t('linkedList:inspector.listSize')} </span>
                 <span className="inspector-val-total">
-                  {stateData.size} node{stateData.size === 1 ? '' : 's'}
+                  {t('linkedList:inspector.nodeCount', { count: stateData.size })}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">HEAD Node: </span>
+                <span className="inspector-label">{t('linkedList:inspector.headNode')} </span>
                 <span className="inspector-val-index">
                   {headNode ? `${headNode.value} (id: ${headNode.id})` : 'null'}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">TAIL Node: </span>
+                <span className="inspector-label">{t('linkedList:inspector.tailNode')} </span>
                 <span className="inspector-val-index">
                   {tailNode ? `${tailNode.value} (id: ${tailNode.id})` : 'null'}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">Status: </span>
+                <span className="inspector-label">{t('common:status')} </span>
                 <span
                   className={
                     currentAction === 'UNDERFLOW' || currentAction === 'NOT_FOUND'
@@ -621,14 +634,14 @@ export const LinkedListLab: React.FC = () => {
                   }
                 >
                   {currentAction === 'UNDERFLOW'
-                    ? 'Index Error'
+                    ? t('linkedList:inspector.statusIndexError')
                     : currentAction === 'NOT_FOUND'
-                      ? 'Not Found'
+                      ? t('linkedList:inspector.statusNotFound')
                       : currentAction === 'FOUND'
-                        ? 'Match Found'
+                        ? t('linkedList:inspector.statusFound')
                         : stateData.size === 0
-                          ? 'Empty (HEAD -> null)'
-                          : 'Normal'}
+                          ? t('linkedList:inspector.statusEmpty')
+                          : t('linkedList:inspector.statusNormal')}
                 </span>
               </div>
             </div>
@@ -636,7 +649,7 @@ export const LinkedListLab: React.FC = () => {
         }
         knowledgeSlot={
           <PedagogicalKnowledgePanel
-            phases={PEDAGOGICAL_PHASES}
+            phases={pedagogicalPhases}
             activePhaseIndex={activePhaseIndex}
             onPhaseSelect={setActivePhaseIndex}
             pseudocodeActiveLine={currentStep?.codeHighlight?.pseudocodeLine}

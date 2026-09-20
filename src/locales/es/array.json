@@ -1,0 +1,75 @@
+{
+  "category": "Laboratorio interactivo: Estructura de datos Arreglo",
+  "title": "Exploración de Arreglos y Ordenamiento Burbuja",
+  "subtitle": "Descubre cómo las comparaciones locales de elementos y los intercambios adyacentes ordenan sistemáticamente un arreglo a través de un recorrido pedagógico interactivo de 10 pasos.",
+  "inputLabel": "Configuración de entrada del arreglo",
+  "inputPlaceholder": "ej. 5, 1, 4, 2, 8",
+  "inputAria": "Valores de entrada del arreglo",
+  "loadAndRunBtn": "Cargar y ordenar",
+  "loadAndRunAria": "Cargar y ejecutar ordenamiento",
+  "errors": {
+    "empty": "Por favor ingresa al menos un número.",
+    "max": "Por favor ingresa como máximo 14 números para una visualización óptima.",
+    "invalid": "Número inválido: \"{{token}}\". Solo se permiten números válidos."
+  },
+  "presets": {
+    "default": "Predeterminado [5, 1, 4, 2, 8]",
+    "reverse": "Inverso [5, 4, 3, 2, 1]",
+    "sorted": "Ordenado [1, 2, 3, 4, 5]",
+    "mixed": "Mixto [12, 7, 19, 3, 25, 1]"
+  },
+  "inspector": {
+    "title": "Inspector de estado y métricas",
+    "comparisons": "Comparaciones:",
+    "swaps": "Intercambios realizados:",
+    "statusEmpty": "Vacío",
+    "statusSorted": "Ordenado (completo)",
+    "statusInProgress": "En progreso"
+  },
+  "canvas": {
+    "title": "Lienzo de visualización de arreglos",
+    "emptyTitle": "Visualizador de arreglos",
+    "noData": "No hay datos de arreglo disponibles. Proporciona una entrada para comenzar.",
+    "emptyArray": "Arreglo vacío []"
+  },
+  "phases": {
+    "p01": {
+      "title": "Descubrir la necesidad de ordenar",
+      "content": "El ordenamiento es una de las operaciones más fundamentales en las ciencias de la computación. Dada una secuencia desordenada de números, nuestro objetivo es reorganizarlos en orden no decreciente. ¿Cómo puede una estrategia simple basada exclusivamente en inspeccionar e intercambiar dos elementos adyacentes a la vez llevar gradualmente el orden global a toda la lista?"
+    },
+    "p02": {
+      "title": "Controles interactivos y configuración",
+      "content": "Usa el campo de entrada para configurar un arreglo inicial o selecciona uno de los valores preestablecidos. Haz clic en \"Avanzar paso\" para avanzar una comparación/intercambio, o presiona \"Reproducir\" para ver el algoritmo ejecutarse automáticamente a la velocidad elegida. También puedes deslizar la barra de tiempo o usar los atajos de teclado (Espacio, Flechas, Inicio, Fin, R) para navegar en el tiempo libremente."
+    },
+    "p03": {
+      "title": "Invariantes visuales del ordenamiento burbuja",
+      "content": "Observa cómo durante cada pasada completa sobre el arreglo, el elemento desordenado más grande \"sube como una burbuja\" en el agua hasta su posición final al final del arreglo. Nota que después de la Pasada 1, el elemento más grande queda bloqueado; después de la Pasada 2, el segundo más grande queda bloqueado, reduciendo el subarreglo desordenado de derecha a izquierda."
+    },
+    "p04": {
+      "title": "Complejidad matemática e invariantes",
+      "content": "En un arreglo de longitud n, la Pasada 1 realiza (n - 1) comparaciones, la Pasada 2 realiza (n - 2), hasta 1 comparación en la pasada final. La complejidad temporal en el peor y caso promedio es O(n²) con n(n - 1)/2 comparaciones. Con Salida Temprana (Early Exit), un arreglo preordenado finaliza en una sola pasada de (n - 1) comparaciones y 0 intercambios, logrando una complejidad en el mejor caso de O(n). Respecto a la complejidad espacial: el ordenamiento in-place clásico opera en O(1) de memoria auxiliar; en esta implementación, la entrada se clona una vez (O(n)) para preservar la inmutabilidad, mientras que la traza pedagógica ExecutionStep[] requiere memoria adicional proporcional al número de capturas registradas."
+    },
+    "p05": {
+      "title": "Representación visual",
+      "content": "El lienzo SVG renderiza el estado activo en tiempo real: los punteros (j y j+1) indican el par actual bajo inspección, los resaltados amarillos denotan comparaciones activas, los resaltados rosa denotan elementos en medio de un intercambio y los nodos verdes indican posiciones permanentemente ordenadas."
+    },
+    "p06": {
+      "title": "Pseudocódigo del algoritmo (con salida temprana)"
+    },
+    "p07": {
+      "title": "Implementación en TypeScript (con salida temprana)"
+    },
+    "p08": {
+      "title": "Modificar y optimizar (salida temprana activa)",
+      "content": "Este laboratorio implementa la optimización de Salida Temprana (Early Exit). Al verificar si ocurrieron cero intercambios durante una pasada completa, el algoritmo finaliza anticipadamente tan pronto como el arreglo alcanza el orden deseado. Por ejemplo, ¡probar el preajuste \"Ordenado\" solo requiere una pasada con (n - 1) comparaciones en lugar de las n(n - 1)/2 comparaciones completas!"
+    },
+    "p09": {
+      "title": "Practicar con entradas personalizadas",
+      "content": "Intenta escribir tu propia lista de números separados por comas en el campo de entrada superior (por ejemplo, 9, 3, 7, 1, 5) y haz clic en \"Cargar y ordenar\". ¡Intenta predecir cuántos intercambios totales ocurrirán antes de avanzar en el visualizador!"
+    },
+    "p10": {
+      "title": "Desafío de dominio del algoritmo",
+      "content": "Pregunta del desafío: Para un arreglo con n=5 elementos en orden estrictamente inverso [5, 4, 3, 2, 1], ¿cuál es el número exacto de intercambios requeridos? (Respuesta: 4 + 3 + 2 + 1 = 10 intercambios). ¡Carga el preajuste \"Inverso\" en el entorno interactivo superior para avanzar paso a paso y verificarlo!"
+    }
+  }
+}

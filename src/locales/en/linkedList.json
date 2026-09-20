@@ -1,0 +1,96 @@
+{
+  "category": "Interactive Laboratory: Singly Linked List",
+  "title": "Singly Linked List & Pointer Chains",
+  "subtitle": "Understand non-contiguous dynamic node allocation, directed pointer reconnections, O(1) head/tail operations, and O(n) sequential access through an interactive 10-step pedagogical laboratory.",
+  "operationsLabel": "Interactive Node Operations",
+  "valuePlaceholder": "Value (e.g. 42)",
+  "valueAria": "Node value input",
+  "indexPlaceholder": "Index (e.g. 0)",
+  "indexAria": "Node index input",
+  "prependBtn": "Prepend",
+  "prependBtnAria": "Prepend node at head",
+  "appendBtn": "Append",
+  "appendBtnAria": "Append node at tail",
+  "insertAtBtn": "Insert At",
+  "insertAtBtnAria": "Insert node at index",
+  "removeAtBtn": "Remove At",
+  "removeAtBtnAria": "Remove node at index",
+  "findBtn": "Find",
+  "findBtnAria": "Find value in list",
+  "clearBtn": "Clear",
+  "clearBtnAria": "Clear linked list",
+  "errors": {
+    "invalidValue": "Invalid value: \"{{value}}\". Please enter a valid number.",
+    "invalidIndex": "Invalid index: \"{{index}}\". Please enter an integer."
+  },
+  "presets": {
+    "prependAppend": "Prepend & Append Mix [Prepend 5, 2, Append 8, 12]",
+    "removal": "Removal Demo [Start 10, 20, 30, 40 -> RemoveAt 1, RemoveAt 0]",
+    "search": "Search & Traverse [Start 11, 22, 33, 44 -> Find 33]"
+  },
+  "inspector": {
+    "title": "State & Pointer Inspector",
+    "listSize": "List Size:",
+    "nodeCount_one": "{{count}} node",
+    "nodeCount_other": "{{count}} nodes",
+    "headNode": "HEAD Node:",
+    "tailNode": "TAIL Node:",
+    "statusIndexError": "Index Error",
+    "statusNotFound": "Not Found",
+    "statusFound": "Match Found",
+    "statusEmpty": "Empty (HEAD -> null)",
+    "statusNormal": "Normal"
+  },
+  "canvas": {
+    "title": "Linked List Visualization Canvas",
+    "emptyTitle": "Linked List Visualizer",
+    "noData": "No linked list data available. Perform an operation to begin.",
+    "headLabel": "HEAD",
+    "tailLabel": "TAIL",
+    "currLabel": "CURR",
+    "nullTerminal": "NULL",
+    "size": "Size: {{size}} {{units}}",
+    "nodeSingle": "node",
+    "nodePlural": "nodes"
+  },
+  "phases": {
+    "p01": {
+      "title": "Discover Dynamic Linked Nodes vs Contiguous Memory",
+      "content": "Unlike an Array where elements occupy a contiguous physical memory block, a Singly Linked List consists of independent Node objects scattered in heap memory. Each Node stores two components: its payload data (value) and a reference pointer (next) directed to the subsequent node in the sequence. The chain terminates with a null reference."
+    },
+    "p02": {
+      "title": "Interact with Prepend, Append, Insert, Remove & Find",
+      "content": "Use the operations panel on the right to prepend items at the HEAD in O(1), append items at the TAIL in O(1), or insert and remove elements at arbitrary positions. Step through the timeline using the time-travel buttons below to watch HEAD, TAIL, and CURR pointers dynamically reconnect."
+    },
+    "p03": {
+      "title": "Observe Pointer Reconnection Mechanics",
+      "content": "Notice that inserting or removing an element in a Linked List does NOT physically shift any existing nodes in memory! Instead, insertion is achieved by setting newNode.next = prev.next and prev.next = newNode. Deletion is achieved by bypassing the target node: prev.next = target.next."
+    },
+    "p04": {
+      "title": "Explain Time & Space Complexity Nuances",
+      "content": "Complexity in a Linked List is strictly operation-dependent: Access by index and Search by value are both O(N) because the list must be traversed sequentially from HEAD. Prepend is O(1) constant time as it only updates the head reference. Append is O(1) when maintaining a tail pointer reference (without a tail reference, append would cost O(N) traversal). Insert and Remove at an already-localized pointer take O(1) time, though reaching index i from HEAD incurs an O(i) traversal cost. Space complexity is O(N) auxiliary memory for node objects and pointers."
+    },
+    "p05": {
+      "title": "Visual Representation of Nodes & Directed Edges",
+      "content": "The SVG Viewport renders the linked list as individual rectangular nodes connected by cyan directed arrows. The HEAD pointer (cyan) tracks the first valid node, the TAIL pointer (amber) tracks the last node, and the trailing arrow leads into the NULL terminal box."
+    },
+    "p06": {
+      "title": "Algorithm Pseudocode (Singly Linked List ADT)"
+    },
+    "p07": {
+      "title": "TypeScript Implementation (Generic Singly Linked List)"
+    },
+    "p08": {
+      "title": "Modify & Boundary Conditions",
+      "content": "Handling boundary conditions in Linked Lists requires careful pointer updates: removing the only element must set both HEAD and TAIL to null; removing the TAIL node requires traversing to the second-to-last node and updating tail = prev; invalid index insertions/deletions throw Out of Bounds errors."
+    },
+    "p09": {
+      "title": "Practice: Implementing a Music Playlist",
+      "content": "A common real-world application of linked structures is a music playlist or browser navigation history, where songs or URLs are dynamically inserted or removed without requiring array re-indexing."
+    },
+    "p10": {
+      "title": "Algorithm Mastery Challenge",
+      "content": "Challenge Question: Given a list [10, 20, 30, 40], what sequence of pointer updates occurs when calling removeAt(1)? (Answer: Traversal locates prev at node 10; target is node 20; prev.next is set to target.next (node 30); resulting list is [10, 30, 40]). Load the Removal Demo preset to verify!"
+    }
+  }
+}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { simulateQueueOperations, QueueCommand } from '@/core/algorithms';
 import { QueueState } from '@/core/data-structures/queue';
 import { QueueVisualizerAdapter } from '@/components/visualizer';
@@ -16,6 +17,7 @@ import {
 import { A11yAnnouncer, useTimeTravelKeyboard } from '@/components/a11y';
 
 interface PresetItem {
+  id: string;
   label: string;
   commands: QueueCommand[];
   capacity: number;
@@ -96,9 +98,9 @@ const TYPESCRIPT_SNIPPET = `export class BoundedQueue<T> {
   }
 }`;
 
-const PRESET_SEQUENCES: PresetItem[] = [
+const PRESET_COMMANDS: { id: 'standard' | 'wrapAround' | 'overflow' | 'underflow' | 'peek'; capacity: number; commands: QueueCommand[] }[] = [
   {
-    label: 'Standard [Enqueue 10, 20, 30, Dequeue, Enqueue 40]',
+    id: 'standard',
     capacity: 6,
     commands: [
       { type: 'ENQUEUE', value: 10 },
@@ -109,7 +111,7 @@ const PRESET_SEQUENCES: PresetItem[] = [
     ],
   },
   {
-    label: 'Wrap-Around Demo [Fill 5, Deq 2, Enq 2]',
+    id: 'wrapAround',
     capacity: 5,
     commands: [
       { type: 'ENQUEUE', value: 10 },
@@ -124,7 +126,7 @@ const PRESET_SEQUENCES: PresetItem[] = [
     ],
   },
   {
-    label: 'Overflow Demo [Fill Cap 5 + 1]',
+    id: 'overflow',
     capacity: 5,
     commands: [
       { type: 'ENQUEUE', value: 1 },
@@ -136,7 +138,7 @@ const PRESET_SEQUENCES: PresetItem[] = [
     ],
   },
   {
-    label: 'Underflow Demo [Enqueue 50, Deq, Deq]',
+    id: 'underflow',
     capacity: 5,
     commands: [
       { type: 'ENQUEUE', value: 50 },
@@ -145,7 +147,7 @@ const PRESET_SEQUENCES: PresetItem[] = [
     ],
   },
   {
-    label: 'Peek & Inspect [Enqueue 12, 24, Peek]',
+    id: 'peek',
     capacity: 6,
     commands: [
       { type: 'ENQUEUE', value: 12 },
@@ -155,84 +157,93 @@ const PRESET_SEQUENCES: PresetItem[] = [
   },
 ];
 
-const PEDAGOGICAL_PHASES = [
-  {
-    id: '01',
-    name: '01. Discover',
-    title: 'Discover the FIFO Principle (First-In, First-Out)',
-    content:
-      'A Queue is a fundamental linear data structure governed by a strict access rule: the first element inserted is always the first one to be removed (FIFO: First-In, First-Out). Think of a line of customers at a ticket counter, a printer spooler processing print jobs in order, or an operating system message queue.',
-  },
-  {
-    id: '02',
-    name: '02. Interact',
-    title: 'Interact with Enqueue, Dequeue & Peek',
-    content:
-      'Use the operations panel on the right to append values at the REAR with ENQUEUE, inspect the earliest item at the FRONT with PEEK, or remove the front element with DEQUEUE. Step through the timeline using the time-travel buttons below to watch the FRONT and REAR pointers update.',
-  },
-  {
-    id: '03',
-    name: '03. Observe',
-    title: 'Observe Dual-End Access Discipline',
-    content:
-      'Notice that elements in a Queue can only enter from one end (REAR) and exit from the other end (FRONT). Random index access into middle elements is prohibited by the ADT contract. Notice how DEQUEUE advances the FRONT pointer without physically shifting any remaining elements in memory!',
-  },
-  {
-    id: '04',
-    name: '04. Explain',
-    title: 'Explain Time & Space Complexity (Why O(1)?)',
-    content:
-      'In a naive array implementation, removing the front element requires shifting all remaining N-1 elements to the left, which costs O(N) time. In CASE Algorithms, the Bounded Queue is implemented as an authentic Two-Pointer Circular Buffer: ENQUEUE inserts at buffer[rear] and advances rear = (rear + 1) % capacity; DEQUEUE extracts buffer[front] and advances front = (front + 1) % capacity. Because zero elements are shifted, ENQUEUE, DEQUEUE, and PEEK all execute in strict O(1) constant time! Space complexity is O(N) auxiliary memory for the buffer, while the immutable ExecutionStep[] trace records pedagogical snapshots for time-travel.',
-  },
-  {
-    id: '05',
-    name: '05. Visualize',
-    title: 'Visual Representation & Circular Buffer Pointers',
-    content:
-      'The SVG Viewport renders the queue as a bounded physical buffer. The FRONT pointer (cyan) tracks the earliest valid element, while the REAR pointer (amber) indicates the most recently appended element. Notice how empty slots remain fixed in place while pointers advance across the buffer.',
-  },
-  {
-    id: '06',
-    name: '06. Pseudocode',
-    title: 'Algorithm Pseudocode (Circular Buffer Queue ADT)',
-    content: PSEUDOCODE_SNIPPET,
-  },
-  {
-    id: '07',
-    name: '07. Code',
-    title: 'TypeScript Implementation (Two-Pointer Circular Queue)',
-    content: TYPESCRIPT_SNIPPET,
-  },
-  {
-    id: '08',
-    name: '08. Modify',
-    title: 'Modify & Boundary Conditions',
-    content:
-      'A Bounded Queue introduces strict boundary enforcement: Queue Overflow occurs when attempting to ENQUEUE into a full buffer, and Queue Underflow occurs when attempting to DEQUEUE or PEEK an empty queue. Try triggering both conditions using the demo presets!',
-  },
-  {
-    id: '09',
-    name: '09. Practice',
-    title: 'Practice: Task Scheduling & Event Loops',
-    content:
-      'Queues are the foundational engine of asynchronous systems: JavaScript macro-task event loops, background print spoolers, and web server request dispatchers all rely on FIFO queues to ensure fair and deterministic processing order.',
-  },
-  {
-    id: '10',
-    name: '10. Challenge',
-    title: 'Algorithm Mastery Challenge',
-    content:
-      'Challenge Question: Given an empty queue with capacity 5, we perform: ENQUEUE(10), ENQUEUE(20), ENQUEUE(30), DEQUEUE(), ENQUEUE(40), ENQUEUE(50), DEQUEUE(), PEEK(). What value is returned by PEEK(), and what are the front and rear indices in the circular buffer? (Answer: PEEK returns 30; frontIndex is 2, rearIndex is 0). Load the Wrap-Around Demo preset to verify!',
-  },
-];
-
 export const QueueLab: React.FC = () => {
+  const { t } = useTranslation(['queue', 'pedagogy', 'common']);
+  const isMountedRef = useRef(false);
+
+  const presetSequences = useMemo<PresetItem[]>(
+    () =>
+      PRESET_COMMANDS.map((p) => ({
+        id: p.id,
+        label: t(`queue:presets.${p.id}`),
+        capacity: p.capacity,
+        commands: p.commands,
+      })),
+    [t]
+  );
+
+  const pedagogicalPhases = useMemo(
+    () => [
+      {
+        id: '01',
+        name: t('pedagogy:phases.discover'),
+        title: t('queue:phases.p01.title'),
+        content: t('queue:phases.p01.content'),
+      },
+      {
+        id: '02',
+        name: t('pedagogy:phases.interact'),
+        title: t('queue:phases.p02.title'),
+        content: t('queue:phases.p02.content'),
+      },
+      {
+        id: '03',
+        name: t('pedagogy:phases.observe'),
+        title: t('queue:phases.p03.title'),
+        content: t('queue:phases.p03.content'),
+      },
+      {
+        id: '04',
+        name: t('pedagogy:phases.explain'),
+        title: t('queue:phases.p04.title'),
+        content: t('queue:phases.p04.content'),
+      },
+      {
+        id: '05',
+        name: t('pedagogy:phases.visualize'),
+        title: t('queue:phases.p05.title'),
+        content: t('queue:phases.p05.content'),
+      },
+      {
+        id: '06',
+        name: t('pedagogy:phases.pseudocode'),
+        title: t('queue:phases.p06.title'),
+        content: PSEUDOCODE_SNIPPET,
+      },
+      {
+        id: '07',
+        name: t('pedagogy:phases.code'),
+        title: t('queue:phases.p07.title'),
+        content: TYPESCRIPT_SNIPPET,
+      },
+      {
+        id: '08',
+        name: t('pedagogy:phases.modify'),
+        title: t('queue:phases.p08.title'),
+        content: t('queue:phases.p08.content'),
+      },
+      {
+        id: '09',
+        name: t('pedagogy:phases.practice'),
+        title: t('queue:phases.p09.title'),
+        content: t('queue:phases.p09.content'),
+      },
+      {
+        id: '10',
+        name: t('pedagogy:phases.challenge'),
+        title: t('queue:phases.p10.title'),
+        content: t('queue:phases.p10.content'),
+      },
+    ],
+    [t]
+  );
+
   const [enqueueInputText, setEnqueueInputText] = useState('42');
   const [inputError, setInputError] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [queueCapacity, setQueueCapacity] = useState<number>(6);
   const [selectedCodeLang, setSelectedCodeLang] = useState<'pseudocode' | 'typescript'>('typescript');
-  const [currentCommands, setCurrentCommands] = useState<QueueCommand[]>(PRESET_SEQUENCES[0]?.commands || []);
+  const [currentCommands, setCurrentCommands] = useState<QueueCommand[]>(PRESET_COMMANDS[0]?.commands || []);
 
   const {
     currentStep,
@@ -270,7 +281,9 @@ export const QueueLab: React.FC = () => {
   );
 
   useEffect(() => {
-    const defaultPreset = PRESET_SEQUENCES[0];
+    if (isMountedRef.current) return;
+    isMountedRef.current = true;
+    const defaultPreset = PRESET_COMMANDS[0];
     if (defaultPreset) {
       setQueueCapacity(defaultPreset.capacity);
       setCurrentCommands(defaultPreset.commands);
@@ -281,7 +294,7 @@ export const QueueLab: React.FC = () => {
   const handleEnqueue = () => {
     const trimmed = enqueueInputText.trim();
     if (!trimmed || !Number.isFinite(Number(trimmed))) {
-      setInputError(`Invalid number: "${enqueueInputText}". Please enter a valid number.`);
+      setInputError(t('queue:invalidNumber', { value: enqueueInputText }));
       return;
     }
 
@@ -374,9 +387,9 @@ export const QueueLab: React.FC = () => {
     <>
       <A11yAnnouncer message={currentStep?.a11yMessage} />
       <LabShell
-        category="Interactive Laboratory: Queue Data Structure"
-        title="Queue & FIFO Principle Exploration"
-        subtitle="Understand First-In, First-Out (FIFO) discipline, dual-ended O(1) enqueue and dequeue operations, and boundary conditions through an interactive 10-step pedagogical laboratory."
+        category={t('queue:category')}
+        title={t('queue:title')}
+        subtitle={t('queue:subtitle')}
         visualizationSlot={
           <QueueVisualizerAdapter
             step={currentStep}
@@ -387,21 +400,21 @@ export const QueueLab: React.FC = () => {
         codeSlot={
           <div className="code-stage-container">
             <div className="panel-header">
-              <span className="panel-title">Algorithm Code</span>
+              <span className="panel-title">{t('common:algorithmCode')}</span>
               <div className="code-lang-selector">
                 <Button
                   variant={selectedCodeLang === 'pseudocode' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCodeLang('pseudocode')}
                 >
-                  Pseudocode
+                  {t('common:pseudocode')}
                 </Button>
                 <Button
                   variant={selectedCodeLang === 'typescript' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCodeLang('typescript')}
                 >
-                  TypeScript
+                  {t('common:typescript')}
                 </Button>
               </div>
             </div>
@@ -436,7 +449,7 @@ export const QueueLab: React.FC = () => {
         controlsSlot={
           <div className="control-group">
             <div className="control-group">
-              <span className="control-label">Interactive Queue Operations</span>
+              <span className="control-label">{t('queue:operationsLabel')}</span>
               <div className="input-action-row">
                 <input
                   type="text"
@@ -448,17 +461,17 @@ export const QueueLab: React.FC = () => {
                       setInputError(null);
                     }
                   }}
-                  placeholder="e.g. 42"
-                  aria-label="Value to enqueue"
+                  placeholder={t('queue:enqueueInputPlaceholder')}
+                  aria-label={t('queue:enqueueInputAria')}
                   className="array-input-field"
                 />
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={handleEnqueue}
-                  aria-label="Enqueue value into queue"
+                  aria-label={t('queue:enqueueBtnAria')}
                 >
-                  Enqueue
+                  {t('queue:enqueueBtn')}
                 </Button>
               </div>
 
@@ -467,25 +480,25 @@ export const QueueLab: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleDequeue}
-                  aria-label="Dequeue front value"
+                  aria-label={t('queue:dequeueBtnAria')}
                 >
-                  Dequeue
+                  {t('queue:dequeueBtn')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handlePeekFront}
-                  aria-label="Peek front value"
+                  aria-label={t('queue:peekBtnAria')}
                 >
-                  Peek Front
+                  {t('queue:peekBtn')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleClear}
-                  aria-label="Clear queue"
+                  aria-label={t('queue:clearBtnAria')}
                 >
-                  Clear
+                  {t('queue:clearBtn')}
                 </Button>
               </div>
 
@@ -496,7 +509,7 @@ export const QueueLab: React.FC = () => {
               )}
 
               <div className="speed-control-row">
-                <span className="control-label">Capacity:</span>
+                <span className="control-label">{t('queue:capacityLabel')}</span>
                 {[4, 6, 8].map((cap) => (
                   <Button
                     key={`queue-cap-${cap}`}
@@ -510,9 +523,9 @@ export const QueueLab: React.FC = () => {
               </div>
 
               <div className="control-actions">
-                {PRESET_SEQUENCES.map((p) => (
+                {presetSequences.map((p) => (
                   <Button
-                    key={p.label}
+                    key={p.id}
                     variant="outline"
                     size="sm"
                     onClick={() => handlePresetSelect(p)}
@@ -525,44 +538,44 @@ export const QueueLab: React.FC = () => {
           </div>
         }
         inspectorSlot={
-          <Card title="State & Capacity Inspector">
+          <Card title={t('queue:inspector.title')}>
             <div className="inspector-list">
               <div>
-                <span className="inspector-label">Action: </span>
+                <span className="inspector-label">{t('common:action')} </span>
                 <Badge variant={getActionBadgeVariant(currentAction)}>
                   {currentAction}
                 </Badge>
               </div>
               <div>
-                <span className="inspector-label">Step Index: </span>
+                <span className="inspector-label">{t('common:stepIndex')} </span>
                 <span className="inspector-val-index">
                   {totalSteps > 0 ? currentIndex + 1 : 0} / {totalSteps}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">Items in Queue: </span>
+                <span className="inspector-label">{t('queue:inspector.itemsInQueue')} </span>
                 <span className="inspector-val-total">
                   {stateData.count} / {stateData.capacity}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">FRONT Element: </span>
+                <span className="inspector-label">{t('queue:inspector.frontElement')} </span>
                 <span className="inspector-val-index">
                   {stateData.frontIndex >= 0 && stateData.buffer[stateData.frontIndex] !== null
-                    ? `${stateData.buffer[stateData.frontIndex]} (slot [${stateData.frontIndex}])`
-                    : 'null (empty)'}
+                    ? `${stateData.buffer[stateData.frontIndex]} (${t('queue:inspector.slot', { index: stateData.frontIndex })})`
+                    : t('queue:inspector.nullEmpty')}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">REAR Element: </span>
+                <span className="inspector-label">{t('queue:inspector.rearElement')} </span>
                 <span className="inspector-val-index">
                   {stateData.rearIndex >= 0 && stateData.buffer[stateData.rearIndex] !== null
-                    ? `${stateData.buffer[stateData.rearIndex]} (slot [${stateData.rearIndex}])`
-                    : 'null (empty)'}
+                    ? `${stateData.buffer[stateData.rearIndex]} (${t('queue:inspector.slot', { index: stateData.rearIndex })})`
+                    : t('queue:inspector.nullEmpty')}
                 </span>
               </div>
               <div>
-                <span className="inspector-label">Status: </span>
+                <span className="inspector-label">{t('common:status')} </span>
                 <span
                   className={
                     currentAction === 'OVERFLOW' || currentAction === 'UNDERFLOW'
@@ -573,14 +586,14 @@ export const QueueLab: React.FC = () => {
                   }
                 >
                   {currentAction === 'OVERFLOW'
-                    ? 'Overflow Error'
+                    ? t('queue:inspector.statusOverflow')
                     : currentAction === 'UNDERFLOW'
-                      ? 'Underflow Error'
+                      ? t('queue:inspector.statusUnderflow')
                       : stateData.count === 0
-                        ? 'Empty'
+                        ? t('queue:inspector.statusEmpty')
                         : stateData.count === stateData.capacity
-                          ? 'Full (Cap Reached)'
-                          : 'Normal'}
+                          ? t('queue:inspector.statusFull')
+                          : t('queue:inspector.statusNormal')}
                 </span>
               </div>
             </div>
@@ -588,7 +601,7 @@ export const QueueLab: React.FC = () => {
         }
         knowledgeSlot={
           <PedagogicalKnowledgePanel
-            phases={PEDAGOGICAL_PHASES}
+            phases={pedagogicalPhases}
             activePhaseIndex={activePhaseIndex}
             onPhaseSelect={setActivePhaseIndex}
             pseudocodeActiveLine={currentStep?.codeHighlight?.pseudocodeLine}

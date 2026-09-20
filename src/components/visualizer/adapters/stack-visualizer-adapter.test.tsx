@@ -1,16 +1,25 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { StackVisualizerAdapter } from './StackVisualizerAdapter';
 import { ExecutionStep } from '@/core/types';
 import { StackState } from '@/core/data-structures/stack';
+import { changeLanguage } from '@/i18n';
 
 describe('StackVisualizerAdapter', () => {
-  it('renders fallback when step is null', () => {
-    render(<StackVisualizerAdapter step={null} />);
-    expect(screen.getByText('No stack data available. Perform an operation to begin.')).toBeInTheDocument();
+  beforeEach(async () => {
+    await changeLanguage('es');
   });
 
-  it('renders empty stack with TOP (null) pointer', () => {
+  it('renders fallback when step is null in both languages', async () => {
+    const { rerender } = render(<StackVisualizerAdapter step={null} />);
+    expect(screen.getAllByText('No hay datos de pila disponibles. Realiza una operación para comenzar.')[0]).toBeInTheDocument();
+
+    await changeLanguage('en');
+    rerender(<StackVisualizerAdapter step={null} />);
+    expect(screen.getAllByText('No stack data available. Perform an operation to begin.')[0]).toBeInTheDocument();
+  });
+
+  it('renders empty stack with TOP (null) pointer in both languages', async () => {
     const emptyStep: ExecutionStep<StackState> = {
       id: 'step-0',
       stepIndex: 0,
@@ -27,7 +36,13 @@ describe('StackVisualizerAdapter', () => {
       },
     };
 
-    render(<StackVisualizerAdapter step={emptyStep} />);
+    const { rerender } = render(<StackVisualizerAdapter step={emptyStep} />);
+    expect(screen.getByText('La pila está vacía (0 elementos)')).toBeInTheDocument();
+    expect(screen.getByText('TOP (null)')).toBeInTheDocument();
+    expect(screen.getByText('Cap: 6')).toBeInTheDocument();
+
+    await changeLanguage('en');
+    rerender(<StackVisualizerAdapter step={emptyStep} />);
     expect(screen.getByText('Stack is Empty (0 items)')).toBeInTheDocument();
     expect(screen.getByText('TOP (null)')).toBeInTheDocument();
     expect(screen.getByText('Cap: 6')).toBeInTheDocument();

@@ -40,26 +40,26 @@ describe('i18n integration in App and shared components', () => {
   it('preserves active lab selection when language changes', async () => {
     render(<App />);
 
-    const stackBtn = screen.getByRole('button', { name: /cambiar al laboratorio de pilas/i });
+    const stackBtn = screen.getByRole('button', { name: 'Cambiar al laboratorio de pilas' });
     await act(async () => {
       fireEvent.click(stackBtn);
     });
 
-    expect(screen.getByText(/stack & lifo principle exploration/i)).toBeInTheDocument();
+    expect(screen.getByText('Exploración de Pilas y Principio LIFO')).toBeInTheDocument();
 
-    const enRadio = screen.getByRole('radio', { name: /english/i });
+    const enRadio = screen.getByRole('radio', { name: 'Switch to English' });
     await act(async () => {
       fireEvent.click(enRadio);
     });
 
-    expect(screen.getByText(/stack & lifo principle exploration/i)).toBeInTheDocument();
+    expect(screen.getByText('Stack & LIFO Principle Exploration')).toBeInTheDocument();
 
-    const esRadio = screen.getByRole('radio', { name: /español/i });
+    const esRadio = screen.getByRole('radio', { name: 'Cambiar a Español' });
     await act(async () => {
       fireEvent.click(esRadio);
     });
 
-    expect(screen.getByText(/stack & lifo principle exploration/i)).toBeInTheDocument();
+    expect(screen.getByText('Exploración de Pilas y Principio LIFO')).toBeInTheDocument();
   });
 
   it('translates TimeTravelControls labels and maintains step index on language change', async () => {
@@ -97,42 +97,44 @@ describe('i18n integration in App and shared components', () => {
   it('preserves user input across language changes in Array Laboratory', async () => {
     render(<App />);
 
-    const arrayBtn = screen.getByRole('button', { name: /cambiar al laboratorio de arreglos/i });
+    const arrayBtn = screen.getByRole('button', { name: 'Cambiar al laboratorio de arreglos' });
     await act(async () => {
       fireEvent.click(arrayBtn);
     });
 
-    const inputField = screen.getByPlaceholderText('e.g. 5, 1, 4, 2, 8');
+    const inputField = screen.getByPlaceholderText('ej. 5, 1, 4, 2, 8');
     await act(async () => {
       fireEvent.change(inputField, { target: { value: '99, 88, 77' } });
     });
     expect(inputField).toHaveValue('99, 88, 77');
 
-    const enRadio = screen.getByRole('radio', { name: /english/i });
+    const enRadio = screen.getByRole('radio', { name: 'Switch to English' });
     await act(async () => {
       fireEvent.click(enRadio);
     });
 
-    expect(inputField).toHaveValue('99, 88, 77');
+    const inputFieldEn = screen.getByPlaceholderText('e.g. 5, 1, 4, 2, 8');
+    expect(inputFieldEn).toHaveValue('99, 88, 77');
 
-    const esRadio = screen.getByRole('radio', { name: /español/i });
+    const esRadio = screen.getByRole('radio', { name: 'Cambiar a Español' });
     await act(async () => {
       fireEvent.click(esRadio);
     });
 
-    expect(inputField).toHaveValue('99, 88, 77');
+    const inputFieldEs = screen.getByPlaceholderText('ej. 5, 1, 4, 2, 8');
+    expect(inputFieldEs).toHaveValue('99, 88, 77');
   });
 
   it('preserves Stack Laboratory state and does not duplicate SVG nodes on language change during operations', async () => {
     render(<App />);
 
-    const stackBtn = screen.getByRole('button', { name: /cambiar al laboratorio de pilas/i });
+    const stackBtn = screen.getByRole('button', { name: 'Cambiar al laboratorio de pilas' });
     await act(async () => {
       fireEvent.click(stackBtn);
     });
 
-    const pushInput = screen.getByPlaceholderText('e.g. 42');
-    const pushBtn = screen.getByRole('button', { name: /push value onto stack/i });
+    const pushInput = screen.getByPlaceholderText('ej. 42');
+    const pushBtn = screen.getByRole('button', { name: 'Apilar valor en la pila' });
 
     await act(async () => {
       fireEvent.change(pushInput, { target: { value: '77' } });
@@ -142,7 +144,7 @@ describe('i18n integration in App and shared components', () => {
     const nodesBefore = document.querySelectorAll('.viz-node');
     const countBefore = nodesBefore.length;
 
-    const enRadio = screen.getByRole('radio', { name: /english/i });
+    const enRadio = screen.getByRole('radio', { name: 'Switch to English' });
     await act(async () => {
       fireEvent.click(enRadio);
     });
@@ -150,7 +152,7 @@ describe('i18n integration in App and shared components', () => {
     const nodesAfter = document.querySelectorAll('.viz-node');
     expect(nodesAfter.length).toBe(countBefore);
 
-    const esRadio = screen.getByRole('radio', { name: /español/i });
+    const esRadio = screen.getByRole('radio', { name: 'Cambiar a Español' });
     await act(async () => {
       fireEvent.click(esRadio);
     });

@@ -1,16 +1,25 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueueVisualizerAdapter } from './QueueVisualizerAdapter';
 import { ExecutionStep } from '@/core/types';
 import { QueueState } from '@/core/data-structures/queue';
+import { changeLanguage } from '@/i18n';
 
 describe('QueueVisualizerAdapter', () => {
-  it('renders fallback message when step is null', () => {
-    render(<QueueVisualizerAdapter step={null} />);
-    expect(screen.getByText(/No queue data available/i)).toBeInTheDocument();
+  beforeEach(async () => {
+    await changeLanguage('es');
   });
 
-  it('renders empty queue with capacity indicators and pipe labels', () => {
+  it('renders fallback message when step is null in both languages', async () => {
+    const { rerender } = render(<QueueVisualizerAdapter step={null} />);
+    expect(screen.getByText('No hay datos de cola disponibles. Realiza una operación para comenzar.')).toBeInTheDocument();
+
+    await changeLanguage('en');
+    rerender(<QueueVisualizerAdapter step={null} />);
+    expect(screen.getByText('No queue data available. Perform an operation to begin.')).toBeInTheDocument();
+  });
+
+  it('renders empty queue with capacity indicators and pipe labels in both languages', async () => {
     const mockStep: ExecutionStep<QueueState> = {
       id: 'step-0',
       stepIndex: 0,
@@ -28,14 +37,21 @@ describe('QueueVisualizerAdapter', () => {
       a11yMessage: 'Empty queue initialized with capacity 6.',
     };
 
-    render(<QueueVisualizerAdapter step={mockStep} />);
+    const { rerender } = render(<QueueVisualizerAdapter step={mockStep} />);
 
     expect(screen.getAllByText('Empty queue initialized with capacity 6.')[0]).toBeInTheDocument();
+    expect(screen.getByText(/Capacidad de búfer: 6 \| Elementos: 0/i)).toBeInTheDocument();
+    expect(screen.getByText(/Salida \(FRONT\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Entrada \(REAR\)/i)).toBeInTheDocument();
+    expect(screen.getByText('[0]')).toBeInTheDocument();
+    expect(screen.getByText('[5]')).toBeInTheDocument();
+
+    await changeLanguage('en');
+    rerender(<QueueVisualizerAdapter step={mockStep} />);
+
     expect(screen.getByText(/Buffer Capacity: 6 \| Count: 0/i)).toBeInTheDocument();
     expect(screen.getByText(/Outflow \(FRONT\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Inflow \(REAR\)/i)).toBeInTheDocument();
-    expect(screen.getByText('[0]')).toBeInTheDocument();
-    expect(screen.getByText('[5]')).toBeInTheDocument();
   });
 
   it('renders items with FRONT and REAR pointers and handles node clicks', () => {

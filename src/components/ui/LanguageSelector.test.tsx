@@ -57,16 +57,28 @@ describe('LanguageSelector component', () => {
     expect(esOption).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('handles keyboard interaction properly', async () => {
+  it('handles keyboard interaction and arrow key navigation properly', async () => {
     render(<LanguageSelector />);
+    const esOption = screen.getByRole('radio', { name: /español/i });
     const enOption = screen.getByRole('radio', { name: /english/i });
 
+    expect(esOption).toHaveAttribute('tabindex', '0');
+    expect(enOption).toHaveAttribute('tabindex', '-1');
+
     await act(async () => {
-      enOption.focus();
-      fireEvent.keyDown(enOption, { key: 'Enter', code: 'Enter' });
-      fireEvent.click(enOption);
+      fireEvent.keyDown(esOption, { key: 'ArrowRight' });
     });
 
     expect(getCurrentLanguage()).toBe('en');
+    expect(enOption).toHaveAttribute('tabindex', '0');
+    expect(esOption).toHaveAttribute('tabindex', '-1');
+
+    await act(async () => {
+      fireEvent.keyDown(enOption, { key: 'ArrowLeft' });
+    });
+
+    expect(getCurrentLanguage()).toBe('es');
+    expect(esOption).toHaveAttribute('tabindex', '0');
+    expect(enOption).toHaveAttribute('tabindex', '-1');
   });
 });

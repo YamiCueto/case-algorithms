@@ -1,0 +1,96 @@
+{
+  "category": "Laboratorio interactivo: Lista simplemente enlazada",
+  "title": "Lista simplemente enlazada y cadenas de punteros",
+  "subtitle": "Comprende la asignación dinámica de nodos en memoria no contigua, la reconexión dirigida de punteros, operaciones O(1) en cabeza/cola y acceso secuencial O(n) a través de un laboratorio pedagógico interactivo de 10 pasos.",
+  "operationsLabel": "Operaciones interactivas de nodos",
+  "valuePlaceholder": "Valor (ej. 42)",
+  "valueAria": "Entrada de valor de nodo",
+  "indexPlaceholder": "Índice (ej. 0)",
+  "indexAria": "Entrada de índice de nodo",
+  "prependBtn": "Prepend",
+  "prependBtnAria": "Insertar nodo en la cabeza",
+  "appendBtn": "Append",
+  "appendBtnAria": "Insertar nodo en la cola",
+  "insertAtBtn": "Insert At",
+  "insertAtBtnAria": "Insertar nodo en el índice",
+  "removeAtBtn": "Remove At",
+  "removeAtBtnAria": "Eliminar nodo en el índice",
+  "findBtn": "Find",
+  "findBtnAria": "Buscar valor en la lista",
+  "clearBtn": "Vaciar",
+  "clearBtnAria": "Vaciar lista enlazada",
+  "errors": {
+    "invalidValue": "Valor inválido: \"{{value}}\". Por favor ingresa un número válido.",
+    "invalidIndex": "Índice inválido: \"{{index}}\". Por favor ingresa un número entero."
+  },
+  "presets": {
+    "prependAppend": "Mezcla Prepend y Append [Prepend 5, 2, Append 8, 12]",
+    "removal": "Demostración de eliminación [Iniciar 10, 20, 30, 40 -> RemoveAt 1, RemoveAt 0]",
+    "search": "Búsqueda y recorrido [Iniciar 11, 22, 33, 44 -> Find 33]"
+  },
+  "inspector": {
+    "title": "Inspector de estado y punteros",
+    "listSize": "Tamaño de lista:",
+    "nodeCount_one": "{{count}} nodo",
+    "nodeCount_other": "{{count}} nodos",
+    "headNode": "Nodo HEAD:",
+    "tailNode": "Nodo TAIL:",
+    "statusIndexError": "Error de índice",
+    "statusNotFound": "No encontrado",
+    "statusFound": "Coincidencia encontrada",
+    "statusEmpty": "Vacía (HEAD -> null)",
+    "statusNormal": "Normal"
+  },
+  "canvas": {
+    "title": "Lienzo de visualización de lista enlazada",
+    "emptyTitle": "Visualizador de lista enlazada",
+    "noData": "No hay datos de lista enlazada disponibles. Realiza una operación para comenzar.",
+    "headLabel": "HEAD",
+    "tailLabel": "TAIL",
+    "currLabel": "CURR",
+    "nullTerminal": "NULL",
+    "size": "Tamaño: {{size}} {{units}}",
+    "nodeSingle": "nodo",
+    "nodePlural": "nodos"
+  },
+  "phases": {
+    "p01": {
+      "title": "Descubrir nodos enlazados dinámicos vs memoria contigua",
+      "content": "A diferencia de un Arreglo donde los elementos ocupan un bloque de memoria física contiguo, una Lista Simplemente Enlazada consta de objetos Nodo independientes dispersos en la memoria del montículo (heap). Cada Nodo almacena dos componentes: sus datos de carga útil (valor) y un puntero de referencia (next) dirigido al nodo subsiguiente en la secuencia. La cadena termina con una referencia null."
+    },
+    "p02": {
+      "title": "Interactuar con Prepend, Append, Insert, Remove y Find",
+      "content": "Usa el panel de operaciones a la derecha para insertar elementos al inicio (HEAD) en O(1), al final (TAIL) en O(1), o insertar y eliminar elementos en posiciones arbitrarias. Avanza en la línea de tiempo usando los controles de Time-Travel inferiores para observar cómo los punteros HEAD, TAIL y CURR se reconectan dinámicamente."
+    },
+    "p03": {
+      "title": "Observar la mecánica de reconexión de punteros",
+      "content": "¡Observa que insertar o eliminar un elemento en una Lista Enlazada NO desplaza físicamente ningún nodo existente en la memoria! En su lugar, la inserción se logra estableciendo nuevoNodo.next = anterior.next y anterior.next = nuevoNodo. La eliminación se logra omitiendo el nodo objetivo: anterior.next = objetivo.next."
+    },
+    "p04": {
+      "title": "Explicar los matices de complejidad temporal y espacial",
+      "content": "La complejidad en una Lista Enlazada depende estrictamente de la operación: el acceso por índice y la búsqueda por valor son ambos O(N) porque la lista debe recorrerse secuencialmente desde HEAD. Prepend es tiempo constante O(1) ya que solo actualiza la referencia de cabeza. Append es O(1) cuando se mantiene una referencia de puntero a la cola (sin referencia de cola, append costaría O(N) de recorrido). Insert y Remove en un puntero ya localizado toman tiempo O(1), aunque alcanzar el índice i desde HEAD incurre en un costo de recorrido O(i). La complejidad espacial es O(N) de memoria auxiliar para los objetos nodo y punteros."
+    },
+    "p05": {
+      "title": "Representación visual de nodos y aristas dirigidas",
+      "content": "El lienzo SVG renderiza la lista enlazada como nodos rectangulares individuales conectados por flechas dirigidas cian. El puntero HEAD (cian) rastrea el primer nodo válido, el puntero TAIL (ámbar) rastrea el último nodo y la flecha final conduce a la caja terminal NULL."
+    },
+    "p06": {
+      "title": "Pseudocódigo del algoritmo (TAD Lista simplemente enlazada)"
+    },
+    "p07": {
+      "title": "Implementación en TypeScript (Lista genérica simplemente enlazada)"
+    },
+    "p08": {
+      "title": "Modificar y condiciones límite",
+      "content": "Manejar condiciones límite en Listas Enlazadas requiere actualizaciones cuidadosas de punteros: eliminar el único elemento debe establecer tanto HEAD como TAIL en null; eliminar el nodo TAIL requiere recorrer hasta el penúltimo nodo y actualizar tail = anterior; las inserciones o eliminaciones en índices inválidos generan errores de límite (Out of Bounds)."
+    },
+    "p09": {
+      "title": "Práctica: Implementación de una lista de reproducción de música",
+      "content": "Una aplicación común en el mundo real de las estructuras enlazadas es una lista de reproducción de música o el historial de navegación de un navegador web, donde las canciones o URL se insertan o eliminan dinámicamente sin requerir la reindexación de un arreglo."
+    },
+    "p10": {
+      "title": "Desafío de dominio del algoritmo",
+      "content": "Pregunta del desafío: Dada una lista [10, 20, 30, 40], ¿qué secuencia de actualizaciones de punteros ocurre al llamar a removeAt(1)? (Respuesta: El recorrido localiza anterior en el nodo 10; el objetivo es el nodo 20; anterior.next se establece en objetivo.next (nodo 30); la lista resultante es [10, 30, 40]). ¡Carga el preajuste de Demostración de Eliminación para verificarlo!"
+    }
+  }
+}

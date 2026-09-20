@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './Button';
 
 export const ThemeToggle: React.FC = () => {
+  const { t } = useTranslation(['common']);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
@@ -18,14 +20,16 @@ export const ThemeToggle: React.FC = () => {
     localStorage.setItem('case_theme', nextTheme);
   };
 
+  const label = theme === 'dark' ? t('common:themeToggleToLight') : t('common:themeToggleToDark');
+
   return (
     <Button
       variant="outline"
       size="sm"
       className="theme-toggle-btn"
       onClick={toggleTheme}
-      aria-label={`Cambiar a tema ${theme === 'dark' ? 'claro' : 'oscuro'}`}
-      title={`Cambiar a tema ${theme === 'dark' ? 'claro' : 'oscuro'}`}
+      aria-label={label}
+      title={label}
     >
       {theme === 'dark' ? (
         <svg

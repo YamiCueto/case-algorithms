@@ -1,16 +1,25 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { LinkedListVisualizerAdapter } from './LinkedListVisualizerAdapter';
 import { ExecutionStep } from '@/core/types';
 import { LinkedListState } from '@/core/data-structures/linked-list';
+import { changeLanguage } from '@/i18n';
 
 describe('LinkedListVisualizerAdapter', () => {
-  it('renders fallback message when step is null', () => {
-    render(<LinkedListVisualizerAdapter step={null} />);
-    expect(screen.getAllByText(/No linked list data available/i)[0]).toBeInTheDocument();
+  beforeEach(async () => {
+    await changeLanguage('es');
   });
 
-  it('renders empty list with HEAD pointer and NULL terminator', () => {
+  it('renders fallback message when step is null in both languages', async () => {
+    const { rerender } = render(<LinkedListVisualizerAdapter step={null} />);
+    expect(screen.getAllByText('No hay datos de lista enlazada disponibles. Realiza una operación para comenzar.')[0]).toBeInTheDocument();
+
+    await changeLanguage('en');
+    rerender(<LinkedListVisualizerAdapter step={null} />);
+    expect(screen.getAllByText('No linked list data available. Perform an operation to begin.')[0]).toBeInTheDocument();
+  });
+
+  it('renders empty list with HEAD pointer and NULL terminator in both languages', async () => {
     const mockStep: ExecutionStep<LinkedListState> = {
       id: 'step-0',
       stepIndex: 0,
@@ -26,9 +35,16 @@ describe('LinkedListVisualizerAdapter', () => {
       a11yMessage: 'Empty Singly Linked List initialized.',
     };
 
-    render(<LinkedListVisualizerAdapter step={mockStep} />);
+    const { rerender } = render(<LinkedListVisualizerAdapter step={mockStep} />);
 
     expect(screen.getAllByText('Initialized empty Singly Linked List (HEAD -> null).')[0]).toBeInTheDocument();
+    expect(screen.getByText(/Tamaño: 0 nodos/i)).toBeInTheDocument();
+    expect(screen.getByText('HEAD')).toBeInTheDocument();
+    expect(screen.getByText('NULL')).toBeInTheDocument();
+
+    await changeLanguage('en');
+    rerender(<LinkedListVisualizerAdapter step={mockStep} />);
+
     expect(screen.getByText(/Size: 0 nodes/i)).toBeInTheDocument();
     expect(screen.getByText('HEAD')).toBeInTheDocument();
     expect(screen.getByText('NULL')).toBeInTheDocument();

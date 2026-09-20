@@ -194,7 +194,7 @@ describe('Stack Animation Integration & Ghost Node Lifecycle', () => {
     rerender(<StackVisualizerAdapter step={resetStep} transitionContext={resetContext} />);
 
     expect(container.querySelector('.stack-ghost-anchor')).toBeNull();
-    expect(screen.getByText('Stack is Empty (0 items)')).toBeInTheDocument();
+    expect(screen.getByText('La pila está vacía (0 elementos)')).toBeInTheDocument();
   });
 
   it('runs cleanly under React StrictMode without duplicate ghost nodes', () => {

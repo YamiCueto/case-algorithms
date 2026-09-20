@@ -4,10 +4,20 @@ import { initReactI18next } from 'react-i18next';
 import esCommon from '../locales/es/common.json';
 import esNavigation from '../locales/es/navigation.json';
 import esTimeTravel from '../locales/es/timeTravel.json';
+import esPedagogy from '../locales/es/pedagogy.json';
+import esArray from '../locales/es/array.json';
+import esStack from '../locales/es/stack.json';
+import esQueue from '../locales/es/queue.json';
+import esLinkedList from '../locales/es/linkedList.json';
 
 import enCommon from '../locales/en/common.json';
 import enNavigation from '../locales/en/navigation.json';
 import enTimeTravel from '../locales/en/timeTravel.json';
+import enPedagogy from '../locales/en/pedagogy.json';
+import enArray from '../locales/en/array.json';
+import enStack from '../locales/en/stack.json';
+import enQueue from '../locales/en/queue.json';
+import enLinkedList from '../locales/en/linkedList.json';
 
 export const STORAGE_KEY = 'case_algorithms_lang';
 export const SUPPORTED_LANGUAGES = ['es', 'en'] as const;
@@ -42,11 +52,21 @@ export const resources = {
     common: esCommon,
     navigation: esNavigation,
     timeTravel: esTimeTravel,
+    pedagogy: esPedagogy,
+    array: esArray,
+    stack: esStack,
+    queue: esQueue,
+    linkedList: esLinkedList,
   },
   en: {
     common: enCommon,
     navigation: enNavigation,
     timeTravel: enTimeTravel,
+    pedagogy: enPedagogy,
+    array: enArray,
+    stack: enStack,
+    queue: enQueue,
+    linkedList: enLinkedList,
   },
 } as const;
 
@@ -58,6 +78,7 @@ void i18n.use(initReactI18next).init({
   lng: initialLang,
   fallbackLng: 'es',
   defaultNS: 'common',
+  ns: ['common', 'navigation', 'timeTravel', 'pedagogy', 'array', 'stack', 'queue', 'linkedList'],
   interpolation: {
     escapeValue: false,
   },

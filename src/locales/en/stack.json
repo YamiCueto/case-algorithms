@@ -1,0 +1,85 @@
+{
+  "category": "Interactive Laboratory: Stack Data Structure",
+  "title": "Stack & LIFO Principle Exploration",
+  "subtitle": "Understand Last-In, First-Out (LIFO) discipline, constant-time O(1) top operations, and boundary conditions through an interactive 10-step pedagogical laboratory.",
+  "operationsLabel": "Interactive Stack Operations",
+  "pushInputPlaceholder": "e.g. 42",
+  "pushInputAria": "Value to push onto stack",
+  "pushBtn": "Push",
+  "pushBtnAria": "Push value onto stack",
+  "popBtn": "Pop",
+  "popBtnAria": "Pop top value from stack",
+  "peekBtn": "Peek",
+  "peekBtnAria": "Peek top value",
+  "clearBtn": "Clear",
+  "clearBtnAria": "Clear stack",
+  "invalidNumber": "Invalid number: \"{{value}}\". Please enter a valid number.",
+  "capacityLabel": "Capacity:",
+  "presets": {
+    "standard": "Standard [Push 10, 20, 30, Pop, Push 40]",
+    "overflow": "Overflow Demo [Fill Cap 5 + 1]",
+    "underflow": "Underflow Demo [Push 50, Pop, Pop]",
+    "peek": "Peek & Inspect [Push 12, 24, Peek]"
+  },
+  "inspector": {
+    "title": "State & Capacity Inspector",
+    "itemsInStack": "Items in Stack:",
+    "topElement": "TOP Element:",
+    "nullEmpty": "null (empty)",
+    "statusOverflow": "Overflow Error",
+    "statusUnderflow": "Underflow Error",
+    "statusEmpty": "Empty",
+    "statusFull": "Full (Cap Reached)",
+    "statusNormal": "Normal"
+  },
+  "canvas": {
+    "title": "Stack Visualization Canvas",
+    "emptyTitle": "Stack Visualizer",
+    "noData": "No stack data available. Perform an operation to begin.",
+    "emptyStack": "Empty Stack []",
+    "emptyNotice": "Stack is Empty (0 items)",
+    "capacity": "Cap: {{capacity}}",
+    "bottomLabel": "BOTTOM",
+    "topLabel": "TOP"
+  },
+  "phases": {
+    "p01": {
+      "title": "Discover the LIFO Principle (Last-In, First-Out)",
+      "content": "A Stack is a linear data structure governed by a strict access rule: the last element added is always the first one to be removed (LIFO: Last-In, First-Out). Think of a physical stack of plates in a cafeteria, the \"Undo\" history in a text editor, or the function call stack in programming runtimes. You can only insert or extract from one designated end: the TOP."
+    },
+    "p02": {
+      "title": "Interact with Push, Pop & Peek",
+      "content": "Use the operations panel on the right to append values with PUSH, inspect the current topmost value with PEEK, or extract the top with POP. Step through the timeline using the time-travel buttons below to watch the TOP pointer follow each operation deterministically."
+    },
+    "p03": {
+      "title": "Observe Confinement of Access",
+      "content": "Notice that elements below the top index are completely inaccessible. Unlike an Array where any element can be read at index i, a Stack deliberately shields internal elements from random access. To retrieve the very first element pushed (at the bottom), every single element above it must first be popped."
+    },
+    "p04": {
+      "title": "Explain Time & Space Complexity",
+      "content": "Because all operations (PUSH, POP, PEEK) occur strictly at the top of the structure, no element shifting is required. Therefore, PUSH, POP, and PEEK all execute in strict O(1) constant time. Space complexity is O(N) auxiliary memory to store N items, while the pedagogical ExecutionStep[] trace records immutable snapshots for time travel."
+    },
+    "p05": {
+      "title": "Visual Representation & Top Pointer",
+      "content": "The SVG Viewport renders the stack as an open vertical container. The base plate is at the bottom (index [0]), stacked nodes grow upward toward the opening, and the TOP pointer dynamically tracks the index of the uppermost valid element. When empty, TOP points to null."
+    },
+    "p06": {
+      "title": "Algorithm Pseudocode (Bounded Stack ADT)"
+    },
+    "p07": {
+      "title": "TypeScript Implementation (Generic Bounded Stack)"
+    },
+    "p08": {
+      "title": "Modify & Boundary Conditions",
+      "content": "A Bounded Stack introduces strict boundary enforcement: Stack Overflow occurs when attempting to PUSH into a full container, and Stack Underflow occurs when attempting to POP or PEEK an empty container. Try triggering both conditions using the demo presets!"
+    },
+    "p09": {
+      "title": "Practice: Balanced Parentheses Matching",
+      "content": "A classic real-world application of stacks is compiler syntax parsing: verifying balanced brackets like \"{[()]}\". As the parser scans from left to right, every opening bracket is PUSHed onto the stack. When a closing bracket is encountered, the parser POPs the top element and verifies if they form a matching pair. If the stack is empty at the end, the string is balanced!"
+    },
+    "p10": {
+      "title": "Algorithm Mastery Challenge",
+      "content": "Challenge Question: Given an initial empty stack with capacity 5, we perform the following sequence: PUSH(10), PUSH(20), PUSH(30), POP(), PUSH(40), PUSH(50), POP(), PEEK(). What value is returned by PEEK(), and how many items remain in the stack? (Answer: PEEK returns 40, and 2 items remain: [10, 40]). Load the Standard preset to verify!"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "category": "Interactive Laboratory: Array Data Structure",
+  "title": "Array & Bubble Sort Exploration",
+  "subtitle": "Discover how local element comparisons and adjacent swaps systematically sort an array through an interactive 10-step pedagogical journey.",
+  "inputLabel": "Array Input Configuration",
+  "inputPlaceholder": "e.g. 5, 1, 4, 2, 8",
+  "inputAria": "Array input values",
+  "loadAndRunBtn": "Load & Run",
+  "loadAndRunAria": "Load and run sorting",
+  "errors": {
+    "empty": "Please enter at least one number.",
+    "max": "Please enter at most 14 numbers for optimal visualization.",
+    "invalid": "Invalid number: \"{{token}}\". Only valid numbers are allowed."
+  },
+  "presets": {
+    "default": "Default [5, 1, 4, 2, 8]",
+    "reverse": "Reverse [5, 4, 3, 2, 1]",
+    "sorted": "Sorted [1, 2, 3, 4, 5]",
+    "mixed": "Mixed [12, 7, 19, 3, 25, 1]"
+  },
+  "inspector": {
+    "title": "State & Metrics Inspector",
+    "comparisons": "Comparisons:",
+    "swaps": "Swaps performed:",
+    "statusEmpty": "Empty",
+    "statusSorted": "Sorted (Complete)",
+    "statusInProgress": "In Progress"
+  },
+  "canvas": {
+    "title": "Array Visualization Canvas",
+    "emptyTitle": "Array Visualizer",
+    "noData": "No array data available. Provide input to begin.",
+    "emptyArray": "Empty Array []"
+  },
+  "phases": {
+    "p01": {
+      "title": "Discover the Need for Sorting",
+      "content": "Sorting is one of the most fundamental operations in computer science. Given an unordered sequence of numbers, our goal is to rearrange them in non-decreasing order. How can a simple strategy based exclusively on inspecting and swapping two adjacent elements at a time gradually bring global order to the entire list?"
+    },
+    "p02": {
+      "title": "Interactive Controls & Setup",
+      "content": "Use the input box to configure an initial array or select one of the presets. Click \"Step >\" to move forward by one comparison/swap, or press \"Play\" to watch the algorithm execute automatically at your chosen playback speed. You can also drag the step slider or use keyboard shortcuts (Space, Arrow keys, Home, End, R) to navigate time freely."
+    },
+    "p03": {
+      "title": "Visual Invariants of Bubble Sort",
+      "content": "Observe how during each complete pass across the array, the largest unsorted element \"bubbles up\" like an air bubble in water to its final position at the end of the array. Notice that after Pass 1, the largest element is locked; after Pass 2, the second largest is locked, shrinking the unsorted subarray from right to left."
+    },
+    "p04": {
+      "title": "Mathematical Complexity & Invariants",
+      "content": "In an array of length n, Pass 1 performs (n - 1) comparisons, Pass 2 performs (n - 2), down to 1 comparison in the final pass. The worst-case and average-case time complexity is O(n²) with n(n - 1)/2 comparisons. With Early Exit, a pre-sorted array finishes in a single pass of (n - 1) comparisons and 0 swaps, achieving O(n) best-case time complexity. Regarding space complexity: classic in-place sorting operates in O(1) auxiliary memory; in this implementation, the input is cloned once (O(n)) to preserve immutability, while the pedagogical ExecutionStep[] trace requires additional memory proportional to the number of recorded snapshots."
+    },
+    "p05": {
+      "title": "Visual Representation",
+      "content": "The SVG Viewport renders the active state in real time: pointers (j and j+1) indicate the current pair under inspection, yellow highlights denote active comparisons, rose highlights denote elements in the middle of a swap, and green nodes indicate permanently sorted positions."
+    },
+    "p06": {
+      "title": "Algorithm Pseudocode (with Early Exit)"
+    },
+    "p07": {
+      "title": "TypeScript Implementation (with Early Exit)"
+    },
+    "p08": {
+      "title": "Modify & Optimize (Early Exit Active)",
+      "content": "This laboratory implements the Early Exit optimization. By checking if zero swaps occurred during a complete pass, the algorithm terminates early as soon as the array reaches sorted order. For example, testing the \"Sorted\" preset only requires a single pass with (n - 1) comparisons instead of all n(n - 1)/2 comparisons!"
+    },
+    "p09": {
+      "title": "Practice with Custom Inputs",
+      "content": "Try typing your own comma-separated list of numbers into the input box above (e.g. 9, 3, 7, 1, 5) and click \"Load & Run\". Try to predict how many total swaps will occur before stepping through the visualizer!"
+    },
+    "p10": {
+      "title": "Algorithm Mastery Challenge",
+      "content": "Challenge Question: For an array with n=5 elements in strictly reverse order [5, 4, 3, 2, 1], what is the exact number of swaps required? (Answer: 4 + 3 + 2 + 1 = 10 swaps). Load the \"Reverse\" preset in the sandbox above to step through and verify!"
+    }
+  }
+}
