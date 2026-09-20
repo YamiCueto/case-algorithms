@@ -3,14 +3,14 @@ import { test, expect } from '@playwright/test';
 test.describe('Array Laboratory & Bubble Sort Exploration', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: 'Switch to Array Laboratory' }).click();
+    await page.getByRole('button', { name: /(Switch to Array Laboratory|Cambiar al laboratorio de arreglos)/i }).click();
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Array & Bubble Sort');
   });
 
   test('executes step-by-step sorting with synchronized code highlighting and visual state', async ({ page }) => {
-    const stepForwardBtn = page.getByRole('button', { name: 'Step forward' });
-    const stepBackwardBtn = page.getByRole('button', { name: 'Step backward' });
-    const resetBtn = page.getByRole('button', { name: 'Reset to initial step' });
+    const stepForwardBtn = page.getByRole('button', { name: /(Step forward|Avanzar un paso)/i });
+    const stepBackwardBtn = page.getByRole('button', { name: /(Step backward|Retroceder un paso)/i });
+    const resetBtn = page.getByRole('button', { name: /(Reset to initial step|Reiniciar al paso inicial)/i });
     const inspector = page.locator('.lab-inspector-section');
 
     await expect(inspector).toContainText('1 / 19');
@@ -39,18 +39,19 @@ test.describe('Array Laboratory & Bubble Sort Exploration', () => {
   });
 
   test('controls playback timer and toggles between Pseudocode and TypeScript', async ({ page }) => {
-    const playBtn = page.getByRole('button', { name: 'Play auto execution' });
+    const playBtn = page.getByRole('button', { name: /(Play auto execution|Reproducir ejecución automática)/i });
     await expect(playBtn).toBeVisible();
 
     await playBtn.click();
-    const pauseBtn = page.getByRole('button', { name: 'Pause execution' });
+    const pauseBtn = page.getByRole('button', { name: /(Pause execution|Pausar ejecución)/i });
     await expect(pauseBtn).toBeVisible();
 
     const inspector = page.locator('.lab-inspector-section');
     await expect(inspector).toContainText(/Step Index: [1-9]/);
 
     await pauseBtn.click();
-    await expect(page.getByRole('button', { name: 'Play auto execution' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /(Play auto execution|Reproducir ejecución automática)/i })).toBeVisible();
+
 
     const tsBtn = page.locator('.code-stage-panel').getByRole('button', { name: 'TypeScript' });
     await tsBtn.click();

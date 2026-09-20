@@ -70,7 +70,9 @@ describe('LinkedListLab Component', () => {
     fireEvent.change(idxInput, { target: { value: '0' } });
     fireEvent.click(removeBtn);
 
-    expect(screen.getByRole('button', { name: /step backwards/i })).not.toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i })
+    ).not.toBeDisabled();
   });
 
   it('handles find operation', () => {
@@ -82,8 +84,11 @@ describe('LinkedListLab Component', () => {
     fireEvent.change(valInput, { target: { value: '20' } });
     fireEvent.click(findBtn);
 
-    expect(screen.getByRole('button', { name: /step backwards/i })).not.toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i })
+    ).not.toBeDisabled();
   });
+
 
   it('shows error on invalid number input or non-integer index', () => {
     render(<LinkedListLab />);
@@ -136,19 +141,27 @@ describe('LinkedListLab Component', () => {
   it('handles auto-play playback loop', () => {
     render(<LinkedListLab />);
 
-    const playBtn = screen.getByRole('button', { name: /play auto execution/i });
+    const playBtn = screen.getByRole('button', {
+      name: /(play auto execution|reproducir ejecución automática)/i,
+    });
     fireEvent.click(playBtn);
 
-    expect(screen.getByRole('button', { name: /pause execution/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(pause execution|pausar ejecución)/i })
+    ).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(1200);
     });
 
-    const pauseBtn = screen.getByRole('button', { name: /pause execution/i });
+    const pauseBtn = screen.getByRole('button', {
+      name: /(pause execution|pausar ejecución)/i,
+    });
     fireEvent.click(pauseBtn);
 
-    expect(screen.getByRole('button', { name: /play auto execution/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(play auto execution|reproducir ejecución automática)/i })
+    ).toBeInTheDocument();
   });
 
   it('updates A11yAnnouncer live region with accessible messages', () => {
@@ -158,8 +171,11 @@ describe('LinkedListLab Component', () => {
     expect(liveRegion).toBeInTheDocument();
     expect(liveRegion).toHaveAttribute('aria-live', 'polite');
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    const stepForwardBtn = screen.getByRole('button', {
+      name: /(step forward|avanzar un paso)/i,
+    });
     fireEvent.click(stepForwardBtn);
+
 
     expect(liveRegion).toHaveTextContent(/Prepended value/i);
   });

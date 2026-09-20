@@ -21,10 +21,17 @@ describe('ArrayLab Component', () => {
     expect(screen.getAllByText('2').length).toBeGreaterThan(0);
     expect(screen.getAllByText('8').length).toBeGreaterThan(0);
 
-    expect(screen.getByRole('button', { name: /play auto execution/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /step forward/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /step backwards/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(play auto execution|reproducir ejecución automática)/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(step forward|avanzar un paso)/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i })
+    ).toBeInTheDocument();
   });
+
 
   it('does not re-run the algorithm when merely typing in the input field', () => {
     render(<ArrayLab />);
@@ -77,10 +84,10 @@ describe('ArrayLab Component', () => {
   it('navigates through steps using next, previous, first, and last buttons', () => {
     render(<ArrayLab />);
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
-    const stepBackBtn = screen.getByRole('button', { name: /step backwards/i });
-    const lastBtn = screen.getByRole('button', { name: /jump to last step/i });
-    const firstBtn = screen.getByRole('button', { name: /jump to first step/i });
+    const stepForwardBtn = screen.getByRole('button', { name: /(step forward|avanzar un paso)/i });
+    const stepBackBtn = screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i });
+    const lastBtn = screen.getByRole('button', { name: /(jump to last step|ir al último paso)/i });
+    const firstBtn = screen.getByRole('button', { name: /(jump to first step|ir al primer paso)/i });
 
     expect(stepBackBtn).toBeDisabled();
     expect(firstBtn).toBeDisabled();
@@ -102,7 +109,9 @@ describe('ArrayLab Component', () => {
   it('supports automated play/pause execution and speed switching across multiple array loads', () => {
     render(<ArrayLab />);
 
-    const playBtn = screen.getByRole('button', { name: /play auto execution/i });
+    const playBtn = screen.getByRole('button', {
+      name: /(play auto execution|reproducir ejecución automática)/i,
+    });
     fireEvent.click(playBtn);
 
     const speed2xBtn = screen.getByRole('button', { name: '2x' });
@@ -114,16 +123,22 @@ describe('ArrayLab Component', () => {
 
     expect(screen.getByText(/step index:/i)).toBeInTheDocument();
 
-    const pauseBtn = screen.getByRole('button', { name: /pause execution/i });
+    const pauseBtn = screen.getByRole('button', { name: /(pause execution|pausar ejecución)/i });
     fireEvent.click(pauseBtn);
-    expect(screen.getByRole('button', { name: /play auto execution/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(play auto execution|reproducir ejecución automática)/i })
+    ).toBeInTheDocument();
 
     const sortedPresetBtn = screen.getByRole('button', { name: /sorted \[/i });
     fireEvent.click(sortedPresetBtn);
 
-    const playAgainBtn = screen.getByRole('button', { name: /play auto execution/i });
+    const playAgainBtn = screen.getByRole('button', {
+      name: /(play auto execution|reproducir ejecución automática)/i,
+    });
     fireEvent.click(playAgainBtn);
-    expect(screen.getByRole('button', { name: /pause execution/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(pause execution|pausar ejecución)/i })
+    ).toBeInTheDocument();
   });
 
   it('switches between pedagogical progression tabs', () => {
@@ -158,7 +173,7 @@ describe('ArrayLab Component', () => {
 
     expect(screen.getAllByText('Pseudocode').length).toBeGreaterThan(0);
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    const stepForwardBtn = screen.getByRole('button', { name: /(step forward|avanzar un paso)/i });
     fireEvent.click(stepForwardBtn);
 
     expect(screen.getByText(/Line 6 Active/i)).toBeInTheDocument();
@@ -178,8 +193,9 @@ describe('ArrayLab Component', () => {
     expect(liveRegion).toHaveAttribute('aria-live', 'polite');
     expect(liveRegion).toHaveTextContent(/Array initialized with values/i);
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    const stepForwardBtn = screen.getByRole('button', { name: /(step forward|avanzar un paso)/i });
     fireEvent.click(stepForwardBtn);
+
 
     expect(liveRegion).toHaveTextContent(/Comparing index 0 with value 5/i);
   });

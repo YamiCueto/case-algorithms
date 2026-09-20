@@ -74,10 +74,10 @@ describe('StackLab Component', () => {
   it('navigates through stack step timeline with first, last, prev, next', () => {
     render(<StackLab />);
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
-    const stepBackBtn = screen.getByRole('button', { name: /step backwards/i });
-    const lastBtn = screen.getByRole('button', { name: /jump to last step/i });
-    const firstBtn = screen.getByRole('button', { name: /jump to first step/i });
+    const stepForwardBtn = screen.getByRole('button', { name: /(step forward|avanzar un paso)/i });
+    const stepBackBtn = screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i });
+    const lastBtn = screen.getByRole('button', { name: /(jump to last step|ir al último paso)/i });
+    const firstBtn = screen.getByRole('button', { name: /(jump to first step|ir al primer paso)/i });
 
     expect(stepBackBtn).toBeDisabled();
     expect(firstBtn).toBeDisabled();
@@ -97,7 +97,9 @@ describe('StackLab Component', () => {
   it('supports automated play/pause execution and speed changes', () => {
     render(<StackLab />);
 
-    const playBtn = screen.getByRole('button', { name: /play auto execution/i });
+    const playBtn = screen.getByRole('button', {
+      name: /(play auto execution|reproducir ejecución automática)/i,
+    });
     fireEvent.click(playBtn);
 
     const speed2xBtn = screen.getByRole('button', { name: '2x' });
@@ -109,9 +111,11 @@ describe('StackLab Component', () => {
 
     expect(screen.getByText(/step index:/i)).toBeInTheDocument();
 
-    const pauseBtn = screen.getByRole('button', { name: /pause execution/i });
+    const pauseBtn = screen.getByRole('button', { name: /(pause execution|pausar ejecución)/i });
     fireEvent.click(pauseBtn);
-    expect(screen.getByRole('button', { name: /play auto execution/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(play auto execution|reproducir ejecución automática)/i })
+    ).toBeInTheDocument();
   });
 
   it('switches between all 10 pedagogical progression tabs', () => {
@@ -152,7 +156,7 @@ describe('StackLab Component', () => {
 
     expect(screen.getAllByText('Pseudocode').length).toBeGreaterThan(0);
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    const stepForwardBtn = screen.getByRole('button', { name: /(step forward|avanzar un paso)/i });
     fireEvent.click(stepForwardBtn);
 
     expect(screen.getByText(/Line 4 Active/i)).toBeInTheDocument();
@@ -172,8 +176,9 @@ describe('StackLab Component', () => {
     expect(liveRegion).toHaveAttribute('aria-live', 'polite');
     expect(liveRegion).toHaveTextContent(/Empty stack initialized with capacity 6/i);
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    const stepForwardBtn = screen.getByRole('button', { name: /(step forward|avanzar un paso)/i });
     fireEvent.click(stepForwardBtn);
+
 
     expect(liveRegion).toHaveTextContent(/Pushed value 10 onto top of stack/i);
   });

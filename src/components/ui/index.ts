@@ -8,3 +8,4 @@ export * from './TimeTravelControls';
 export * from './usePlaybackTimer';
 export * from './useTimeTravelEngine';
 export * from './PedagogicalKnowledgePanel';
+export * from './LanguageSelector';

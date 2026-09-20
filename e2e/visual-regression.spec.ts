@@ -8,7 +8,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
 
   test('validates visual geometry and elements of Array Laboratory stage', async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: 'Switch to Array Laboratory' }).click();
+    await page.getByRole('button', { name: /(Switch to Array Laboratory|Cambiar al laboratorio de arreglos)/i }).click();
 
     const stage = page.locator('.visualization-stage-panel');
     await expect(stage).toBeVisible();
@@ -27,7 +27,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
 
   test('validates visual geometry and elements of Stack Laboratory stage', async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: 'Switch to Stack Laboratory' }).click();
+    await page.getByRole('button', { name: /(Switch to Stack Laboratory|Cambiar al laboratorio de pilas)/i }).click();
 
     const stage = page.locator('.visualization-stage-panel');
     await expect(stage).toBeVisible();
@@ -43,7 +43,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
 
   test('validates visual geometry and elements of Queue Laboratory stage', async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: 'Switch to Queue Laboratory' }).click();
+    await page.getByRole('button', { name: /(Switch to Queue Laboratory|Cambiar al laboratorio de colas)/i }).click();
 
     const stage = page.locator('.visualization-stage-panel');
     await expect(stage).toBeVisible();
@@ -59,7 +59,8 @@ test.describe('Visual Layout & Rendering Integrity', () => {
 
   test('validates visual geometry and elements of Linked List Laboratory stage', async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: 'Switch to Linked List Laboratory' }).click();
+    await page.getByRole('button', { name: /(Switch to Linked List Laboratory|Cambiar al laboratorio de listas enlazadas)/i }).click();
+
 
     const stage = page.locator('.visualization-stage-panel');
     await expect(stage).toBeVisible();
@@ -75,7 +76,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
 
   test('validates visual geometry and tokens of CodeViewer component', async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: 'Switch to Array Laboratory' }).click();
+    await page.getByRole('button', { name: /(Switch to Array Laboratory|Cambiar al laboratorio de arreglos)/i }).click();
 
     const codePanel = page.locator('.code-stage-panel');
     await expect(codePanel).toBeVisible();
@@ -90,7 +91,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
     await expect(page.locator('.code-line-number').first()).toBeVisible();
     await expect(page.locator('.shiki-token-keyword').first()).toBeVisible();
 
-    await page.getByRole('button', { name: 'Step forward' }).click();
+    await page.getByRole('button', { name: /(Step forward|Avanzar un paso)/i }).click();
     await expect(page.locator('.code-viewer-active-badge')).toHaveText('Line 6 Active');
     await expect(page.locator('.code-line-active')).toBeVisible();
   });

@@ -1,0 +1,17 @@
+{
+  "selectLabLabel": "Select Laboratory:",
+  "breadcrumbsRoot": "Laboratory",
+  "breadcrumbsSection": "Data Structures",
+  "labArrayTitle": "Array & Bubble Sort",
+  "labArrayBreadcrumb": "Array & Bubble Sort",
+  "labArrayAria": "Switch to Array Laboratory",
+  "labStackTitle": "Stack (LIFO)",
+  "labStackBreadcrumb": "Stack & LIFO Principle",
+  "labStackAria": "Switch to Stack Laboratory",
+  "labQueueTitle": "Queue (FIFO)",
+  "labQueueBreadcrumb": "Queue & FIFO Principle",
+  "labQueueAria": "Switch to Queue Laboratory",
+  "labLinkedListTitle": "Linked List",
+  "labLinkedListBreadcrumb": "Singly Linked List & Pointer Chains",
+  "labLinkedListAria": "Switch to Linked List Laboratory"
+}

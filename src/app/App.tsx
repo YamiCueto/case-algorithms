@@ -1,59 +1,67 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppHeader, Button } from '@/components/ui';
 import { ArrayLab, StackLab, QueueLab, LinkedListLab } from '@/modules';
 
 export const App: React.FC = () => {
+  const { t } = useTranslation(['navigation']);
   const [activeLab, setActiveLab] = useState<'array' | 'stack' | 'queue' | 'linked-list'>('linked-list');
 
   const getBreadcrumb = () => {
     switch (activeLab) {
       case 'array':
-        return 'Array & Bubble Sort';
+        return t('navigation:labArrayBreadcrumb');
       case 'stack':
-        return 'Stack & LIFO Principle';
+        return t('navigation:labStackBreadcrumb');
       case 'queue':
-        return 'Queue & FIFO Principle';
+        return t('navigation:labQueueBreadcrumb');
       case 'linked-list':
-        return 'Singly Linked List & Pointer Chains';
+        return t('navigation:labLinkedListBreadcrumb');
     }
   };
 
   return (
     <div className="app-container">
-      <AppHeader breadcrumbs={['Laboratory', 'Data Structures', getBreadcrumb()]} />
+      <AppHeader
+        breadcrumbs={[
+          t('navigation:breadcrumbsRoot'),
+          t('navigation:breadcrumbsSection'),
+          getBreadcrumb(),
+        ]}
+      />
       <div className="lab-selector-bar">
-        <span className="control-label">Select Laboratory:</span>
+        <span className="control-label">{t('navigation:selectLabLabel')}</span>
         <Button
           variant={activeLab === 'array' ? 'primary' : 'outline'}
           size="sm"
           onClick={() => setActiveLab('array')}
-          aria-label="Switch to Array Laboratory"
+          aria-label={t('navigation:labArrayAria')}
         >
-          Array & Bubble Sort
+          {t('navigation:labArrayTitle')}
         </Button>
         <Button
           variant={activeLab === 'stack' ? 'primary' : 'outline'}
           size="sm"
           onClick={() => setActiveLab('stack')}
-          aria-label="Switch to Stack Laboratory"
+          aria-label={t('navigation:labStackAria')}
         >
-          Stack (LIFO)
+          {t('navigation:labStackTitle')}
         </Button>
         <Button
           variant={activeLab === 'queue' ? 'primary' : 'outline'}
           size="sm"
           onClick={() => setActiveLab('queue')}
-          aria-label="Switch to Queue Laboratory"
+          aria-label={t('navigation:labQueueAria')}
         >
-          Queue (FIFO)
+          {t('navigation:labQueueTitle')}
         </Button>
         <Button
           variant={activeLab === 'linked-list' ? 'primary' : 'outline'}
           size="sm"
           onClick={() => setActiveLab('linked-list')}
-          aria-label="Switch to Linked List Laboratory"
+          aria-label={t('navigation:labLinkedListAria')}
         >
-          Linked List
+          {t('navigation:labLinkedListTitle')}
         </Button>
       </div>
       {activeLab === 'array' ? (
@@ -70,3 +78,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+

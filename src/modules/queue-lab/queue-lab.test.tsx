@@ -51,7 +51,9 @@ describe('QueueLab Component', () => {
     const dequeueBtn = screen.getByRole('button', { name: /dequeue front value/i });
     fireEvent.click(dequeueBtn);
 
-    expect(screen.getByRole('button', { name: /step backwards/i })).not.toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i })
+    ).not.toBeDisabled();
   });
 
   it('handles peek front operation', () => {
@@ -60,8 +62,11 @@ describe('QueueLab Component', () => {
     const peekBtn = screen.getByRole('button', { name: /peek front value/i });
     fireEvent.click(peekBtn);
 
-    expect(screen.getByRole('button', { name: /step backwards/i })).not.toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i })
+    ).not.toBeDisabled();
   });
+
 
   it('clears queue when clear button is clicked', () => {
     render(<QueueLab />);
@@ -102,19 +107,27 @@ describe('QueueLab Component', () => {
   it('handles auto-play playback loop', () => {
     render(<QueueLab />);
 
-    const playBtn = screen.getByRole('button', { name: /play auto execution/i });
+    const playBtn = screen.getByRole('button', {
+      name: /(play auto execution|reproducir ejecución automática)/i,
+    });
     fireEvent.click(playBtn);
 
-    expect(screen.getByRole('button', { name: /pause execution/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(pause execution|pausar ejecución)/i })
+    ).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(1200);
     });
 
-    const pauseBtn = screen.getByRole('button', { name: /pause execution/i });
+    const pauseBtn = screen.getByRole('button', {
+      name: /(pause execution|pausar ejecución)/i,
+    });
     fireEvent.click(pauseBtn);
 
-    expect(screen.getByRole('button', { name: /play auto execution/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /(play auto execution|reproducir ejecución automática)/i })
+    ).toBeInTheDocument();
   });
 
   it('updates A11yAnnouncer live region with accessible narrative messages', () => {
@@ -125,8 +138,11 @@ describe('QueueLab Component', () => {
     expect(liveRegion).toHaveAttribute('aria-live', 'polite');
     expect(liveRegion).toHaveTextContent(/Empty queue initialized with capacity 6/i);
 
-    const stepForwardBtn = screen.getByRole('button', { name: /step forward/i });
+    const stepForwardBtn = screen.getByRole('button', {
+      name: /(step forward|avanzar un paso)/i,
+    });
     fireEvent.click(stepForwardBtn);
+
 
     expect(liveRegion).toHaveTextContent(/Enqueued value 10 at REAR/i);
   });
