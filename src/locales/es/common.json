@@ -1,0 +1,13 @@
+{
+  "appTitle": "CASE Algorithms",
+  "appSubtitle": "Laboratorio de Algoritmos",
+  "versionBadge": "v0.2 — Expansión de Estructuras de Datos",
+  "themeToggle": "Cambiar tema de color",
+  "languageSelectorLabel": "Seleccionar idioma",
+  "languageEs": "ES",
+  "languageEn": "EN",
+  "languageEsAria": "Cambiar a Español",
+  "languageEnAria": "Switch to English",
+  "languageEsActiveAria": "Español (idioma activo)",
+  "languageEnActiveAria": "English (active language)"
+}

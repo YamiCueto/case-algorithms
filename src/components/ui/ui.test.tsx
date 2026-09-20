@@ -179,22 +179,22 @@ describe('Design System UI Components', () => {
         />
       );
 
-      fireEvent.click(screen.getByRole('button', { name: /jump to first step/i }));
+      fireEvent.click(screen.getByRole('button', { name: /(jump to first step|ir al primer paso)/i }));
       expect(onFirst).toHaveBeenCalledTimes(1);
 
-      fireEvent.click(screen.getByRole('button', { name: /step backwards/i }));
+      fireEvent.click(screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i }));
       expect(onPrevious).toHaveBeenCalledTimes(1);
 
-      fireEvent.click(screen.getByRole('button', { name: /play auto execution/i }));
+      fireEvent.click(screen.getByRole('button', { name: /(play auto execution|reproducir ejecución automática)/i }));
       expect(onTogglePlay).toHaveBeenCalledTimes(1);
 
-      fireEvent.click(screen.getByRole('button', { name: /step forward/i }));
+      fireEvent.click(screen.getByRole('button', { name: /(step forward|avanzar un paso)/i }));
       expect(onNext).toHaveBeenCalledTimes(1);
 
-      fireEvent.click(screen.getByRole('button', { name: /jump to last step/i }));
+      fireEvent.click(screen.getByRole('button', { name: /(jump to last step|ir al último paso)/i }));
       expect(onLast).toHaveBeenCalledTimes(1);
 
-      fireEvent.click(screen.getByRole('button', { name: /reset to initial step/i }));
+      fireEvent.click(screen.getByRole('button', { name: /(reset to initial step|reiniciar al paso inicial)/i }));
       expect(onReset).toHaveBeenCalledTimes(1);
 
       fireEvent.click(screen.getByRole('button', { name: '2x' }));
@@ -218,9 +218,9 @@ describe('Design System UI Components', () => {
         />
       );
 
-      expect(screen.getByRole('button', { name: /jump to first step/i })).toBeDisabled();
-      expect(screen.getByRole('button', { name: /step backwards/i })).toBeDisabled();
-      expect(screen.getByRole('button', { name: /step forward/i })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: /(jump to first step|ir al primer paso)/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /(step forward|avanzar un paso)/i })).not.toBeDisabled();
 
       rerender(
         <TimeTravelControls
@@ -238,10 +238,11 @@ describe('Design System UI Components', () => {
         />
       );
 
-      expect(screen.getByRole('button', { name: /step forward/i })).toBeDisabled();
-      expect(screen.getByRole('button', { name: /jump to last step/i })).toBeDisabled();
-      expect(screen.getByRole('button', { name: /step backwards/i })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: /(step forward|avanzar un paso)/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /(jump to last step|ir al último paso)/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i })).not.toBeDisabled();
     });
+
   });
 
   describe('PedagogicalKnowledgePanel component', () => {

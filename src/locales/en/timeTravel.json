@@ -1,0 +1,23 @@
+{
+  "title": "Time-Travel Step Controller",
+  "first": "|<",
+  "firstAria": "Jump to first step",
+  "previous": "< Step",
+  "previousAria": "Step backwards",
+  "play": "Play",
+  "playAria": "Play auto execution",
+  "pause": "Pause",
+  "pauseAria": "Pause execution",
+  "next": "Step >",
+  "nextAria": "Step forward",
+  "last": ">|",
+  "lastAria": "Jump to last step",
+  "reset": "Reset",
+  "resetAria": "Reset to initial step",
+  "speed": "Speed:",
+  "shortcutsGuideAria": "Keyboard shortcuts guide",
+  "shortcutPlay": "Play",
+  "shortcutStep": "Step",
+  "shortcutBounds": "Bounds",
+  "shortcutReset": "Reset"
+}

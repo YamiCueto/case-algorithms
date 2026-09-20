@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './Button';
 
 export interface TimeTravelControlsProps {
@@ -30,69 +31,70 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
   onSpeedChange,
   className = '',
 }) => {
+  const { t } = useTranslation(['timeTravel']);
   const isAtStart = currentIndex <= 0;
   const isAtEnd = totalSteps === 0 || currentIndex >= totalSteps - 1;
 
   return (
     <div className={`control-group ${className}`.trim()}>
-      <span className="control-label">Time-Travel Step Controller</span>
+      <span className="control-label">{t('timeTravel:title')}</span>
       <div className="control-actions">
         <Button
           variant="outline"
           size="sm"
           onClick={onFirst}
           disabled={isAtStart}
-          aria-label="Jump to first step"
+          aria-label={t('timeTravel:firstAria')}
         >
-          |&lt;
+          {t('timeTravel:first')}
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={onPrevious}
           disabled={isAtStart}
-          aria-label="Step backwards"
+          aria-label={t('timeTravel:previousAria')}
         >
-          &lt; Step
+          {t('timeTravel:previous')}
         </Button>
         <Button
           variant={isPlaying ? 'danger' : 'primary'}
           size="sm"
           onClick={onTogglePlay}
-          aria-label={isPlaying ? 'Pause execution' : 'Play auto execution'}
+          aria-label={isPlaying ? t('timeTravel:pauseAria') : t('timeTravel:playAria')}
         >
-          {isPlaying ? 'Pause' : 'Play'}
+          {isPlaying ? t('timeTravel:pause') : t('timeTravel:play')}
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={onNext}
           disabled={isAtEnd}
-          aria-label="Step forward"
+          aria-label={t('timeTravel:nextAria')}
         >
-          Step &gt;
+          {t('timeTravel:next')}
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={onLast}
           disabled={isAtEnd}
-          aria-label="Jump to last step"
+          aria-label={t('timeTravel:lastAria')}
         >
-          &gt;|
+          {t('timeTravel:last')}
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={onReset}
-          aria-label="Reset to initial step"
+          aria-label={t('timeTravel:resetAria')}
         >
-          Reset
+          {t('timeTravel:reset')}
         </Button>
       </div>
 
       <div className="speed-control-row">
-        <span className="control-label">Speed:</span>
+        <span className="control-label">{t('timeTravel:speed')}</span>
         <Button
           variant={playbackSpeed === 1000 ? 'secondary' : 'outline'}
           size="sm"
@@ -116,12 +118,21 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
         </Button>
       </div>
 
-      <div className="time-travel-shortcuts-hint" aria-label="Keyboard shortcuts guide">
-        <span className="shortcut-item"><kbd className="shortcut-key">Space</kbd> Play</span>
-        <span className="shortcut-item"><kbd className="shortcut-key">←</kbd> <kbd className="shortcut-key">→</kbd> Step</span>
-        <span className="shortcut-item"><kbd className="shortcut-key">Home</kbd> <kbd className="shortcut-key">End</kbd> Bounds</span>
-        <span className="shortcut-item"><kbd className="shortcut-key">R</kbd> Reset</span>
+      <div className="time-travel-shortcuts-hint" aria-label={t('timeTravel:shortcutsGuideAria')}>
+        <span className="shortcut-item">
+          <kbd className="shortcut-key">Space</kbd> {t('timeTravel:shortcutPlay')}
+        </span>
+        <span className="shortcut-item">
+          <kbd className="shortcut-key">←</kbd> <kbd className="shortcut-key">→</kbd> {t('timeTravel:shortcutStep')}
+        </span>
+        <span className="shortcut-item">
+          <kbd className="shortcut-key">Home</kbd> <kbd className="shortcut-key">End</kbd> {t('timeTravel:shortcutBounds')}
+        </span>
+        <span className="shortcut-item">
+          <kbd className="shortcut-key">R</kbd> {t('timeTravel:shortcutReset')}
+        </span>
       </div>
     </div>
   );
 };
+

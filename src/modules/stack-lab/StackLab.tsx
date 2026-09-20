@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { simulateStackOperations, StackCommand } from '@/core/algorithms';
 import { StackState } from '@/core/data-structures/stack';
-import { StackVisualizerAdapter } from '@/components/visualizer';
+import {
+  StackVisualizerAdapter,
+  StackTransitionContext,
+  StackNavigationIntent,
+} from '@/components/visualizer';
 import { CodeViewer } from '@/components/code-viewer';
 import {
   LabShell,
@@ -206,6 +210,11 @@ export const StackLab: React.FC = () => {
   const [selectedCodeLang, setSelectedCodeLang] = useState<'pseudocode' | 'typescript'>('typescript');
   const [currentCommands, setCurrentCommands] = useState<StackCommand[]>(PRESET_SEQUENCES[0]?.commands || []);
 
+  const historyCountRef = useRef<number>(0);
+  const transitionCountRef = useRef<number>(0);
+  const historyIdRef = useRef<string>('stack-hist-0');
+  const [transitionContext, setTransitionContext] = useState<StackTransitionContext | undefined>(undefined);
+
   const {
     currentStep,
     currentIndex,
@@ -219,6 +228,52 @@ export const StackLab: React.FC = () => {
     loadSteps,
   } = useTimeTravelEngine<StackState>();
 
+  const playbackSpeedRef = useRef<number>(600);
+  const currentIndexRef = useRef<number>(currentIndex);
+  currentIndexRef.current = currentIndex;
+
+  const emitTransition = useCallback(
+    (intent: StackNavigationIntent, targetStepIndex: number, newHistoryId?: string) => {
+      if (newHistoryId) {
+        historyIdRef.current = newHistoryId;
+      }
+      transitionCountRef.current += 1;
+      setTransitionContext({
+        historyId: historyIdRef.current,
+        transitionId: transitionCountRef.current,
+        intent,
+        stepIndex: targetStepIndex,
+        playbackSpeed: playbackSpeedRef.current,
+      });
+    },
+    []
+  );
+
+  const handleManualNext = useCallback(() => {
+    emitTransition('STEP_FORWARD', currentIndexRef.current + 1);
+    handleNext();
+  }, [emitTransition, handleNext]);
+
+  const handlePlaybackStep = useCallback(() => {
+    emitTransition('PLAY_FORWARD', currentIndexRef.current + 1);
+    handleNext();
+  }, [emitTransition, handleNext]);
+
+  const handleManualPrevious = useCallback(() => {
+    emitTransition('STEP_BACKWARD', Math.max(0, currentIndexRef.current - 1));
+    handlePrevious();
+  }, [emitTransition, handlePrevious]);
+
+  const handleManualFirst = useCallback(() => {
+    emitTransition('JUMP_FIRST', 0);
+    handleFirst();
+  }, [emitTransition, handleFirst]);
+
+  const handleManualLast = useCallback(() => {
+    emitTransition('JUMP_LAST', totalSteps - 1);
+    handleLast();
+  }, [emitTransition, totalSteps, handleLast]);
+
   const {
     isPlaying,
     playbackSpeed,
@@ -226,11 +281,19 @@ export const StackLab: React.FC = () => {
     handleTogglePlay,
     stopPlayback,
   } = usePlaybackTimer({
-    onStepForward: handleNext,
-    onRewindToStart: handleFirst,
+    onStepForward: handlePlaybackStep,
+    onRewindToStart: handleManualFirst,
     isFinal: isLast,
     defaultSpeed: 600,
   });
+
+  const handleSpeedChange = useCallback(
+    (speed: number) => {
+      playbackSpeedRef.current = speed;
+      setPlaybackSpeed(speed);
+    },
+    [setPlaybackSpeed]
+  );
 
   const initController = useCallback(
     (commands: StackCommand[], capacity: number) => {
@@ -244,11 +307,14 @@ export const StackLab: React.FC = () => {
   useEffect(() => {
     const defaultPreset = PRESET_SEQUENCES[0];
     if (defaultPreset) {
+      historyCountRef.current += 1;
+      const initialHistoryId = `stack-hist-${historyCountRef.current}`;
       setStackCapacity(defaultPreset.capacity);
       setCurrentCommands(defaultPreset.commands);
       initController(defaultPreset.commands, defaultPreset.capacity);
+      emitTransition('INITIAL_MOUNT', 0, initialHistoryId);
     }
-  }, [initController]);
+  }, [initController, emitTransition]);
 
   const handlePush = () => {
     const trimmed = pushInputText.trim();
@@ -259,57 +325,76 @@ export const StackLab: React.FC = () => {
 
     setInputError(null);
     const val = Number(trimmed);
+    historyCountRef.current += 1;
+    const newHistId = `stack-hist-${historyCountRef.current}`;
     const newCommands: StackCommand[] = [...currentCommands, { type: 'PUSH', value: Math.round(val) }];
     setCurrentCommands(newCommands);
     initController(newCommands, stackCapacity);
     handleLast();
+    emitTransition('SANDBOX_PUSH', newCommands.length, newHistId);
   };
 
   const handlePop = () => {
     setInputError(null);
+    historyCountRef.current += 1;
+    const newHistId = `stack-hist-${historyCountRef.current}`;
     const newCommands: StackCommand[] = [...currentCommands, { type: 'POP' }];
     setCurrentCommands(newCommands);
     initController(newCommands, stackCapacity);
     handleLast();
+    emitTransition('SANDBOX_POP', newCommands.length, newHistId);
   };
 
   const handlePeek = () => {
     setInputError(null);
+    historyCountRef.current += 1;
+    const newHistId = `stack-hist-${historyCountRef.current}`;
     const newCommands: StackCommand[] = [...currentCommands, { type: 'PEEK' }];
     setCurrentCommands(newCommands);
     initController(newCommands, stackCapacity);
     handleLast();
+    emitTransition('SANDBOX_PEEK', newCommands.length, newHistId);
   };
 
   const handleClear = () => {
     setInputError(null);
+    historyCountRef.current += 1;
+    const newHistId = `stack-hist-${historyCountRef.current}`;
     const newCommands: StackCommand[] = [];
     setCurrentCommands(newCommands);
     initController(newCommands, stackCapacity);
+    emitTransition('SANDBOX_CLEAR', 0, newHistId);
   };
 
   const handlePresetSelect = (preset: PresetItem) => {
     setInputError(null);
+    historyCountRef.current += 1;
+    const newHistId = `stack-hist-${historyCountRef.current}`;
     setStackCapacity(preset.capacity);
     setCurrentCommands(preset.commands);
     initController(preset.commands, preset.capacity);
+    emitTransition('LOAD_PRESET', 0, newHistId);
   };
 
   const handleCapacityChange = (cap: number) => {
+    historyCountRef.current += 1;
+    const newHistId = `stack-hist-${historyCountRef.current}`;
     setStackCapacity(cap);
     initController(currentCommands, cap);
+    emitTransition('CAPACITY_CHANGE', 0, newHistId);
   };
 
   const handleResetWithStop = () => {
     stopPlayback();
+    emitTransition('RESET', 0);
     handleReset();
   };
 
   useTimeTravelKeyboard({
-    onNext: handleNext,
-    onPrevious: handlePrevious,
-    onFirst: handleFirst,
-    onLast: handleLast,
+    onNext: handleManualNext,
+    onPrevious: handleManualPrevious,
+    onFirst: handleManualFirst,
+    onLast: handleManualLast,
     onTogglePlay: handleTogglePlay,
     onReset: handleResetWithStop,
   });
@@ -347,6 +432,7 @@ export const StackLab: React.FC = () => {
             step={currentStep}
             viewBoxWidth={800}
             viewBoxHeight={360}
+            transitionContext={transitionContext}
           />
         }
         codeSlot={
@@ -389,13 +475,13 @@ export const StackLab: React.FC = () => {
             currentIndex={currentIndex}
             totalSteps={totalSteps}
             playbackSpeed={playbackSpeed}
-            onFirst={handleFirst}
-            onPrevious={handlePrevious}
+            onFirst={handleManualFirst}
+            onPrevious={handleManualPrevious}
             onTogglePlay={handleTogglePlay}
-            onNext={handleNext}
-            onLast={handleLast}
+            onNext={handleManualNext}
+            onLast={handleManualLast}
             onReset={handleResetWithStop}
-            onSpeedChange={setPlaybackSpeed}
+            onSpeedChange={handleSpeedChange}
           />
         }
         controlsSlot={

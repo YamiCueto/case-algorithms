@@ -1,0 +1,23 @@
+{
+  "title": "Controlador de Pasos (Time-Travel)",
+  "first": "|<",
+  "firstAria": "Ir al primer paso",
+  "previous": "< Paso",
+  "previousAria": "Retroceder un paso",
+  "play": "Reproducir",
+  "playAria": "Reproducir ejecución automática",
+  "pause": "Pausar",
+  "pauseAria": "Pausar ejecución",
+  "next": "Paso >",
+  "nextAria": "Avanzar un paso",
+  "last": ">|",
+  "lastAria": "Ir al último paso",
+  "reset": "Reiniciar",
+  "resetAria": "Reiniciar al paso inicial",
+  "speed": "Velocidad:",
+  "shortcutsGuideAria": "Guía de atajos de teclado",
+  "shortcutPlay": "Reproducir",
+  "shortcutStep": "Paso",
+  "shortcutBounds": "Límites",
+  "shortcutReset": "Reiniciar"
+}

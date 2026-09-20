@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Queue Laboratory (FIFO Principle & Circular Buffer)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: 'Switch to Queue Laboratory' }).click();
+    await page.getByRole('button', { name: /(Switch to Queue Laboratory|Cambiar al laboratorio de colas)/i }).click();
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Queue & FIFO');
   });
 
@@ -11,8 +11,9 @@ test.describe('Queue Laboratory (FIFO Principle & Circular Buffer)', () => {
     const inspector = page.locator('.lab-inspector-section');
     await expect(inspector).toContainText('Items in Queue: 0 / 6');
 
-    const stepForwardBtn = page.getByRole('button', { name: 'Step forward' });
+    const stepForwardBtn = page.getByRole('button', { name: /(Step forward|Avanzar un paso)/i });
     await stepForwardBtn.click();
+
 
     await expect(inspector).toContainText('Items in Queue: 1 / 6');
     await expect(inspector).toContainText('Action: ENQUEUE');

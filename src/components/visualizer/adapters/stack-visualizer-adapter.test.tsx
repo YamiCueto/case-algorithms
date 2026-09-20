@@ -111,4 +111,58 @@ describe('StackVisualizerAdapter', () => {
     expect(screen.getByText('Stack Overflow')).toBeInTheDocument();
     expect(container.querySelector('.viz-highlight-swapping')).toBeInTheDocument();
   });
+
+  it('renders repeated values with stable nested slot groups', () => {
+    const step: ExecutionStep<StackState> = {
+      id: 'step-repeated',
+      stepIndex: 3,
+      totalSteps: 4,
+      action: 'PUSH',
+      description: 'Pushed 5',
+      a11yMessage: 'Pushed 5 onto stack',
+      state: {
+        items: [5, 5, 5],
+        topIndex: 2,
+        capacity: 6,
+        operation: 'PUSH',
+        targetElement: 5,
+        phaseDescription: 'Pushed 5',
+      },
+    };
+
+    const { container } = render(<StackVisualizerAdapter step={step} />);
+    const labels = screen.getAllByText('5');
+    expect(labels).toHaveLength(3);
+
+    const slotGroups = container.querySelectorAll('.stack-slot-group');
+    expect(slotGroups).toHaveLength(3);
+    expect(container.querySelectorAll('.stack-slot-anchor')).toHaveLength(3);
+    expect(container.querySelectorAll('.stack-slot-motion')).toHaveLength(3);
+    expect(container.querySelector('.stack-pointer-anchor')).toBeInTheDocument();
+    expect(container.querySelector('.stack-pointer-motion')).toBeInTheDocument();
+  });
+
+  it('preserves non-swapping state on surviving top element after POP', () => {
+    const popStep: ExecutionStep<StackState> = {
+      id: 'step-pop',
+      stepIndex: 2,
+      totalSteps: 3,
+      action: 'POP',
+      description: 'Popped 30',
+      a11yMessage: 'Popped 30 from stack',
+      state: {
+        items: [10, 20],
+        topIndex: 1,
+        capacity: 6,
+        operation: 'POP',
+        targetElement: 30,
+        phaseDescription: 'Popped 30',
+      },
+    };
+
+    const { container } = render(<StackVisualizerAdapter step={popStep} />);
+    const node20 = screen.getByText('20').closest('.viz-node');
+    expect(node20).not.toHaveClass('viz-node-swapping');
+    expect(container.querySelector('.viz-highlight-swapping')).toBeNull();
+  });
 });

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Linked List Laboratory (Pointer Chains & Dynamic Nodes)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('button', { name: 'Switch to Linked List Laboratory' }).click();
+    await page.getByRole('button', { name: /(Switch to Linked List Laboratory|Cambiar al laboratorio de listas enlazadas)/i }).click();
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Singly Linked List');
   });
 
@@ -13,8 +13,9 @@ test.describe('Linked List Laboratory (Pointer Chains & Dynamic Nodes)', () => {
     await expect(page.locator('.viz-pointer-label-text:has-text("HEAD")')).toBeVisible();
     await expect(page.locator('.viz-pointer-label-text:has-text("TAIL")')).toBeVisible();
 
-    const stepForwardBtn = page.getByRole('button', { name: 'Step forward' });
+    const stepForwardBtn = page.getByRole('button', { name: /(Step forward|Avanzar un paso)/i });
     await stepForwardBtn.click();
+
 
     await expect(inspector).toContainText('Action: PREPEND');
     await expect(inspector).toContainText('5 nodes');

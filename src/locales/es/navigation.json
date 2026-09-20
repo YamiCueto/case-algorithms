@@ -1,0 +1,17 @@
+{
+  "selectLabLabel": "Seleccionar laboratorio:",
+  "breadcrumbsRoot": "Laboratorio",
+  "breadcrumbsSection": "Estructuras de Datos",
+  "labArrayTitle": "Arreglo y Burbuja",
+  "labArrayBreadcrumb": "Arreglo y Ordenamiento Burbuja",
+  "labArrayAria": "Cambiar al laboratorio de arreglos",
+  "labStackTitle": "Pila (LIFO)",
+  "labStackBreadcrumb": "Pila y Principio LIFO",
+  "labStackAria": "Cambiar al laboratorio de pilas",
+  "labQueueTitle": "Cola (FIFO)",
+  "labQueueBreadcrumb": "Cola y Principio FIFO",
+  "labQueueAria": "Cambiar al laboratorio de colas",
+  "labLinkedListTitle": "Lista Enlazada",
+  "labLinkedListBreadcrumb": "Lista Simplemente Enlazada y Cadenas de Punteros",
+  "labLinkedListAria": "Cambiar al laboratorio de listas enlazadas"
+}
