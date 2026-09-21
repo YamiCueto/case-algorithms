@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ExecutionStep } from '@/core/types';
 import { LinkedListState } from '@/core/data-structures/linked-list';
@@ -9,9 +9,12 @@ import { VisualEdge } from '../VisualEdge';
 import { VisualPointer } from '../VisualPointer';
 import { VisualHighlight } from '../VisualHighlight';
 import { VisualLabel } from '../VisualLabel';
+import { LinkedListTransitionContext } from './linkedListTransitionTypes';
+import { useLinkedListAnimation } from './useLinkedListAnimation';
 
 export interface LinkedListVisualizerAdapterProps {
   readonly step: ExecutionStep<LinkedListState> | null;
+  readonly transitionContext?: LinkedListTransitionContext;
   readonly viewBoxWidth?: number;
   readonly viewBoxHeight?: number;
   readonly onNodeClick?: (index: number, value: number) => void;
@@ -19,11 +22,19 @@ export interface LinkedListVisualizerAdapterProps {
 
 export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterProps> = ({
   step,
+  transitionContext,
   viewBoxWidth = 800,
   viewBoxHeight = 360,
   onNodeClick,
 }) => {
   const { t } = useTranslation(['linkedList']);
+  const containerRef = useRef<SVGGElement | null>(null);
+
+  const { ghostNode } = useLinkedListAnimation({
+    step,
+    transitionContext,
+    containerRef,
+  });
 
   if (!step) {
     return (
@@ -84,193 +95,219 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
       title={t('linkedList:canvas.title')}
       description={step.a11yMessage}
     >
-      <VisualLabel
-        x={viewBoxWidth / 2}
-        y={26}
-        text={step.description}
-        variant={isError ? 'default' : isFound ? 'default' : 'accent'}
-        fontType="mono"
-        fontSize={13}
-      />
+      <g ref={containerRef} className="ll-stage-container">
+        <VisualLabel
+          x={viewBoxWidth / 2}
+          y={26}
+          text={step.description}
+          variant={isError ? 'default' : isFound ? 'default' : 'accent'}
+          fontType="mono"
+          fontSize={13}
+        />
 
-      <VisualLabel
-        x={viewBoxWidth / 2}
-        y={50}
-        text={t('linkedList:canvas.size', {
-          size,
-          units: size === 1 ? t('linkedList:canvas.nodeSingle') : t('linkedList:canvas.nodePlural'),
-        })}
-        variant="muted"
-        fontType="mono"
-        anchor="middle"
-        fontSize={11}
-      />
-
-      {totalElements === 0 ? (
-        <g>
-          <VisualPointer
-            x={viewBoxWidth / 2 - 30}
-            y={centerY - 24}
-            label={t('linkedList:canvas.headLabel')}
-            direction="top"
-            colorVar="var(--accent-cyan)"
-            length={24}
-          />
-          <VisualEdge
-            from={{ x: viewBoxWidth / 2 - 30, y: centerY }}
-            to={{ x: viewBoxWidth / 2 + 10, y: centerY }}
-            isDirected={true}
-            color="var(--border-subtle)"
-            strokeWidth={2}
-          />
-          <g>
-            <rect
-              x={viewBoxWidth / 2 + 10}
-              y={centerY - nullBoxHeight / 2}
-              width={nullBoxWidth}
-              height={nullBoxHeight}
-              rx="6"
-              fill="rgba(255, 255, 255, 0.03)"
-              stroke="var(--border-subtle)"
-              strokeWidth="1"
-            />
-            <VisualLabel
-              x={viewBoxWidth / 2 + 10 + nullBoxWidth / 2}
-              y={centerY}
-              text={t('linkedList:canvas.nullTerminal')}
-              variant="muted"
-              fontType="mono"
-              fontSize={11}
-            />
-          </g>
-        </g>
-      ) : (
-        <>
-          {nodes.map((node, i) => {
-            const nodeCenterX = getNodeCenterX(i);
-            const isActive = node.id === activeNodeId || i === targetIndex;
-
-            let visualState: NodeVisualState = 'default';
-            let highlightVariant: HighlightVariant = 'primary';
-
-            if (isFound && isActive) {
-              visualState = 'sorted';
-              highlightVariant = 'sorted';
-            } else if (isSearch && isActive) {
-              visualState = 'comparing';
-              highlightVariant = 'comparing';
-            } else if (isRemove && isActive) {
-              visualState = 'swapping';
-              highlightVariant = 'swapping';
-            } else if (isInsert && isActive) {
-              visualState = 'active';
-              highlightVariant = 'primary';
-            }
-
-            return (
-              <g key={`ll-node-${node.id}-${i}`}>
-                <VisualNode
-                  x={nodeCenterX}
-                  y={centerY}
-                  width={nodeWidth}
-                  height={nodeHeight}
-                  label={node.value}
-                  subLabel={`[${i}]`}
-                  state={visualState}
-                  shape="rect"
-                  onClick={() => onNodeClick?.(i, node.value)}
-                />
-
-                {isActive && (
-                  <VisualHighlight
-                    x={nodeCenterX - nodeWidth / 2 - 4}
-                    y={centerY - nodeHeight / 2 - 4}
-                    width={nodeWidth + 8}
-                    height={nodeHeight + 8}
-                    variant={highlightVariant}
-                    shape="rect"
-                  />
-                )}
-
-                {i < totalElements - 1 ? (
-                  <VisualEdge
-                    from={{ x: nodeCenterX + nodeWidth / 2, y: centerY }}
-                    to={{ x: getNodeCenterX(i + 1) - nodeWidth / 2, y: centerY }}
-                    isDirected={true}
-                    color="var(--accent-cyan)"
-                    strokeWidth={2}
-                  />
-                ) : (
-                  <g key="tail-null-connector">
-                    <VisualEdge
-                      from={{ x: nodeCenterX + nodeWidth / 2, y: centerY }}
-                      to={{ x: nodeCenterX + nodeWidth / 2 + edgeLength, y: centerY }}
-                      isDirected={true}
-                      color="var(--border-highlight)"
-                      strokeWidth={2}
-                    />
-                    <rect
-                      x={nodeCenterX + nodeWidth / 2 + edgeLength}
-                      y={centerY - nullBoxHeight / 2}
-                      width={nullBoxWidth}
-                      height={nullBoxHeight}
-                      rx="6"
-                      fill="rgba(255, 255, 255, 0.04)"
-                      stroke="var(--border-subtle)"
-                      strokeWidth="1"
-                    />
-                    <VisualLabel
-                      x={nodeCenterX + nodeWidth / 2 + edgeLength + nullBoxWidth / 2}
-                      y={centerY}
-                      text={t('linkedList:canvas.nullTerminal')}
-                      variant="muted"
-                      fontType="mono"
-                      fontSize={11}
-                    />
-                  </g>
-                )}
-              </g>
-            );
+        <VisualLabel
+          x={viewBoxWidth / 2}
+          y={50}
+          text={t('linkedList:canvas.size', {
+            size,
+            units: size === 1 ? t('linkedList:canvas.nodeSingle') : t('linkedList:canvas.nodePlural'),
           })}
+          variant="muted"
+          fontType="mono"
+          anchor="middle"
+          fontSize={11}
+        />
 
-          {headIdx >= 0 && (
+        {totalElements === 0 ? (
+          <g>
             <VisualPointer
-              x={getNodeCenterX(headIdx)}
-              y={
-                headIdx === tailIdx
-                  ? centerY + nodeHeight / 2 + 28
-                  : centerY - nodeHeight / 2 - 28
-              }
+              x={viewBoxWidth / 2 - 30}
+              y={centerY - 24}
               label={t('linkedList:canvas.headLabel')}
-              direction={headIdx === tailIdx ? 'bottom' : 'top'}
+              direction="top"
               colorVar="var(--accent-cyan)"
               length={24}
             />
-          )}
-
-          {tailIdx >= 0 && (
-            <VisualPointer
-              x={getNodeCenterX(tailIdx)}
-              y={centerY - nodeHeight / 2 - 28}
-              label={t('linkedList:canvas.tailLabel')}
-              direction="top"
-              colorVar="var(--accent-amber)"
-              length={24}
+            <VisualEdge
+              from={{ x: viewBoxWidth / 2 - 30, y: centerY }}
+              to={{ x: viewBoxWidth / 2 + 10, y: centerY }}
+              isDirected={true}
+              color="var(--border-subtle)"
+              strokeWidth={2}
             />
-          )}
+            <g>
+              <rect
+                x={viewBoxWidth / 2 + 10}
+                y={centerY - nullBoxHeight / 2}
+                width={nullBoxWidth}
+                height={nullBoxHeight}
+                rx="6"
+                fill="rgba(255, 255, 255, 0.03)"
+                stroke="var(--border-subtle)"
+                strokeWidth="1"
+              />
+              <VisualLabel
+                x={viewBoxWidth / 2 + 10 + nullBoxWidth / 2}
+                y={centerY}
+                text={t('linkedList:canvas.nullTerminal')}
+                variant="muted"
+                fontType="mono"
+                fontSize={11}
+              />
+            </g>
+          </g>
+        ) : (
+          <>
+            {nodes.map((node, i) => {
+              const nodeCenterX = getNodeCenterX(i);
+              const isActive = node.id === activeNodeId || i === targetIndex;
 
-          {activeIdx >= 0 && activeIdx !== headIdx && activeIdx !== tailIdx && isSearch && (
-            <VisualPointer
-              x={getNodeCenterX(activeIdx)}
-              y={centerY + nodeHeight / 2 + 28}
-              label={t('linkedList:canvas.currLabel')}
-              direction="bottom"
-              colorVar="var(--accent-primary)"
-              length={24}
-            />
-          )}
-        </>
-      )}
+              let visualState: NodeVisualState = 'default';
+              let highlightVariant: HighlightVariant = 'primary';
+
+              if (isFound && isActive) {
+                visualState = 'sorted';
+                highlightVariant = 'sorted';
+              } else if (isSearch && isActive) {
+                visualState = 'comparing';
+                highlightVariant = 'comparing';
+              } else if (isRemove && isActive) {
+                visualState = 'swapping';
+                highlightVariant = 'swapping';
+              } else if (isInsert && isActive) {
+                visualState = 'active';
+                highlightVariant = 'primary';
+              }
+
+              return (
+                <g key={`ll-node-${node.id}-${i}`}>
+                  <VisualNode
+                    id={`ll-node-${node.id}`}
+                    className="ll-node-motion"
+                    x={nodeCenterX}
+                    y={centerY}
+                    width={nodeWidth}
+                    height={nodeHeight}
+                    label={node.value}
+                    subLabel={`[${i}]`}
+                    state={visualState}
+                    shape="rect"
+                    onClick={() => onNodeClick?.(i, node.value)}
+                  />
+
+                  {isActive && (
+                    <VisualHighlight
+                      x={nodeCenterX - nodeWidth / 2 - 4}
+                      y={centerY - nodeHeight / 2 - 4}
+                      width={nodeWidth + 8}
+                      height={nodeHeight + 8}
+                      variant={highlightVariant}
+                      shape="rect"
+                    />
+                  )}
+
+                  {i < totalElements - 1 ? (
+                    <VisualEdge
+                      from={{ x: nodeCenterX + nodeWidth / 2, y: centerY }}
+                      to={{ x: getNodeCenterX(i + 1) - nodeWidth / 2, y: centerY }}
+                      isDirected={true}
+                      color="var(--accent-cyan)"
+                      strokeWidth={2}
+                    />
+                  ) : (
+                    <g key="tail-null-connector">
+                      <VisualEdge
+                        from={{ x: nodeCenterX + nodeWidth / 2, y: centerY }}
+                        to={{ x: nodeCenterX + nodeWidth / 2 + edgeLength, y: centerY }}
+                        isDirected={true}
+                        color="var(--border-highlight)"
+                        strokeWidth={2}
+                      />
+                      <rect
+                        x={nodeCenterX + nodeWidth / 2 + edgeLength}
+                        y={centerY - nullBoxHeight / 2}
+                        width={nullBoxWidth}
+                        height={nullBoxHeight}
+                        rx="6"
+                        fill="rgba(255, 255, 255, 0.04)"
+                        stroke="var(--border-subtle)"
+                        strokeWidth="1"
+                      />
+                      <VisualLabel
+                        x={nodeCenterX + nodeWidth / 2 + edgeLength + nullBoxWidth / 2}
+                        y={centerY}
+                        text={t('linkedList:canvas.nullTerminal')}
+                        variant="muted"
+                        fontType="mono"
+                        fontSize={11}
+                      />
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+
+            {ghostNode && (
+              <g key={ghostNode.id} className="ll-ghost-group">
+                <VisualNode
+                  id="ll-ghost-node"
+                  className="ll-ghost-motion"
+                  x={getNodeCenterX(ghostNode.originalIndex)}
+                  y={centerY}
+                  width={nodeWidth}
+                  height={nodeHeight}
+                  label={ghostNode.value}
+                  state="swapping"
+                  shape="rect"
+                />
+              </g>
+            )}
+
+            {headIdx >= 0 && (
+              <g className="ll-pointer-motion">
+                <VisualPointer
+                  x={getNodeCenterX(headIdx)}
+                  y={
+                    headIdx === tailIdx
+                      ? centerY + nodeHeight / 2 + 28
+                      : centerY - nodeHeight / 2 - 28
+                  }
+                  label={t('linkedList:canvas.headLabel')}
+                  direction={headIdx === tailIdx ? 'bottom' : 'top'}
+                  colorVar="var(--accent-cyan)"
+                  length={24}
+                />
+              </g>
+            )}
+
+            {tailIdx >= 0 && (
+              <g className="ll-pointer-motion">
+                <VisualPointer
+                  x={getNodeCenterX(tailIdx)}
+                  y={centerY - nodeHeight / 2 - 28}
+                  label={t('linkedList:canvas.tailLabel')}
+                  direction="top"
+                  colorVar="var(--accent-amber)"
+                  length={24}
+                />
+              </g>
+            )}
+
+            {activeIdx >= 0 && activeIdx !== headIdx && activeIdx !== tailIdx && isSearch && (
+              <g className="ll-pointer-motion">
+                <VisualPointer
+                  x={getNodeCenterX(activeIdx)}
+                  y={centerY + nodeHeight / 2 + 28}
+                  label={t('linkedList:canvas.currLabel')}
+                  direction="bottom"
+                  colorVar="var(--accent-primary)"
+                  length={24}
+                />
+              </g>
+            )}
+          </>
+        )}
+      </g>
     </SVGViewport>
   );
 };

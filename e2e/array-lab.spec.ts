@@ -83,4 +83,26 @@ test.describe('Array Laboratory & Bubble Sort Exploration', () => {
       return text || '';
     }).toMatch(/COMPARE|SWAP/);
   });
+
+  test('animates compare and swap transitions settling cleanly without residual inline transforms', async ({ page }) => {
+    const stepForwardBtn = page.getByRole('button', { name: 'Avanzar un paso' });
+    const inspector = page.locator('.lab-inspector-section');
+
+    await stepForwardBtn.click();
+    await expect(inspector).toContainText('COMPARE');
+    await expect(page.locator('.viz-node-comparing')).toHaveCount(2);
+
+    await stepForwardBtn.click();
+    await expect(inspector).toContainText('SWAP');
+
+    const node0 = page.locator('#array-node-0');
+    const node1 = page.locator('#array-node-1');
+
+    await expect.poll(async () => {
+      const s0 = await node0.getAttribute('style');
+      const s1 = await node1.getAttribute('style');
+      return (s0 || '').includes('translateX') || (s1 || '').includes('translateX');
+    }).toBe(false);
+  });
 });
+

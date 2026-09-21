@@ -2,7 +2,11 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import { simulateLinkedListOperations, LinkedListCommand } from '@/core/algorithms';
 import { LinkedListState } from '@/core/data-structures/linked-list';
-import { LinkedListVisualizerAdapter } from '@/components/visualizer';
+import {
+  LinkedListVisualizerAdapter,
+  LinkedListTransitionContext,
+  LinkedListNavigationIntent,
+} from '@/components/visualizer';
 import { CodeViewer } from '@/components/code-viewer';
 import {
   LabShell,
@@ -223,6 +227,11 @@ export const LinkedListLab: React.FC = () => {
     PRESET_COMMANDS[0]?.commands || []
   );
 
+  const historyCountRef = useRef<number>(0);
+  const transitionCountRef = useRef<number>(0);
+  const historyIdRef = useRef<string>('ll-hist-0');
+  const [transitionContext, setTransitionContext] = useState<LinkedListTransitionContext | undefined>(undefined);
+
   const {
     currentStep,
     currentIndex,
@@ -236,6 +245,52 @@ export const LinkedListLab: React.FC = () => {
     loadSteps,
   } = useTimeTravelEngine<LinkedListState>();
 
+  const playbackSpeedRef = useRef<number>(600);
+  const currentIndexRef = useRef<number>(currentIndex);
+  currentIndexRef.current = currentIndex;
+
+  const emitTransition = useCallback(
+    (intent: LinkedListNavigationIntent, targetStepIndex: number, newHistoryId?: string) => {
+      if (newHistoryId) {
+        historyIdRef.current = newHistoryId;
+      }
+      transitionCountRef.current += 1;
+      setTransitionContext({
+        historyId: historyIdRef.current,
+        transitionId: transitionCountRef.current,
+        intent,
+        stepIndex: targetStepIndex,
+        playbackSpeed: playbackSpeedRef.current,
+      });
+    },
+    []
+  );
+
+  const onNavigateNext = useCallback(() => {
+    emitTransition('STEP_FORWARD', currentIndexRef.current + 1);
+    handleNext();
+  }, [emitTransition, handleNext]);
+
+  const onNavigatePrevious = useCallback(() => {
+    emitTransition('STEP_BACKWARD', currentIndexRef.current - 1);
+    handlePrevious();
+  }, [emitTransition, handlePrevious]);
+
+  const onNavigateFirst = useCallback(() => {
+    emitTransition('JUMP_FIRST', 0);
+    handleFirst();
+  }, [emitTransition, handleFirst]);
+
+  const onNavigateLast = useCallback(() => {
+    emitTransition('JUMP_LAST', totalSteps - 1);
+    handleLast();
+  }, [emitTransition, handleLast, totalSteps]);
+
+  const onPlaybackStepForward = useCallback(() => {
+    emitTransition('PLAY_FORWARD', currentIndexRef.current + 1);
+    handleNext();
+  }, [emitTransition, handleNext]);
+
   const {
     isPlaying,
     playbackSpeed,
@@ -243,11 +298,13 @@ export const LinkedListLab: React.FC = () => {
     handleTogglePlay,
     stopPlayback,
   } = usePlaybackTimer({
-    onStepForward: handleNext,
-    onRewindToStart: handleFirst,
+    onStepForward: onPlaybackStepForward,
+    onRewindToStart: onNavigateFirst,
     isFinal: isLast,
     defaultSpeed: 600,
   });
+
+  playbackSpeedRef.current = playbackSpeed;
 
   const initController = useCallback(
     (commands: LinkedListCommand[], items: number[], selectLastStep: boolean = false) => {
@@ -312,6 +369,7 @@ export const LinkedListLab: React.FC = () => {
       ...effectiveCommands,
       { type: 'PREPEND', value: val },
     ];
+    emitTransition('SANDBOX_PREPEND', newCommands.length);
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems, true);
   };
@@ -325,6 +383,7 @@ export const LinkedListLab: React.FC = () => {
       ...effectiveCommands,
       { type: 'APPEND', value: val },
     ];
+    emitTransition('SANDBOX_APPEND', newCommands.length);
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems, true);
   };
@@ -339,6 +398,7 @@ export const LinkedListLab: React.FC = () => {
       ...effectiveCommands,
       { type: 'INSERT_AT', index: idx, value: val },
     ];
+    emitTransition('SANDBOX_INSERT_AT', newCommands.length);
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems, true);
   };
@@ -352,6 +412,7 @@ export const LinkedListLab: React.FC = () => {
       ...effectiveCommands,
       { type: 'REMOVE_AT', index: idx },
     ];
+    emitTransition('SANDBOX_REMOVE_AT', newCommands.length);
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems, true);
   };
@@ -365,6 +426,7 @@ export const LinkedListLab: React.FC = () => {
       ...effectiveCommands,
       { type: 'FIND', value: val },
     ];
+    emitTransition('SANDBOX_SEARCH', newCommands.length);
     setCurrentCommands(newCommands);
     initController(newCommands, currentInitialItems, true);
   };
@@ -372,12 +434,16 @@ export const LinkedListLab: React.FC = () => {
   const handleClear = () => {
     setInputError(null);
     const newCommands: LinkedListCommand[] = [];
+    emitTransition('SANDBOX_CLEAR', 0);
     setCurrentCommands(newCommands);
     setCurrentInitialItems([]);
     initController(newCommands, [], false);
   };
 
   const handlePresetSelect = (preset: PresetItem) => {
+    historyCountRef.current += 1;
+    const nextHistoryId = `ll-hist-${historyCountRef.current}`;
+    emitTransition('LOAD_PRESET', 0, nextHistoryId);
     setInputError(null);
     setCurrentInitialItems(preset.initialItems);
     setCurrentCommands(preset.commands);
@@ -385,15 +451,16 @@ export const LinkedListLab: React.FC = () => {
   };
 
   const handleResetWithStop = () => {
+    emitTransition('RESET', 0);
     stopPlayback();
     handleReset();
   };
 
   useTimeTravelKeyboard({
-    onNext: handleNext,
-    onPrevious: handlePrevious,
-    onFirst: handleFirst,
-    onLast: handleLast,
+    onNext: onNavigateNext,
+    onPrevious: onNavigatePrevious,
+    onFirst: onNavigateFirst,
+    onLast: onNavigateLast,
     onTogglePlay: handleTogglePlay,
     onReset: handleResetWithStop,
   });
@@ -445,6 +512,7 @@ export const LinkedListLab: React.FC = () => {
         visualizationSlot={
           <LinkedListVisualizerAdapter
             step={currentStep}
+            transitionContext={transitionContext}
             viewBoxWidth={800}
             viewBoxHeight={360}
           />
@@ -489,11 +557,11 @@ export const LinkedListLab: React.FC = () => {
             currentIndex={currentIndex}
             totalSteps={totalSteps}
             playbackSpeed={playbackSpeed}
-            onFirst={handleFirst}
-            onPrevious={handlePrevious}
+            onFirst={onNavigateFirst}
+            onPrevious={onNavigatePrevious}
             onTogglePlay={handleTogglePlay}
-            onNext={handleNext}
-            onLast={handleLast}
+            onNext={onNavigateNext}
+            onLast={onNavigateLast}
             onReset={handleResetWithStop}
             onSpeedChange={setPlaybackSpeed}
           />

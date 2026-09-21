@@ -34,11 +34,84 @@
   min-width: 0;
 }
 
+.lab-primary-column,
+.lab-secondary-column,
+.lab-interactive-workspace {
+  display: contents;
+}
+
+.visualization-stage-panel,
+.viewport-panel {
+  order: 1;
+}
+
+.lab-controls-section {
+  order: 2;
+}
+
+.time-travel-panel {
+  order: 3;
+}
+
+.lab-inspector-section {
+  order: 4;
+}
+
+.code-stage-panel {
+  order: 5;
+}
+
+.lab-knowledge-section {
+  order: 6;
+}
+
 @media (min-width: 1024px) {
   .lab-stage-grid {
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     gap: var(--space-4);
-    align-items: stretch;
+    align-items: start;
+  }
+
+  .lab-primary-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+    order: initial;
+  }
+
+  .lab-secondary-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+    order: initial;
+  }
+
+  .lab-interactive-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    min-width: 0;
+    order: initial;
+  }
+
+  .visualization-stage-panel,
+  .viewport-panel,
+  .lab-controls-section,
+  .time-travel-panel,
+  .lab-inspector-section,
+  .code-stage-panel,
+  .lab-knowledge-section {
+    order: initial;
+  }
+}
+
+@media (min-width: 1280px) {
+  .lab-interactive-workspace {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: var(--space-3);
+    align-items: start;
   }
 }
 
@@ -162,20 +235,6 @@
   }
 }
 
-.lab-controls-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-@media (min-width: 1024px) {
-  .lab-controls-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--space-4);
-    align-items: start;
-  }
-}
 
 .lab-controls-section,
 .control-panel {

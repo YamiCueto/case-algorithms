@@ -41,8 +41,8 @@ export const LabShell: React.FC<LabShellProps> = ({
         {subtitle && <p className="lab-topic-subtitle">{subtitle}</p>}
       </section>
 
-      {codeSlot ? (
-        <div className="lab-stage-grid">
+      <div className="lab-stage-grid">
+        <div className="lab-primary-column">
           <section aria-label={t('common:viewportAria')} className="visualization-stage-panel">
             <div className="panel-header">
               <span className="panel-title">{t('common:viewportTitle')}</span>
@@ -50,48 +50,43 @@ export const LabShell: React.FC<LabShellProps> = ({
             <div className="panel-body">{activeVizSlot}</div>
           </section>
 
-          <section aria-label={t('common:codeStageAria')} className="code-stage-panel">
-            {codeSlot}
-          </section>
-        </div>
-      ) : (
-        <div className="lab-stage-grid">
-          <section aria-label={t('common:viewportAria')} className="viewport-panel">
-            <div className="panel-header">
-              <span className="panel-title">{t('common:viewportTitle')}</span>
+          {(controlsSlot || inspectorSlot) && (
+            <div className="lab-interactive-workspace lab-controls-grid">
+              {controlsSlot && (
+                <section aria-label={t('common:operationsAria')} className="lab-controls-section">
+                  <div className="control-panel-heading">{t('common:operationsHeading')}</div>
+                  {controlsSlot}
+                </section>
+              )}
+              {inspectorSlot && (
+                <section aria-label={t('common:inspectorAria')} className="lab-inspector-section">
+                  {inspectorSlot}
+                </section>
+              )}
             </div>
-            <div className="panel-body">{activeVizSlot}</div>
-          </section>
-        </div>
-      )}
-
-      {timeTravelSlot && (
-        <section aria-label={t('common:timeTravelAria')} className="time-travel-panel">
-          {timeTravelSlot}
-        </section>
-      )}
-
-      {(controlsSlot || inspectorSlot) && (
-        <div className="lab-controls-grid">
-          {controlsSlot && (
-            <section aria-label={t('common:operationsAria')} className="lab-controls-section">
-              <div className="control-panel-heading">{t('common:operationsHeading')}</div>
-              {controlsSlot}
-            </section>
           )}
-          {inspectorSlot && (
-            <section aria-label={t('common:inspectorAria')} className="lab-inspector-section">
-              {inspectorSlot}
+
+          {timeTravelSlot && (
+            <section aria-label={t('common:timeTravelAria')} className="time-travel-panel">
+              {timeTravelSlot}
             </section>
           )}
         </div>
-      )}
 
-      {knowledgeSlot && (
-        <section aria-label={t('common:knowledgeAria')} className="lab-knowledge-section">
-          <Card title={t('common:knowledgeTitle')}>{knowledgeSlot}</Card>
-        </section>
-      )}
+        <div className="lab-secondary-column">
+          {codeSlot && (
+            <section aria-label={t('common:codeStageAria')} className="code-stage-panel">
+              {codeSlot}
+            </section>
+          )}
+
+          {knowledgeSlot && (
+            <section aria-label={t('common:knowledgeAria')} className="lab-knowledge-section">
+              <Card title={t('common:knowledgeTitle')}>{knowledgeSlot}</Card>
+            </section>
+          )}
+        </div>
+      </div>
     </main>
   );
 };

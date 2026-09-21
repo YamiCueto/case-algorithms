@@ -79,4 +79,31 @@ test.describe('Linked List Laboratory (Pointer Chains & Dynamic Nodes)', () => {
     await stepBackwardBtn.click();
     await expect(inspector).toContainText('6 nodos');
   });
+
+  test('animates node entrance on prepend and cleans up ghost node on remove', async ({ page }) => {
+    const input = page.locator('.lab-controls-section').getByRole('textbox').first();
+    const prependBtn = page.getByRole('button', { name: 'Insertar nodo en la cabeza' });
+    const removeBtn = page.getByRole('button', { name: 'Eliminar nodo en el índice' });
+    const indexInput = page.locator('.lab-controls-section input').nth(1);
+
+    await input.fill('88');
+    await prependBtn.click();
+
+    const node88 = page.locator('.ll-node-motion').first();
+    await expect(node88).toBeVisible();
+
+    await expect.poll(async () => {
+      const style = await node88.getAttribute('style');
+      return (style || '').includes('scale') || (style || '').includes('translate');
+    }).toBe(false);
+
+    await indexInput.fill('0');
+    await removeBtn.click();
+
+    await expect.poll(async () => {
+      const ghostCount = await page.locator('.ll-ghost-anchor').count();
+      return ghostCount;
+    }).toBe(0);
+  });
 });
+

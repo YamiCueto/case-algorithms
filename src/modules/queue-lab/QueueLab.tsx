@@ -2,7 +2,11 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import { simulateQueueOperations, QueueCommand } from '@/core/algorithms';
 import { QueueState } from '@/core/data-structures/queue';
-import { QueueVisualizerAdapter } from '@/components/visualizer';
+import {
+  QueueVisualizerAdapter,
+  QueueTransitionContext,
+  QueueNavigationIntent,
+} from '@/components/visualizer';
 import { CodeViewer } from '@/components/code-viewer';
 import {
   LabShell,
@@ -245,6 +249,11 @@ export const QueueLab: React.FC = () => {
   const [selectedCodeLang, setSelectedCodeLang] = useState<'pseudocode' | 'typescript'>('typescript');
   const [currentCommands, setCurrentCommands] = useState<QueueCommand[]>(PRESET_COMMANDS[0]?.commands || []);
 
+  const historyCountRef = useRef<number>(0);
+  const transitionCountRef = useRef<number>(0);
+  const historyIdRef = useRef<string>('queue-hist-0');
+  const [transitionContext, setTransitionContext] = useState<QueueTransitionContext | undefined>(undefined);
+
   const {
     currentStep,
     currentIndex,
@@ -258,6 +267,52 @@ export const QueueLab: React.FC = () => {
     loadSteps,
   } = useTimeTravelEngine<QueueState>();
 
+  const playbackSpeedRef = useRef<number>(600);
+  const currentIndexRef = useRef<number>(currentIndex);
+  currentIndexRef.current = currentIndex;
+
+  const emitTransition = useCallback(
+    (intent: QueueNavigationIntent, targetStepIndex: number, newHistoryId?: string) => {
+      if (newHistoryId) {
+        historyIdRef.current = newHistoryId;
+      }
+      transitionCountRef.current += 1;
+      setTransitionContext({
+        historyId: historyIdRef.current,
+        transitionId: transitionCountRef.current,
+        intent,
+        stepIndex: targetStepIndex,
+        playbackSpeed: playbackSpeedRef.current,
+      });
+    },
+    []
+  );
+
+  const onNavigateNext = useCallback(() => {
+    emitTransition('STEP_FORWARD', currentIndexRef.current + 1);
+    handleNext();
+  }, [emitTransition, handleNext]);
+
+  const onNavigatePrevious = useCallback(() => {
+    emitTransition('STEP_BACKWARD', currentIndexRef.current - 1);
+    handlePrevious();
+  }, [emitTransition, handlePrevious]);
+
+  const onNavigateFirst = useCallback(() => {
+    emitTransition('JUMP_FIRST', 0);
+    handleFirst();
+  }, [emitTransition, handleFirst]);
+
+  const onNavigateLast = useCallback(() => {
+    emitTransition('JUMP_LAST', totalSteps - 1);
+    handleLast();
+  }, [emitTransition, handleLast, totalSteps]);
+
+  const onPlaybackStepForward = useCallback(() => {
+    emitTransition('PLAY_FORWARD', currentIndexRef.current + 1);
+    handleNext();
+  }, [emitTransition, handleNext]);
+
   const {
     isPlaying,
     playbackSpeed,
@@ -265,11 +320,13 @@ export const QueueLab: React.FC = () => {
     handleTogglePlay,
     stopPlayback,
   } = usePlaybackTimer({
-    onStepForward: handleNext,
-    onRewindToStart: handleFirst,
+    onStepForward: onPlaybackStepForward,
+    onRewindToStart: onNavigateFirst,
     isFinal: isLast,
     defaultSpeed: 600,
   });
+
+  playbackSpeedRef.current = playbackSpeed;
 
   const initController = useCallback(
     (commands: QueueCommand[], capacity: number, targetIndex: number = 0) => {
@@ -304,6 +361,7 @@ export const QueueLab: React.FC = () => {
     const effectiveCommands = currentCommands.slice(0, executedCount);
     const newCommands: QueueCommand[] = [...effectiveCommands, { type: 'ENQUEUE', value: Math.round(val) }];
     const targetIndex = newCommands.length;
+    emitTransition('SANDBOX_ENQUEUE', targetIndex);
     setCurrentCommands(newCommands);
     initController(newCommands, queueCapacity, targetIndex);
   };
@@ -314,6 +372,7 @@ export const QueueLab: React.FC = () => {
     const effectiveCommands = currentCommands.slice(0, executedCount);
     const newCommands: QueueCommand[] = [...effectiveCommands, { type: 'DEQUEUE' }];
     const targetIndex = newCommands.length;
+    emitTransition('SANDBOX_DEQUEUE', targetIndex);
     setCurrentCommands(newCommands);
     initController(newCommands, queueCapacity, targetIndex);
   };
@@ -324,6 +383,7 @@ export const QueueLab: React.FC = () => {
     const effectiveCommands = currentCommands.slice(0, executedCount);
     const newCommands: QueueCommand[] = [...effectiveCommands, { type: 'PEEK_FRONT' }];
     const targetIndex = newCommands.length;
+    emitTransition('SANDBOX_PEEK', targetIndex);
     setCurrentCommands(newCommands);
     initController(newCommands, queueCapacity, targetIndex);
   };
@@ -331,11 +391,15 @@ export const QueueLab: React.FC = () => {
   const handleClear = () => {
     setInputError(null);
     const newCommands: QueueCommand[] = [];
+    emitTransition('SANDBOX_CLEAR', 0);
     setCurrentCommands(newCommands);
     initController(newCommands, queueCapacity, 0);
   };
 
   const handlePresetSelect = (preset: PresetItem) => {
+    historyCountRef.current += 1;
+    const nextHistoryId = `queue-hist-${historyCountRef.current}`;
+    emitTransition('LOAD_PRESET', 0, nextHistoryId);
     setInputError(null);
     setQueueCapacity(preset.capacity);
     setCurrentCommands(preset.commands);
@@ -344,20 +408,22 @@ export const QueueLab: React.FC = () => {
 
   const handleCapacityChange = (cap: number) => {
     const targetIndex = Math.min(currentIndex, currentCommands.length);
+    emitTransition('CAPACITY_CHANGE', targetIndex);
     setQueueCapacity(cap);
     initController(currentCommands, cap, targetIndex);
   };
 
   const handleResetWithStop = () => {
+    emitTransition('RESET', 0);
     stopPlayback();
     handleReset();
   };
 
   useTimeTravelKeyboard({
-    onNext: handleNext,
-    onPrevious: handlePrevious,
-    onFirst: handleFirst,
-    onLast: handleLast,
+    onNext: onNavigateNext,
+    onPrevious: onNavigatePrevious,
+    onFirst: onNavigateFirst,
+    onLast: onNavigateLast,
     onTogglePlay: handleTogglePlay,
     onReset: handleResetWithStop,
   });
@@ -400,6 +466,7 @@ export const QueueLab: React.FC = () => {
         visualizationSlot={
           <QueueVisualizerAdapter
             step={currentStep}
+            transitionContext={transitionContext}
             viewBoxWidth={800}
             viewBoxHeight={360}
           />
@@ -444,11 +511,11 @@ export const QueueLab: React.FC = () => {
             currentIndex={currentIndex}
             totalSteps={totalSteps}
             playbackSpeed={playbackSpeed}
-            onFirst={handleFirst}
-            onPrevious={handlePrevious}
+            onFirst={onNavigateFirst}
+            onPrevious={onNavigatePrevious}
             onTogglePlay={handleTogglePlay}
-            onNext={handleNext}
-            onLast={handleLast}
+            onNext={onNavigateNext}
+            onLast={onNavigateLast}
             onReset={handleResetWithStop}
             onSpeedChange={setPlaybackSpeed}
           />

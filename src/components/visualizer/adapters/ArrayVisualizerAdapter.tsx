@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ExecutionStep } from '@/core/types';
 import { ArrayState } from '@/core/data-structures/array';
@@ -10,9 +10,12 @@ import {
   VisualLabel,
   NodeVisualState,
 } from '../index';
+import { ArrayTransitionContext } from './arrayTransitionTypes';
+import { useArrayAnimation } from './useArrayAnimation';
 
 export interface ArrayVisualizerAdapterProps {
   readonly step: ExecutionStep<ArrayState> | null;
+  readonly transitionContext?: ArrayTransitionContext;
   readonly viewBoxWidth?: number;
   readonly viewBoxHeight?: number;
   readonly onNodeClick?: (index: number, value: number) => void;
@@ -20,11 +23,29 @@ export interface ArrayVisualizerAdapterProps {
 
 export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
   step,
+  transitionContext,
   viewBoxWidth = 800,
   viewBoxHeight = 360,
   onNodeClick,
 }) => {
   const { t } = useTranslation(['array']);
+  const containerRef = useRef<SVGGElement | null>(null);
+
+  const n = step?.state.array.length ?? 0;
+  const nodeWidth = n > 12 ? 34 : n > 9 ? 40 : n > 6 ? 48 : 56;
+  const nodeHeight = n > 12 ? 34 : n > 9 ? 40 : n > 6 ? 48 : 56;
+  const gap = n > 12 ? 6 : n > 9 ? 8 : n > 6 ? 12 : 16;
+  const totalWidth = n * nodeWidth + (n - 1) * gap;
+  const startX = (viewBoxWidth - totalWidth) / 2 + nodeWidth / 2;
+  const centerY = viewBoxHeight / 2;
+  const slotDistance = nodeWidth + gap;
+
+  useArrayAnimation({
+    step,
+    transitionContext,
+    containerRef,
+    slotDistance,
+  });
 
   if (!step) {
     return (
@@ -46,7 +67,6 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
 
   const { array, sortedIndices, comparingIndices, swappedIndices, activeIndex, phaseDescription } =
     step.state;
-  const n = array.length;
 
   if (n === 0) {
     return (
@@ -65,13 +85,6 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
       </SVGViewport>
     );
   }
-
-  const nodeWidth = n > 12 ? 34 : n > 9 ? 40 : n > 6 ? 48 : 56;
-  const nodeHeight = n > 12 ? 34 : n > 9 ? 40 : n > 6 ? 48 : 56;
-  const gap = n > 12 ? 6 : n > 9 ? 8 : n > 6 ? 12 : 16;
-  const totalWidth = n * nodeWidth + (n - 1) * gap;
-  const startX = (viewBoxWidth - totalWidth) / 2 + nodeWidth / 2;
-  const centerY = viewBoxHeight / 2;
 
   const getNodeState = (idx: number): NodeVisualState => {
     if (swappedIndices && (swappedIndices[0] === idx || swappedIndices[1] === idx)) {
@@ -95,94 +108,98 @@ export const ArrayVisualizerAdapter: React.FC<ArrayVisualizerAdapterProps> = ({
       title={t('array:canvas.title')}
       description={step.a11yMessage}
     >
-      <VisualLabel
-        x={viewBoxWidth / 2}
-        y={32}
-        text={step.description}
-        variant="accent"
-        fontType="mono"
-        fontSize={13}
-      />
-
-      {comparingIndices && (
-        <VisualHighlight
-          x={
-            startX +
-            Math.min(comparingIndices[0], comparingIndices[1]) * (nodeWidth + gap) -
-            nodeWidth / 2 -
-            6
-          }
-          y={centerY - nodeHeight / 2 - 6}
-          width={
-            (Math.abs(comparingIndices[1] - comparingIndices[0]) + 1) * nodeWidth +
-            Math.abs(comparingIndices[1] - comparingIndices[0]) * gap +
-            12
-          }
-          height={nodeHeight + 12}
-          variant="comparing"
+      <g ref={containerRef} className="array-stage-container">
+        <VisualLabel
+          x={viewBoxWidth / 2}
+          y={32}
+          text={step.description}
+          variant="accent"
+          fontType="mono"
+          fontSize={13}
         />
-      )}
 
-      {swappedIndices && (
-        <VisualHighlight
-          x={
-            startX +
-            Math.min(swappedIndices[0], swappedIndices[1]) * (nodeWidth + gap) -
-            nodeWidth / 2 -
-            6
-          }
-          y={centerY - nodeHeight / 2 - 6}
-          width={
-            (Math.abs(swappedIndices[1] - swappedIndices[0]) + 1) * nodeWidth +
-            Math.abs(swappedIndices[1] - swappedIndices[0]) * gap +
-            12
-          }
-          height={nodeHeight + 12}
-          variant="swapping"
+        {comparingIndices && (
+          <VisualHighlight
+            x={
+              startX +
+              Math.min(comparingIndices[0], comparingIndices[1]) * (nodeWidth + gap) -
+              nodeWidth / 2 -
+              6
+            }
+            y={centerY - nodeHeight / 2 - 6}
+            width={
+              (Math.abs(comparingIndices[1] - comparingIndices[0]) + 1) * nodeWidth +
+              Math.abs(comparingIndices[1] - comparingIndices[0]) * gap +
+              12
+            }
+            height={nodeHeight + 12}
+            variant="comparing"
+          />
+        )}
+
+        {swappedIndices && (
+          <VisualHighlight
+            x={
+              startX +
+              Math.min(swappedIndices[0], swappedIndices[1]) * (nodeWidth + gap) -
+              nodeWidth / 2 -
+              6
+            }
+            y={centerY - nodeHeight / 2 - 6}
+            width={
+              (Math.abs(swappedIndices[1] - swappedIndices[0]) + 1) * nodeWidth +
+              Math.abs(swappedIndices[1] - swappedIndices[0]) * gap +
+              12
+            }
+            height={nodeHeight + 12}
+            variant="swapping"
+          />
+        )}
+
+        {array.map((val, idx) => {
+          const nodeX = startX + idx * (nodeWidth + gap);
+          const nodeState = getNodeState(idx);
+
+          return (
+            <VisualNode
+              key={`node-${idx}-${val}`}
+              id={`array-node-${idx}`}
+              className="array-node-group"
+              x={nodeX}
+              y={centerY}
+              width={nodeWidth}
+              height={nodeHeight}
+              label={val}
+              subLabel={`[${idx}]`}
+              state={nodeState}
+              onClick={onNodeClick ? () => onNodeClick(idx, val) : undefined}
+            />
+          );
+        })}
+
+        {step.pointers?.map((p) => {
+          const ptrX = startX + p.index * (nodeWidth + gap);
+          return (
+            <VisualPointer
+              key={p.id}
+              x={ptrX}
+              y={centerY - nodeHeight / 2 - 10}
+              label={p.label}
+              direction="top"
+              colorVar={p.colorVar}
+            />
+          );
+        })}
+
+        <VisualLabel
+          x={viewBoxWidth / 2}
+          y={viewBoxHeight - 20}
+          text={phaseDescription}
+          variant="muted"
+          fontType="sans"
+          fontSize={12}
         />
-      )}
-
-      {array.map((val, idx) => {
-        const nodeX = startX + idx * (nodeWidth + gap);
-        const nodeState = getNodeState(idx);
-
-        return (
-          <VisualNode
-            key={`node-${idx}-${val}`}
-            x={nodeX}
-            y={centerY}
-            width={nodeWidth}
-            height={nodeHeight}
-            label={val}
-            subLabel={`[${idx}]`}
-            state={nodeState}
-            onClick={onNodeClick ? () => onNodeClick(idx, val) : undefined}
-          />
-        );
-      })}
-
-      {step.pointers?.map((p) => {
-        const ptrX = startX + p.index * (nodeWidth + gap);
-        return (
-          <VisualPointer
-            key={p.id}
-            x={ptrX}
-            y={centerY - nodeHeight / 2 - 10}
-            label={p.label}
-            direction="top"
-            colorVar={p.colorVar}
-          />
-        );
-      })}
-
-      <VisualLabel
-        x={viewBoxWidth / 2}
-        y={viewBoxHeight - 20}
-        text={phaseDescription}
-        variant="muted"
-        fontType="sans"
-        fontSize={12}
-      />
+      </g>
     </SVGViewport>
   );
 };

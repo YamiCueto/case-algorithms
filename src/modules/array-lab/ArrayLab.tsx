@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { bubbleSort } from '@/core/algorithms';
 import { ArrayState } from '@/core/data-structures/array';
-import { ArrayVisualizerAdapter } from '@/components/visualizer';
+import {
+  ArrayVisualizerAdapter,
+  ArrayTransitionContext,
+  ArrayNavigationIntent,
+} from '@/components/visualizer';
 import { CodeViewer } from '@/components/code-viewer';
 import {
   LabShell,
@@ -135,6 +139,11 @@ export const ArrayLab: React.FC = () => {
     [t]
   );
 
+  const historyCountRef = useRef<number>(0);
+  const transitionCountRef = useRef<number>(0);
+  const historyIdRef = useRef<string>('array-hist-0');
+  const [transitionContext, setTransitionContext] = useState<ArrayTransitionContext | undefined>(undefined);
+
   const {
     currentStep,
     currentIndex,
@@ -147,6 +156,52 @@ export const ArrayLab: React.FC = () => {
     handleReset,
     loadSteps,
   } = useTimeTravelEngine<ArrayState>();
+
+  const playbackSpeedRef = useRef<number>(600);
+  const currentIndexRef = useRef<number>(currentIndex);
+  currentIndexRef.current = currentIndex;
+
+  const emitTransition = useCallback(
+    (intent: ArrayNavigationIntent, targetStepIndex: number, newHistoryId?: string) => {
+      if (newHistoryId) {
+        historyIdRef.current = newHistoryId;
+      }
+      transitionCountRef.current += 1;
+      setTransitionContext({
+        historyId: historyIdRef.current,
+        transitionId: transitionCountRef.current,
+        intent,
+        stepIndex: targetStepIndex,
+        playbackSpeed: playbackSpeedRef.current,
+      });
+    },
+    []
+  );
+
+  const onNavigateNext = useCallback(() => {
+    emitTransition('STEP_FORWARD', currentIndexRef.current + 1);
+    handleNext();
+  }, [emitTransition, handleNext]);
+
+  const onNavigatePrevious = useCallback(() => {
+    emitTransition('STEP_BACKWARD', currentIndexRef.current - 1);
+    handlePrevious();
+  }, [emitTransition, handlePrevious]);
+
+  const onNavigateFirst = useCallback(() => {
+    emitTransition('JUMP_FIRST', 0);
+    handleFirst();
+  }, [emitTransition, handleFirst]);
+
+  const onNavigateLast = useCallback(() => {
+    emitTransition('JUMP_LAST', totalSteps - 1);
+    handleLast();
+  }, [emitTransition, handleLast, totalSteps]);
+
+  const onPlaybackStepForward = useCallback(() => {
+    emitTransition('PLAY_FORWARD', currentIndexRef.current + 1);
+    handleNext();
+  }, [emitTransition, handleNext]);
 
   const parseNumbers = (text: string): { numbers: number[]; error: string | null } => {
     const rawTokens = text.split(',').map((t) => t.trim()).filter(Boolean);
@@ -177,11 +232,13 @@ export const ArrayLab: React.FC = () => {
     handleTogglePlay,
     stopPlayback,
   } = usePlaybackTimer({
-    onStepForward: handleNext,
-    onRewindToStart: handleFirst,
+    onStepForward: onPlaybackStepForward,
+    onRewindToStart: onNavigateFirst,
     isFinal: isLast,
     defaultSpeed: 600,
   });
+
+  playbackSpeedRef.current = playbackSpeed;
 
   const initController = useCallback(
     (numbers: number[]) => {
@@ -203,27 +260,34 @@ export const ArrayLab: React.FC = () => {
       return;
     }
 
+    historyCountRef.current += 1;
+    const nextHistoryId = `array-hist-${historyCountRef.current}`;
+    emitTransition('LOAD_CUSTOM', 0, nextHistoryId);
     setInputError(null);
     initController(numbers);
     setIsPlaying(true);
   };
 
   const handleResetWithStop = () => {
+    emitTransition('RESET', 0);
     stopPlayback();
     handleReset();
   };
 
   const handlePresetSelect = (preset: number[]) => {
+    historyCountRef.current += 1;
+    const nextHistoryId = `array-hist-${historyCountRef.current}`;
+    emitTransition('LOAD_PRESET', 0, nextHistoryId);
     setInputError(null);
     setInputArrayText(preset.join(', '));
     initController(preset);
   };
 
   useTimeTravelKeyboard({
-    onNext: handleNext,
-    onPrevious: handlePrevious,
-    onFirst: handleFirst,
-    onLast: handleLast,
+    onNext: onNavigateNext,
+    onPrevious: onNavigatePrevious,
+    onFirst: onNavigateFirst,
+    onLast: onNavigateLast,
     onTogglePlay: handleTogglePlay,
     onReset: handleResetWithStop,
   });
@@ -239,7 +303,7 @@ export const ArrayLab: React.FC = () => {
         title={t('array:title')}
         subtitle={t('array:subtitle')}
         visualizationSlot={
-          <ArrayVisualizerAdapter step={currentStep} />
+          <ArrayVisualizerAdapter step={currentStep} transitionContext={transitionContext} />
         }
         codeSlot={
           <div className="code-stage-container">
@@ -281,11 +345,11 @@ export const ArrayLab: React.FC = () => {
             currentIndex={currentIndex}
             totalSteps={totalSteps}
             playbackSpeed={playbackSpeed}
-            onFirst={handleFirst}
-            onPrevious={handlePrevious}
+            onFirst={onNavigateFirst}
+            onPrevious={onNavigatePrevious}
             onTogglePlay={handleTogglePlay}
-            onNext={handleNext}
-            onLast={handleLast}
+            onNext={onNavigateNext}
+            onLast={onNavigateLast}
             onReset={handleResetWithStop}
             onSpeedChange={setPlaybackSpeed}
           />

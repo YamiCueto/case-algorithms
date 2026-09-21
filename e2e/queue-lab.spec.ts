@@ -79,4 +79,35 @@ test.describe('Queue Laboratory (FIFO Principle & Circular Buffer)', () => {
     await stepBackwardBtn.click();
     await expect(inspector).toContainText('Elementos en la cola: 2 / 6');
   });
+
+  test('animates enqueue and dequeue with ghost node unmounting cleanly', async ({ page }) => {
+    const stepForwardBtn = page.getByRole('button', { name: 'Avanzar un paso' });
+    const inspector = page.locator('.lab-inspector-section');
+
+    await stepForwardBtn.click();
+    await expect(inspector).toContainText('ENQUEUE');
+    const node0 = page.locator('#queue-node-0');
+    await expect(node0).toBeVisible();
+
+    await expect.poll(async () => {
+      const style = await node0.getAttribute('style');
+      return (style || '').includes('translateY');
+    }).toBe(false);
+
+    await stepForwardBtn.click();
+    await stepForwardBtn.click();
+    await stepForwardBtn.click();
+    await expect(inspector).toContainText('DEQUEUE');
+
+    await expect.poll(async () => {
+      const ghostCount = await page.locator('.queue-ghost-group').count();
+      return ghostCount;
+    }).toBe(0);
+
+    await expect(page.locator('#queue-node-0')).toHaveCount(0);
+    await expect(page.locator('#queue-node-1')).toBeVisible();
+  });
 });
+
+
+
