@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from './Button';
+import { PlaybackIcon } from './PlaybackIcon';
 
 export interface TimeTravelControlsProps {
   readonly isPlaying: boolean;
@@ -47,55 +48,56 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
         <Button
           variant="outline"
           size="sm"
+          className="time-travel-icon-button"
           onClick={onFirst}
           disabled={isAtStart}
+          icon={<PlaybackIcon name="first" />}
           aria-label={t('timeTravel:firstAria')}
-        >
-          {t('timeTravel:first')}
-        </Button>
+        />
         <Button
           variant="outline"
           size="sm"
+          className="time-travel-icon-button"
           onClick={onPrevious}
           disabled={isAtStart}
+          icon={<PlaybackIcon name="previous" />}
           aria-label={t('timeTravel:previousAria')}
-        >
-          {t('timeTravel:previous')}
-        </Button>
+        />
         <Button
           variant={isPlaying ? 'danger' : 'primary'}
           size="sm"
+          className="time-travel-icon-button"
           onClick={onTogglePlay}
+          icon={<PlaybackIcon name={isPlaying ? 'pause' : 'play'} />}
           aria-label={isPlaying ? t('timeTravel:pauseAria') : t('timeTravel:playAria')}
-        >
-          {isPlaying ? t('timeTravel:pause') : t('timeTravel:play')}
-        </Button>
+          aria-pressed={isPlaying}
+        />
         <Button
           variant="outline"
           size="sm"
+          className="time-travel-icon-button"
           onClick={onNext}
           disabled={isAtEnd}
+          icon={<PlaybackIcon name="next" />}
           aria-label={t('timeTravel:nextAria')}
-        >
-          {t('timeTravel:next')}
-        </Button>
+        />
         <Button
           variant="outline"
           size="sm"
+          className="time-travel-icon-button"
           onClick={onLast}
           disabled={isAtEnd}
+          icon={<PlaybackIcon name="last" />}
           aria-label={t('timeTravel:lastAria')}
-        >
-          {t('timeTravel:last')}
-        </Button>
+        />
         <Button
           variant="outline"
           size="sm"
+          className="time-travel-icon-button"
           onClick={onReset}
+          icon={<PlaybackIcon name="reset" />}
           aria-label={t('timeTravel:resetAria')}
-        >
-          {t('timeTravel:reset')}
-        </Button>
+        />
       </div>
 
       <div className="time-travel-scrubber-row">
@@ -123,6 +125,7 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
           variant={playbackSpeed === 1000 ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => onSpeedChange(1000)}
+          aria-pressed={playbackSpeed === 1000}
         >
           0.5x
         </Button>
@@ -130,6 +133,7 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
           variant={playbackSpeed === 600 ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => onSpeedChange(600)}
+          aria-pressed={playbackSpeed === 600}
         >
           1x
         </Button>
@@ -137,6 +141,7 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
           variant={playbackSpeed === 250 ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => onSpeedChange(250)}
+          aria-pressed={playbackSpeed === 250}
         >
           2x
         </Button>

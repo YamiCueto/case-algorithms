@@ -990,6 +990,50 @@
   padding: var(--space-2) var(--space-4);
 }
 
+.time-travel-icon-button {
+  min-width: 36px;
+  min-height: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-travel-icon-button span[aria-hidden="true"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.time-travel-icon-button svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .time-travel-icon-button {
+    min-width: 40px;
+    min-height: 40px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .time-travel-icon-button svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.speed-control-row .btn[aria-pressed="true"] {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
 .time-travel-scrubber-row {
   display: flex;
   align-items: center;

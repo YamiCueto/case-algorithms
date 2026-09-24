@@ -39,7 +39,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
     expect(box!.width).toBeGreaterThanOrEqual(600);
     expect(box!.height).toBeGreaterThanOrEqual(300);
 
-    const svg = stage.locator('svg');
+    const svg = stage.locator('svg.svg-viewport');
     await expect(svg).toBeVisible();
   });
 
@@ -56,7 +56,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
     expect(box!.width).toBeGreaterThanOrEqual(600);
     expect(box!.height).toBeGreaterThanOrEqual(300);
 
-    const svg = stage.locator('svg');
+    const svg = stage.locator('svg.svg-viewport');
     await expect(svg).toBeVisible();
   });
 

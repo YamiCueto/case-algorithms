@@ -35,15 +35,30 @@ test.describe('Hito 2 Fase 2: Timeline Scrubber across all laboratories', () => 
     await expect(progressLabel).toBeVisible();
     await expect(progressLabel).toContainText(/Paso 1 de \d+/i);
 
-    // 2. Start playback
+    // 1b. Verify decorative icon and aria-pressed=false on initial Play button
+    await expect(playBtn).toHaveAttribute('aria-pressed', 'false');
+    await expect(playBtn.locator('.playback-icon-play')).toBeVisible();
+    await expect(playBtn.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+
+    // 1c. Verify aria-pressed on speed buttons
+    const speed1x = page.getByRole('button', { name: '1x' });
+    const speed2x = page.getByRole('button', { name: '2x' });
+    await expect(speed1x).toHaveAttribute('aria-pressed', 'true');
+    await expect(speed2x).toHaveAttribute('aria-pressed', 'false');
+
+    // 2. Start playback and verify pause icon & aria-pressed=true
     await playBtn.click();
     await expect(pauseBtn).toBeVisible();
+    await expect(pauseBtn).toHaveAttribute('aria-pressed', 'true');
+    await expect(pauseBtn.locator('.playback-icon-pause')).toBeVisible();
 
     // 3. Seek to index 5
     await seekTo(scrubber, 5);
 
-    // 4. Verify playback is stopped
+    // 4. Verify playback is stopped and play icon returns
     await expect(playBtn).toBeVisible();
+    await expect(playBtn).toHaveAttribute('aria-pressed', 'false');
+    await expect(playBtn.locator('.playback-icon-play')).toBeVisible();
 
     // 5. Verify step label and inspector update to step 6 (index 5)
     await expect(progressLabel).toContainText('Paso 6 de 19');

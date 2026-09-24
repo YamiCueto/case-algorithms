@@ -10,6 +10,7 @@ import {
   LabShell,
   TimeTravelControls,
   PedagogicalKnowledgePanel,
+  PlaybackIcon,
 } from './index';
 
 describe('Design System UI Components', () => {
@@ -393,6 +394,153 @@ describe('Design System UI Components', () => {
       });
     });
 
+    it('renders transport buttons with decorative icons, no visible text, and correct accessible names', () => {
+      render(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
+        />
+      );
+
+      // Verify the 6 buttons preserve their accessible names
+      const firstBtn = screen.getByRole('button', { name: 'Ir al primer paso' });
+      const prevBtn = screen.getByRole('button', { name: 'Retroceder un paso' });
+      const playBtn = screen.getByRole('button', { name: 'Reproducir ejecución automática' });
+      const nextBtn = screen.getByRole('button', { name: 'Avanzar un paso' });
+      const lastBtn = screen.getByRole('button', { name: 'Ir al último paso' });
+      const resetBtn = screen.getByRole('button', { name: 'Reiniciar al paso inicial' });
+
+      expect(firstBtn).toBeInTheDocument();
+      expect(prevBtn).toBeInTheDocument();
+      expect(playBtn).toBeInTheDocument();
+      expect(nextBtn).toBeInTheDocument();
+      expect(lastBtn).toBeInTheDocument();
+      expect(resetBtn).toBeInTheDocument();
+
+      // All 6 transport buttons have class 'time-travel-icon-button'
+      [firstBtn, prevBtn, playBtn, nextBtn, lastBtn, resetBtn].forEach((btn) => {
+        expect(btn).toHaveClass('time-travel-icon-button');
+        // SVG inside is decorative with aria-hidden="true"
+        const svg = btn.querySelector('svg');
+        expect(svg).toBeInTheDocument();
+        expect(svg).toHaveAttribute('aria-hidden', 'true');
+      });
+    });
+
+    it('exposes aria-pressed on Play/Pause button according to isPlaying state', () => {
+      const { rerender } = render(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
+        />
+      );
+
+      const playBtn = screen.getByRole('button', { name: 'Reproducir ejecución automática' });
+      expect(playBtn).toHaveAttribute('aria-pressed', 'false');
+      expect(playBtn.querySelector('.playback-icon-play')).toBeInTheDocument();
+
+      rerender(
+        <TimeTravelControls
+          isPlaying={true}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
+        />
+      );
+
+      const pauseBtn = screen.getByRole('button', { name: 'Pausar ejecución' });
+      expect(pauseBtn).toHaveAttribute('aria-pressed', 'true');
+      expect(pauseBtn.querySelector('.playback-icon-pause')).toBeInTheDocument();
+    });
+
+    it('exposes aria-pressed=true exclusively for the active playback speed', () => {
+      const { rerender } = render(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
+        />
+      );
+
+      const speed05 = screen.getByRole('button', { name: '0.5x' });
+      const speed1x = screen.getByRole('button', { name: '1x' });
+      const speed2x = screen.getByRole('button', { name: '2x' });
+
+      expect(speed05).toHaveAttribute('aria-pressed', 'false');
+      expect(speed1x).toHaveAttribute('aria-pressed', 'true');
+      expect(speed2x).toHaveAttribute('aria-pressed', 'false');
+
+      rerender(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={250}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
+        />
+      );
+
+      expect(speed05).toHaveAttribute('aria-pressed', 'false');
+      expect(speed1x).toHaveAttribute('aria-pressed', 'false');
+      expect(speed2x).toHaveAttribute('aria-pressed', 'true');
+    });
+  });
+
+  describe('PlaybackIcon component', () => {
+    const iconNames = ['first', 'previous', 'play', 'pause', 'next', 'last', 'reset'] as const;
+
+    it.each(iconNames)('renders "%s" icon as decorative SVG with aria-hidden="true"', (name) => {
+      const { container } = render(<PlaybackIcon name={name} />);
+      const svg = container.querySelector('svg');
+      expect(svg).toBeInTheDocument();
+      expect(svg).toHaveAttribute('aria-hidden', 'true');
+      expect(svg).toHaveAttribute('focusable', 'false');
+      expect(svg).toHaveClass(`playback-icon-${name}`);
+    });
   });
 
   describe('PedagogicalKnowledgePanel component', () => {
