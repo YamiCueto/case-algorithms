@@ -234,6 +234,7 @@ export const StackLab: React.FC = () => {
     handleFirst,
     handleLast,
     handleReset,
+    goToStep,
     loadSteps,
   } = useTimeTravelEngine<StackState>();
 
@@ -295,6 +296,15 @@ export const StackLab: React.FC = () => {
     isFinal: isLast,
     defaultSpeed: 600,
   });
+
+  const handleManualSeek = useCallback(
+    (index: number) => {
+      stopPlayback();
+      emitTransition('SEEK', index);
+      goToStep(index);
+    },
+    [emitTransition, goToStep, stopPlayback]
+  );
 
   const handleSpeedChange = useCallback(
     (speed: number) => {
@@ -498,6 +508,7 @@ export const StackLab: React.FC = () => {
             onLast={handleManualLast}
             onReset={handleResetWithStop}
             onSpeedChange={handleSpeedChange}
+            onSeek={handleManualSeek}
           />
         }
         controlsSlot={

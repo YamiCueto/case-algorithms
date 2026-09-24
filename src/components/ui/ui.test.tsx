@@ -183,6 +183,8 @@ describe('Design System UI Components', () => {
       const onReset = vi.fn();
       const onSpeedChange = vi.fn();
 
+      const onSeek = vi.fn();
+
       render(
         <TimeTravelControls
           isPlaying={false}
@@ -196,6 +198,7 @@ describe('Design System UI Components', () => {
           onLast={onLast}
           onReset={onReset}
           onSpeedChange={onSpeedChange}
+          onSeek={onSeek}
         />
       );
 
@@ -235,6 +238,7 @@ describe('Design System UI Components', () => {
           onLast={vi.fn()}
           onReset={vi.fn()}
           onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
         />
       );
 
@@ -255,12 +259,138 @@ describe('Design System UI Components', () => {
           onLast={vi.fn()}
           onReset={vi.fn()}
           onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
         />
       );
 
       expect(screen.getByRole('button', { name: /(step forward|avanzar un paso)/i })).toBeDisabled();
       expect(screen.getByRole('button', { name: /(jump to last step|ir al último paso)/i })).toBeDisabled();
       expect(screen.getByRole('button', { name: /(step backwards|retroceder un paso)/i })).not.toBeDisabled();
+    });
+
+    it('renders timeline scrubber with correct min, max, value, and disabled states', () => {
+      const handleSeek = vi.fn();
+      const { rerender } = render(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={handleSeek}
+        />
+      );
+
+      const slider = screen.getByRole('slider');
+      expect(slider).toBeInTheDocument();
+      expect(slider).toHaveAttribute('min', '0');
+      expect(slider).toHaveAttribute('max', '9');
+      expect(slider).toHaveAttribute('step', '1');
+      expect(slider).toHaveValue('2');
+      expect(slider).not.toBeDisabled();
+
+      // Trigger slider onChange with discrete numeric value
+      fireEvent.change(slider, { target: { value: '6' } });
+      expect(handleSeek).toHaveBeenCalledWith(6);
+
+      // When totalSteps <= 1, slider should be disabled
+      rerender(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={0}
+          totalSteps={1}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={handleSeek}
+        />
+      );
+      expect(slider).toBeDisabled();
+      expect(slider).toHaveAttribute('max', '0');
+
+      rerender(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={0}
+          totalSteps={0}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={handleSeek}
+        />
+      );
+      expect(slider).toBeDisabled();
+    });
+
+    it('renders localized progress text and accessibility attributes in Spanish and English', async () => {
+      const { rerender } = render(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
+        />
+      );
+
+      // In Spanish: "Paso 3 de 10"
+      expect(screen.getByText('Paso 3 de 10')).toBeInTheDocument();
+      const slider = screen.getByRole('slider');
+      expect(slider).toHaveAttribute('aria-label', 'Línea de tiempo de pasos de ejecución');
+      expect(slider).toHaveAttribute('aria-valuetext', 'Paso 3 de 10');
+
+      await act(async () => {
+        await changeLanguage('en');
+      });
+
+      rerender(
+        <TimeTravelControls
+          isPlaying={false}
+          currentIndex={2}
+          totalSteps={10}
+          playbackSpeed={600}
+          onFirst={vi.fn()}
+          onPrevious={vi.fn()}
+          onTogglePlay={vi.fn()}
+          onNext={vi.fn()}
+          onLast={vi.fn()}
+          onReset={vi.fn()}
+          onSpeedChange={vi.fn()}
+          onSeek={vi.fn()}
+        />
+      );
+
+      expect(screen.getByText('Step 3 of 10')).toBeInTheDocument();
+      expect(slider).toHaveAttribute('aria-label', 'Execution steps timeline');
+      expect(slider).toHaveAttribute('aria-valuetext', 'Step 3 of 10');
+
+      // Reset language back to Spanish
+      await act(async () => {
+        await changeLanguage('es');
+      });
     });
 
   });

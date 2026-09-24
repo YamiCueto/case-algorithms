@@ -14,6 +14,7 @@ export interface TimeTravelControlsProps {
   readonly onLast: () => void;
   readonly onReset: () => void;
   readonly onSpeedChange: (speed: number) => void;
+  readonly onSeek: (index: number) => void;
   readonly className?: string;
 }
 
@@ -29,11 +30,15 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
   onLast,
   onReset,
   onSpeedChange,
+  onSeek,
   className = '',
 }) => {
   const { t } = useTranslation(['timeTravel']);
   const isAtStart = currentIndex <= 0;
   const isAtEnd = totalSteps === 0 || currentIndex >= totalSteps - 1;
+  const displayStep = totalSteps > 0 ? currentIndex + 1 : 0;
+  const maxStep = Math.max(totalSteps - 1, 0);
+  const progressText = t('timeTravel:stepProgress', { current: displayStep, total: totalSteps });
 
   return (
     <div className={`control-group ${className}`.trim()}>
@@ -91,6 +96,25 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
         >
           {t('timeTravel:reset')}
         </Button>
+      </div>
+
+      <div className="time-travel-scrubber-row">
+        <span className="scrubber-progress-label">{progressText}</span>
+        <input
+          type="range"
+          min={0}
+          max={maxStep}
+          step={1}
+          value={currentIndex}
+          disabled={totalSteps <= 1}
+          onChange={(e) => onSeek(Number(e.target.value))}
+          aria-label={t('timeTravel:scrubberAria')}
+          aria-valuemin={0}
+          aria-valuemax={maxStep}
+          aria-valuenow={currentIndex}
+          aria-valuetext={progressText}
+          className="time-travel-scrubber"
+        />
       </div>
 
       <div className="speed-control-row">

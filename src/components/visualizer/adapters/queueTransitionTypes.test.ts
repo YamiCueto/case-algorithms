@@ -132,4 +132,29 @@ describe('queueTransitionTypes', () => {
       })
     ).toBe(false);
   });
+
+  it('returns false for SEEK intent on any action', () => {
+    const seekContext: QueueTransitionContext = {
+      ...baseContext,
+      intent: 'SEEK',
+      stepIndex: 3,
+    };
+    expect(
+      isQueueTransitionEligible({
+        context: seekContext,
+        prevStepIndex: 2,
+        prevHistoryId: 'hist-q1',
+        action: 'ENQUEUE',
+      })
+    ).toBe(false);
+
+    expect(
+      isQueueTransitionEligible({
+        context: seekContext,
+        prevStepIndex: 2,
+        prevHistoryId: 'hist-q1',
+        action: 'DEQUEUE',
+      })
+    ).toBe(false);
+  });
 });

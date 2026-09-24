@@ -11,7 +11,8 @@ export type StackNavigationIntent =
   | 'JUMP_FIRST'
   | 'JUMP_LAST'
   | 'RESET'
-  | 'CAPACITY_CHANGE';
+  | 'CAPACITY_CHANGE'
+  | 'SEEK';
 
 export interface StackTransitionContext {
   readonly historyId: string;

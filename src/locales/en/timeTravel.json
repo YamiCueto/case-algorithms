@@ -19,5 +19,7 @@
   "shortcutPlay": "Play",
   "shortcutStep": "Step",
   "shortcutBounds": "Bounds",
-  "shortcutReset": "Reset"
+  "shortcutReset": "Reset",
+  "stepProgress": "Step {{current}} of {{total}}",
+  "scrubberAria": "Execution steps timeline"
 }

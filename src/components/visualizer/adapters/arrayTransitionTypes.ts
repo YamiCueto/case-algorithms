@@ -7,7 +7,8 @@ export type ArrayNavigationIntent =
   | 'JUMP_FIRST'
   | 'JUMP_LAST'
   | 'RESET'
-  | 'LOAD_CUSTOM';
+  | 'LOAD_CUSTOM'
+  | 'SEEK';
 
 export interface ArrayTransitionContext {
   readonly historyId: string;

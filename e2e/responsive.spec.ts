@@ -19,6 +19,8 @@ test.describe('Responsive Layout & Viewport Ergonomics', () => {
       await expect(page.locator('.visualization-stage-panel')).toBeVisible();
       await expect(page.locator('.code-stage-panel')).toBeVisible();
       await expect(page.locator('.visualization-stage-panel .time-travel-panel.stage-playback-dock')).toBeVisible();
+      await expect(page.locator('.stage-playback-dock .time-travel-scrubber')).toBeVisible();
+      await expect(page.locator('.stage-playback-dock .scrubber-progress-label')).toBeVisible();
 
       const hasHorizontalScroll = await page.evaluate(() => {
         return document.documentElement.scrollWidth > window.innerWidth;

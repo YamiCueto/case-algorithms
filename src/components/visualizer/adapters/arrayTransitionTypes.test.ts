@@ -106,4 +106,29 @@ describe('arrayTransitionTypes', () => {
       })
     ).toBe(false);
   });
+
+  it('returns false for SEEK intent on any action', () => {
+    const seekContext: ArrayTransitionContext = {
+      ...baseContext,
+      intent: 'SEEK',
+      stepIndex: 3,
+    };
+    expect(
+      isArrayTransitionEligible({
+        context: seekContext,
+        prevStepIndex: 2,
+        prevHistoryId: 'hist-1',
+        action: 'SWAP',
+      })
+    ).toBe(false);
+
+    expect(
+      isArrayTransitionEligible({
+        context: seekContext,
+        prevStepIndex: 2,
+        prevHistoryId: 'hist-1',
+        action: 'COMPARE',
+      })
+    ).toBe(false);
+  });
 });

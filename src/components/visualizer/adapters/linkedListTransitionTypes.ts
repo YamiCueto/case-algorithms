@@ -12,7 +12,8 @@ export type LinkedListNavigationIntent =
   | 'PLAY_FORWARD'
   | 'JUMP_FIRST'
   | 'JUMP_LAST'
-  | 'RESET';
+  | 'RESET'
+  | 'SEEK';
 
 export interface LinkedListTransitionContext {
   readonly historyId: string;

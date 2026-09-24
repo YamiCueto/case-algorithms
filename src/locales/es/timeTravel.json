@@ -19,5 +19,7 @@
   "shortcutPlay": "Reproducir",
   "shortcutStep": "Paso",
   "shortcutBounds": "Límites",
-  "shortcutReset": "Reiniciar"
+  "shortcutReset": "Reiniciar",
+  "stepProgress": "Paso {{current}} de {{total}}",
+  "scrubberAria": "Línea de tiempo de pasos de ejecución"
 }

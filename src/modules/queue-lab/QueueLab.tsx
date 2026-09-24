@@ -264,6 +264,7 @@ export const QueueLab: React.FC = () => {
     handleFirst,
     handleLast,
     handleReset,
+    goToStep,
     loadSteps,
   } = useTimeTravelEngine<QueueState>();
 
@@ -327,6 +328,15 @@ export const QueueLab: React.FC = () => {
   });
 
   playbackSpeedRef.current = playbackSpeed;
+
+  const onNavigateSeek = useCallback(
+    (index: number) => {
+      stopPlayback();
+      emitTransition('SEEK', index);
+      goToStep(index);
+    },
+    [emitTransition, goToStep, stopPlayback]
+  );
 
   const initController = useCallback(
     (commands: QueueCommand[], capacity: number, targetIndex: number = 0) => {
@@ -518,6 +528,7 @@ export const QueueLab: React.FC = () => {
             onLast={onNavigateLast}
             onReset={handleResetWithStop}
             onSpeedChange={setPlaybackSpeed}
+            onSeek={onNavigateSeek}
           />
         }
         controlsSlot={

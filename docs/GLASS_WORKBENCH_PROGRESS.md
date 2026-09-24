@@ -109,7 +109,7 @@ Fallback `@supports not (backdrop-filter: blur(16px))` → colores opacos equiva
 
 - **Hito 2: Interactive Workbench** — ergonomía, controles de reproducción mejorados.
   - ✅ **Fase 1: Docked Playback Toolbar** — Barra de reproducción acoplada al pie del Stage (`.visualization-stage-panel .time-travel-panel.stage-playback-dock`), garantizando visibilidad en pantalla inicial (desktop, laptop 720p, tablet y mobile) sin scroll horizontal ni desbordamiento. Aserciones estructurales E2E validadas en los 4 laboratorios.
-  - ⏳ **Fase 2: Scrubber Temporal** — Slider interactivo para control temporal de ejecución.
+  - ✅ **Fase 2: Timeline Scrubber** — Control deslizante discreto (`<input type="range">`) sobre los pasos de ejecución (`min=0`, `max=totalSteps - 1`, `step=1`, `value=currentIndex`, `disabled=totalSteps <= 1`), etiqueta de progreso localizada ("Paso X de Y" / "Step X of Y"), intención de navegación `SEEK` sin animaciones arbitrarias, detención automática de reproducción al buscar, teclado nativo preservado y 0 horizontal overflow en 390×844. 31/31 suites Vitest (276 tests) y 37/37 pruebas Playwright aprobadas.
   - ⏳ **Fase 3: Iconografía y Accesibilidad de Transporte** — Iconos SVG y feedback de estado.
 - **Hito 3: Visualizers and Motion** — refinamiento de animaciones Anime.js.
 - **Hito 4: Consolidation** — responsive, accesibilidad, finish final.

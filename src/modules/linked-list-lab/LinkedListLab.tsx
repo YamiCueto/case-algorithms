@@ -242,6 +242,7 @@ export const LinkedListLab: React.FC = () => {
     handleFirst,
     handleLast,
     handleReset,
+    goToStep,
     loadSteps,
   } = useTimeTravelEngine<LinkedListState>();
 
@@ -305,6 +306,15 @@ export const LinkedListLab: React.FC = () => {
   });
 
   playbackSpeedRef.current = playbackSpeed;
+
+  const onNavigateSeek = useCallback(
+    (index: number) => {
+      stopPlayback();
+      emitTransition('SEEK', index);
+      goToStep(index);
+    },
+    [emitTransition, goToStep, stopPlayback]
+  );
 
   const initController = useCallback(
     (commands: LinkedListCommand[], items: number[], selectLastStep: boolean = false) => {
@@ -564,6 +574,7 @@ export const LinkedListLab: React.FC = () => {
             onLast={onNavigateLast}
             onReset={handleResetWithStop}
             onSpeedChange={setPlaybackSpeed}
+            onSeek={onNavigateSeek}
           />
         }
         controlsSlot={

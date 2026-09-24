@@ -154,6 +154,7 @@ export const ArrayLab: React.FC = () => {
     handleFirst,
     handleLast,
     handleReset,
+    goToStep,
     loadSteps,
   } = useTimeTravelEngine<ArrayState>();
 
@@ -239,6 +240,15 @@ export const ArrayLab: React.FC = () => {
   });
 
   playbackSpeedRef.current = playbackSpeed;
+
+  const onNavigateSeek = useCallback(
+    (index: number) => {
+      stopPlayback();
+      emitTransition('SEEK', index);
+      goToStep(index);
+    },
+    [emitTransition, goToStep, stopPlayback]
+  );
 
   const initController = useCallback(
     (numbers: number[]) => {
@@ -352,6 +362,7 @@ export const ArrayLab: React.FC = () => {
             onLast={onNavigateLast}
             onReset={handleResetWithStop}
             onSpeedChange={setPlaybackSpeed}
+            onSeek={onNavigateSeek}
           />
         }
         controlsSlot={

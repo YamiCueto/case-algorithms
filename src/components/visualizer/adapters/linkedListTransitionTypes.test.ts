@@ -143,4 +143,38 @@ describe('linkedListTransitionTypes', () => {
       })
     ).toBe(false);
   });
+
+  it('returns false for SEEK intent on any action', () => {
+    const seekContext: LinkedListTransitionContext = {
+      ...baseContext,
+      intent: 'SEEK',
+      stepIndex: 3,
+    };
+    expect(
+      isLinkedListTransitionEligible({
+        context: seekContext,
+        prevStepIndex: 2,
+        prevHistoryId: 'hist-ll1',
+        action: 'PREPEND',
+      })
+    ).toBe(false);
+
+    expect(
+      isLinkedListTransitionEligible({
+        context: seekContext,
+        prevStepIndex: 2,
+        prevHistoryId: 'hist-ll1',
+        action: 'APPEND',
+      })
+    ).toBe(false);
+
+    expect(
+      isLinkedListTransitionEligible({
+        context: seekContext,
+        prevStepIndex: 2,
+        prevHistoryId: 'hist-ll1',
+        action: 'TRAVERSE',
+      })
+    ).toBe(false);
+  });
 });
