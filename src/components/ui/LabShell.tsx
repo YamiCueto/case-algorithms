@@ -48,6 +48,11 @@ export const LabShell: React.FC<LabShellProps> = ({
               <span className="panel-title">{t('common:viewportTitle')}</span>
             </div>
             <div className="panel-body">{activeVizSlot}</div>
+            {timeTravelSlot && (
+              <section aria-label={t('common:timeTravelAria')} className="time-travel-panel stage-playback-dock">
+                {timeTravelSlot}
+              </section>
+            )}
           </section>
 
           {(controlsSlot || inspectorSlot) && (
@@ -64,12 +69,6 @@ export const LabShell: React.FC<LabShellProps> = ({
                 </section>
               )}
             </div>
-          )}
-
-          {timeTravelSlot && (
-            <section aria-label={t('common:timeTravelAria')} className="time-travel-panel">
-              {timeTravelSlot}
-            </section>
           )}
         </div>
 

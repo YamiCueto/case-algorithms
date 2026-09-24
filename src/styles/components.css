@@ -143,10 +143,12 @@
 }
 
 .card-panel {
-  background-color: var(--bg-surface-primary);
-  border: 1px solid var(--border-default);
+  background: var(--glass-bg-panel);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-glass);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -154,8 +156,8 @@
 
 .card-header {
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border-subtle);
-  background-color: var(--bg-surface-secondary);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-inset-header);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -185,8 +187,10 @@
 
 .app-header {
   height: 64px;
-  border-bottom: 1px solid var(--border-default);
-  background-color: var(--bg-surface-primary);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-bg-header);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -195,7 +199,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-glass);
 }
 
 .app-header-left {
@@ -305,8 +309,10 @@
 .lang-selector-group {
   display: inline-flex;
   align-items: center;
-  background-color: var(--bg-surface-secondary);
-  border: 1px solid var(--border-default);
+  background: var(--glass-bg-control);
+  backdrop-filter: blur(var(--glass-blur-light));
+  -webkit-backdrop-filter: blur(var(--glass-blur-light));
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 2px;
   gap: 2px;
@@ -807,8 +813,10 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-6);
-  background-color: var(--bg-surface-secondary);
-  border-bottom: 1px solid var(--border-subtle);
+  background: var(--glass-bg-nav);
+  backdrop-filter: blur(var(--glass-blur-light));
+  -webkit-backdrop-filter: blur(var(--glass-blur-light));
+  border-bottom: 1px solid var(--glass-border);
   overflow-x: auto;
   max-width: 100%;
 }
@@ -820,8 +828,8 @@
 .code-viewer-container {
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-canvas);
-  border: 1px solid var(--border-subtle);
+  background-color: var(--shiki-background);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   overflow: hidden;
   font-family: var(--font-mono);
@@ -832,8 +840,8 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-2) var(--space-3);
-  background-color: var(--bg-surface-secondary);
-  border-bottom: 1px solid var(--border-subtle);
+  background: var(--glass-inset-code-header);
+  border-bottom: 1px solid var(--glass-border);
   font-size: 11px;
 }
 
@@ -976,6 +984,10 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.time-travel-panel {
+  padding: var(--space-2) var(--space-4);
 }
 
 .time-travel-shortcuts-hint {

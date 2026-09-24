@@ -2,7 +2,6 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-canvas);
   color: var(--text-primary);
 }
 
@@ -117,13 +116,15 @@
 
 .visualization-stage-panel,
 .viewport-panel {
-  background-color: var(--bg-surface-primary);
-  border: 1px solid var(--border-default);
+  background: var(--glass-bg-panel);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-glass);
   min-height: 320px;
   min-width: 0;
   max-width: 100%;
@@ -133,19 +134,21 @@
 @media (min-width: 1024px) {
   .visualization-stage-panel,
   .viewport-panel {
-    min-height: 380px;
-    max-height: 440px;
+    min-height: 440px;
+    max-height: 520px;
   }
 }
 
 .code-stage-panel {
-  background-color: var(--bg-surface-primary);
-  border: 1px solid var(--border-default);
+  background: var(--glass-bg-panel);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-glass);
   min-height: 320px;
   min-width: 0;
   max-width: 100%;
@@ -196,14 +199,30 @@
 }
 
 .time-travel-panel {
-  background-color: var(--bg-surface-primary);
-  border: 1px solid var(--border-default);
+  background: var(--glass-bg-control);
+  backdrop-filter: blur(var(--glass-blur-light));
+  -webkit-backdrop-filter: blur(var(--glass-blur-light));
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  padding: var(--space-3) var(--space-4);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+.time-travel-panel.stage-playback-dock {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--glass-border);
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background: var(--glass-bg-control);
+  backdrop-filter: blur(var(--glass-blur-light));
+  -webkit-backdrop-filter: blur(var(--glass-blur-light));
+  box-shadow: none;
+  order: initial;
+  max-width: 100%;
 }
 
 @media (max-height: 768px) and (min-width: 1024px) {
@@ -213,16 +232,16 @@
   }
 
   .lab-stage-grid {
-    min-height: 320px;
-    max-height: 360px;
+    min-height: 380px;
+    max-height: none;
     gap: var(--space-3);
   }
 
   .visualization-stage-panel,
   .viewport-panel,
   .code-stage-panel {
-    min-height: 320px;
-    max-height: 360px;
+    min-height: 380px;
+    max-height: 440px;
   }
 
   .code-stage-body .code-viewer-scroll-box {
@@ -238,8 +257,10 @@
 
 .lab-controls-section,
 .control-panel {
-  background-color: var(--bg-surface-primary);
-  border: 1px solid var(--border-default);
+  background: var(--glass-bg-control);
+  backdrop-filter: blur(var(--glass-blur-light));
+  -webkit-backdrop-filter: blur(var(--glass-blur-light));
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
@@ -258,8 +279,10 @@
 
 .lab-knowledge-section,
 .knowledge-panel {
-  background-color: var(--bg-surface-primary);
-  border: 1px solid var(--border-default);
+  background: var(--glass-bg-control);
+  backdrop-filter: blur(var(--glass-blur-light));
+  -webkit-backdrop-filter: blur(var(--glass-blur-light));
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
@@ -270,12 +293,13 @@
 }
 
 .panel-header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-2) var(--space-4);
-  border-bottom: 1px solid var(--border-subtle);
-  background-color: var(--bg-surface-secondary);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-inset-header);
 }
 
 .panel-title {
@@ -289,8 +313,16 @@
 
 .panel-body {
   padding: var(--space-3) var(--space-4);
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.visualization-stage-panel .panel-body .svg-viewport-container {
+  min-height: 0;
+  flex: 1 1 auto;
+  height: 100%;
 }

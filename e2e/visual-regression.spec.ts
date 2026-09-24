@@ -12,6 +12,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
 
     const stage = page.locator('.visualization-stage-panel');
     await expect(stage).toBeVisible();
+    await expect(page.locator('.visualization-stage-panel .time-travel-panel.stage-playback-dock')).toBeVisible();
 
     const box = await stage.boundingBox();
     expect(box).not.toBeNull();
@@ -31,6 +32,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
 
     const stage = page.locator('.visualization-stage-panel');
     await expect(stage).toBeVisible();
+    await expect(page.locator('.visualization-stage-panel .time-travel-panel.stage-playback-dock')).toBeVisible();
 
     const box = await stage.boundingBox();
     expect(box).not.toBeNull();
@@ -47,6 +49,7 @@ test.describe('Visual Layout & Rendering Integrity', () => {
 
     const stage = page.locator('.visualization-stage-panel');
     await expect(stage).toBeVisible();
+    await expect(page.locator('.visualization-stage-panel .time-travel-panel.stage-playback-dock')).toBeVisible();
 
     const box = await stage.boundingBox();
     expect(box).not.toBeNull();
@@ -61,9 +64,9 @@ test.describe('Visual Layout & Rendering Integrity', () => {
     await page.goto('./');
     await page.getByRole('button', { name: /(Switch to Linked List Laboratory|Cambiar al laboratorio de listas enlazadas)/i }).click();
 
-
     const stage = page.locator('.visualization-stage-panel');
     await expect(stage).toBeVisible();
+    await expect(page.locator('.visualization-stage-panel .time-travel-panel.stage-playback-dock')).toBeVisible();
 
     const box = await stage.boundingBox();
     expect(box).not.toBeNull();
