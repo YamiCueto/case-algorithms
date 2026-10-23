@@ -21,24 +21,31 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Verify repository governance & documentation
+        shell: bash
         run: |
-          test -f README.md
-          test -f LICENSE
-          test -f docs/VISION.md
-          test -f docs/PRODUCT.md
-          test -f docs/LEARNING.md
-          test -f docs/DESIGN_SYSTEM.md
-          test -f docs/ARCHITECTURE.md
-          test -f docs/DEVELOPMENT.md
-          test -f docs/CONTRIBUTING.md
-          test -f docs/SPRINT_1_BACKLOG.md
-          test -f .github/labels.json
-          test -f .github/PULL_REQUEST_TEMPLATE.md
-          test -f .github/ISSUE_TEMPLATE/feature_request.yml
-          test -f .github/ISSUE_TEMPLATE/bug_report.yml
-          test -f .github/ISSUE_TEMPLATE/topic_proposal.yml
-          test -f .github/ISSUE_TEMPLATE/config.yml
-          echo "Sprint 0 governance and architecture artifacts verified."
+          required_files=(
+            README.md
+            LICENSE
+            docs/ARCHITECTURE.md
+            docs/CONTRIBUTING.md
+            .github/labels.json
+            .github/PULL_REQUEST_TEMPLATE.md
+            .github/ISSUE_TEMPLATE/feature_request.yml
+            .github/ISSUE_TEMPLATE/bug_report.yml
+            .github/ISSUE_TEMPLATE/topic_proposal.yml
+            .github/ISSUE_TEMPLATE/config.yml
+          )
+          missing=0
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "::error file=$file::Required governance file is missing: $file"
+              missing=1
+            fi
+          done
+          if (( missing )); then
+            exit 1
+          fi
+          echo "Repository governance and documentation verified."
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
@@ -67,6 +74,12 @@ jobs:
       - name: Run Playwright E2E tests
         run: npm run test:e2e
 
+      - name: Upload validated Pages artifact
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
       - name: Upload Playwright failure artifacts
         uses: actions/upload-artifact@v4
         if: failure()
@@ -89,28 +102,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: 'npm'
-
-      - name: Install dependencies (clean install)
-        run: npm ci
-
-      - name: Build production bundle
-        run: npm run build
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
