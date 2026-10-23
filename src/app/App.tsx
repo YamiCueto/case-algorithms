@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppHeader, Button } from '@/components/ui';
 import { ArrayLab, StackLab, QueueLab, LinkedListLab } from '@/modules';
+import { LabIcon } from '@/components/ui/LabIcon';
+
+const labs = [
+  { id: 'array', key: 'Array', number: '01' },
+  { id: 'stack', key: 'Stack', number: '02' },
+  { id: 'queue', key: 'Queue', number: '03' },
+  { id: 'linked-list', key: 'LinkedList', number: '04' },
+] as const;
 
 export const App: React.FC = () => {
   const { t } = useTranslation(['navigation']);
@@ -21,7 +29,8 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container" data-lab={activeLab}>
+      <a href="#workspace" className="skip-link">{t('navigation:skipToWorkspace')}</a>
       <AppHeader
         breadcrumbs={[
           t('navigation:breadcrumbsRoot'),
@@ -29,41 +38,21 @@ export const App: React.FC = () => {
           getBreadcrumb(),
         ]}
       />
-      <div className="lab-selector-bar">
+      <nav className="lab-selector-bar" aria-label={t('navigation:selectLabLabel')}>
         <span className="control-label">{t('navigation:selectLabLabel')}</span>
-        <Button
-          variant={activeLab === 'array' ? 'primary' : 'outline'}
-          size="sm"
-          onClick={() => setActiveLab('array')}
-          aria-label={t('navigation:labArrayAria')}
-        >
-          {t('navigation:labArrayTitle')}
-        </Button>
-        <Button
-          variant={activeLab === 'stack' ? 'primary' : 'outline'}
-          size="sm"
-          onClick={() => setActiveLab('stack')}
-          aria-label={t('navigation:labStackAria')}
-        >
-          {t('navigation:labStackTitle')}
-        </Button>
-        <Button
-          variant={activeLab === 'queue' ? 'primary' : 'outline'}
-          size="sm"
-          onClick={() => setActiveLab('queue')}
-          aria-label={t('navigation:labQueueAria')}
-        >
-          {t('navigation:labQueueTitle')}
-        </Button>
-        <Button
-          variant={activeLab === 'linked-list' ? 'primary' : 'outline'}
-          size="sm"
-          onClick={() => setActiveLab('linked-list')}
-          aria-label={t('navigation:labLinkedListAria')}
-        >
-          {t('navigation:labLinkedListTitle')}
-        </Button>
-      </div>
+        <div className="lab-navigation-items">
+          {labs.map(lab => (
+            <Button key={lab.id} variant={activeLab === lab.id ? 'primary' : 'ghost'} className="lab-nav-item"
+              onClick={() => setActiveLab(lab.id)} aria-label={t(`navigation:lab${lab.key}Aria`)}
+              aria-current={activeLab === lab.id ? 'page' : undefined}>
+              <span className="lab-nav-icon"><LabIcon kind={lab.id} /></span>
+              <span className="lab-nav-copy"><span>{t(`navigation:lab${lab.key}Title`)}</span><small>{t(`navigation:lab${lab.key}Hint`)}</small></span>
+              <span className="lab-nav-number">{lab.number}</span>
+            </Button>
+          ))}
+        </div>
+        <div className="sidebar-note"><span className="sidebar-note-symbol" aria-hidden="true">↳</span><strong>{t('navigation:learnByDoing')}</strong><p>{t('navigation:learnByDoingHint')}</p><span className="sidebar-footer">CASE / ALGORITHMS</span></div>
+      </nav>
       {activeLab === 'array' ? (
         <ArrayLab />
       ) : activeLab === 'stack' ? (

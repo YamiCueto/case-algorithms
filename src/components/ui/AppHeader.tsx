@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from './Badge';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSelector } from './LanguageSelector';
 
@@ -21,8 +20,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   return (
     <header role="banner" className="app-header">
       <div className="app-header-left">
-        <a href="/" className="app-header-brand">
-          <div className="app-header-logo">CA</div>
+        <a href="#workspace" className="app-header-brand">
+          <div className="app-header-logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m9 5-7 7 7 7m6-14 7 7-7 7M14 3l-4 18" /></svg></div>
           <div className="app-header-titles">
             <span className="app-header-title">{t('common:appTitle')}</span>
             <span className="app-header-subtitle">{t('common:appSubtitle')}</span>
@@ -48,9 +47,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       </div>
 
       <div className="app-header-right">
-        <Badge variant="emerald" className="app-header-version-badge">
-          {t('common:versionBadge')}
-        </Badge>
+        <span className="workspace-status"><span aria-hidden="true" />{t('common:interactiveWorkspace')}</span>
         <LanguageSelector />
         <ThemeToggle />
       </div>
