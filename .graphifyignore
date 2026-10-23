@@ -1,0 +1,13 @@
+node_modules/
+dist/
+dist-ssr/
+scratch/
+.git/
+.agents/
+.codex/
+test-results/
+playwright-report/
+blob-report/
+coverage/
+graphify-out/
+package-lock.json
