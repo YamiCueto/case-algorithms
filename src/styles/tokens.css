@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-canvas: #06091a;
-  --bg-ambient: #071230;
+  --bg-canvas: #111715;
+  --bg-ambient: #16221d;
 
-  --bg-surface-primary: #0f172a;
-  --bg-surface-secondary: #1e293b;
-  --bg-surface-tertiary: #334155;
-  --bg-surface-elevated: #1e293b;
+  --bg-surface-primary: #19211e;
+  --bg-surface-secondary: #222d27;
+  --bg-surface-tertiary: #34433a;
+  --bg-surface-elevated: #222d27;
 
   --glass-bg: rgba(15, 23, 42, 0.72);
   --glass-bg-header: rgba(7, 12, 30, 0.85);
@@ -24,28 +24,28 @@
   --glass-bg-fallback: #101827;
   --glass-panel-fallback: #121e33;
 
-  --text-primary: #f0f4ff;
-  --text-secondary: #94a3b8;
-  --text-muted: #60748e;
-  --text-inverse: #0f172a;
+  --text-primary: #edf2e9;
+  --text-secondary: #a5b3a9;
+  --text-muted: #93a69a;
+  --text-inverse: #19211e;
 
   --border-subtle: rgba(51, 65, 85, 0.60);
   --border-default: rgba(71, 85, 105, 0.70);
   --border-highlight: rgba(99, 118, 167, 0.80);
 
-  --accent-cyan: #06b6d4;
+  --accent-cyan: #9cdbb4;
   --accent-cyan-glow: rgba(6, 182, 212, 0.25);
   --accent-indigo: #6366f1;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
 
-  --viz-node-default-bg: #1e293b;
-  --viz-node-default-border: #475569;
-  --viz-node-default-text: #f8fafc;
+  --viz-node-default-bg: #222d27;
+  --viz-node-default-border: #526458;
+  --viz-node-default-text: #edf2e9;
 
   --viz-node-active-bg: rgba(6, 182, 212, 0.15);
-  --viz-node-active-border: #06b6d4;
+  --viz-node-active-border: #9cdbb4;
   --viz-node-active-glow: 0 0 12px rgba(6, 182, 212, 0.4);
 
   --viz-node-comparing-bg: rgba(245, 158, 11, 0.15);
@@ -57,11 +57,11 @@
   --viz-node-sorted-bg: rgba(16, 185, 129, 0.15);
   --viz-node-sorted-border: #10b981;
 
-  --viz-node-discarded-bg: #0f172a;
-  --viz-node-discarded-border: #1e293b;
+  --viz-node-discarded-bg: #19211e;
+  --viz-node-discarded-border: #222d27;
   --viz-node-discarded-opacity: 0.35;
 
-  --pointer-low: #06b6d4;
+  --pointer-low: #9cdbb4;
   --pointer-mid: #f59e0b;
   --pointer-high: #a855f7;
   --pointer-target: #10b981;
@@ -70,14 +70,14 @@
   --shiki-token-keyword: #f43f5e;
   --shiki-token-constant: #38bdf8;
   --shiki-token-string: #34d399;
-  --shiki-token-comment: #64748b;
+  --shiki-token-comment: #65786a;
   --shiki-token-function: #c084fc;
   --shiki-token-parameter: #fb923c;
-  --shiki-token-punctuation: #94a3b8;
+  --shiki-token-punctuation: #a5b3a9;
   --shiki-token-string-expression: #34d399;
   --shiki-token-link: #38bdf8;
-  --shiki-foreground: #f0f4ff;
-  --shiki-background: #06091a;
+  --shiki-foreground: #edf2e9;
+  --shiki-background: #111715;
 
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace;
@@ -112,11 +112,11 @@
 }
 
 [data-theme="light"] {
-  --bg-canvas: #e8f0fe;
-  --bg-ambient: #d0deff;
+  --bg-canvas: #f3f3ed;
+  --bg-ambient: #e5ede3;
 
   --bg-surface-primary: #ffffff;
-  --bg-surface-secondary: #f1f5f9;
+  --bg-surface-secondary: #f2f5ef;
   --bg-surface-tertiary: #e2e8f0;
   --bg-surface-elevated: #ffffff;
 
@@ -133,20 +133,20 @@
   --glass-blur-light: 10px;
 
   --glass-bg-fallback: #eef4ff;
-  --glass-panel-fallback: #f5f8ff;
+  --glass-panel-fallback: #f8faf5;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-inverse: #f0f4ff;
+  --text-primary: #19211e;
+  --text-secondary: #526458;
+  --text-muted: #65786a;
+  --text-inverse: #edf2e9;
 
   --border-subtle: rgba(203, 213, 225, 0.70);
   --border-default: rgba(148, 163, 184, 0.55);
   --border-highlight: rgba(99, 126, 167, 0.65);
 
-  --viz-node-default-bg: #f1f5f9;
+  --viz-node-default-bg: #f2f5ef;
   --viz-node-default-border: #cbd5e1;
-  --viz-node-default-text: #0f172a;
+  --viz-node-default-text: #19211e;
 
   --viz-node-active-bg: rgba(6, 182, 212, 0.12);
   --viz-node-active-border: #0891b2;
@@ -161,7 +161,7 @@
   --viz-node-sorted-bg: rgba(16, 185, 129, 0.12);
   --viz-node-sorted-border: #059669;
 
-  --viz-node-discarded-bg: #f8fafc;
+  --viz-node-discarded-bg: #edf2e9;
   --viz-node-discarded-border: #e2e8f0;
   --viz-node-discarded-opacity: 0.45;
 
@@ -174,8 +174,8 @@
   --shiki-token-punctuation: #24292f;
   --shiki-token-string-expression: #116329;
   --shiki-token-link: #0550ae;
-  --shiki-foreground: #0f172a;
-  --shiki-background: #f5f8ff;
+  --shiki-foreground: #19211e;
+  --shiki-background: #f8faf5;
 
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 6px -2px rgba(0, 0, 0, 0.08);

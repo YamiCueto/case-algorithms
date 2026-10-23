@@ -563,7 +563,7 @@ describe('Design System UI Components', () => {
       expect(screen.getByText('Discover Phase')).toBeInTheDocument();
       expect(screen.getByText('Discover overview text')).toBeInTheDocument();
 
-      fireEvent.click(screen.getByRole('button', { name: /06\. pseudocode/i }));
+      fireEvent.click(screen.getByRole('tab', { name: /06\. pseudocode/i }));
       expect(handleSelect).toHaveBeenCalledWith(1);
     });
 
@@ -577,8 +577,8 @@ describe('Design System UI Components', () => {
         />
       );
 
-      expect(screen.getByText('Pseudocode')).toBeInTheDocument();
-      expect(screen.getByText(/Line 2 Active/i)).toBeInTheDocument();
+      expect(screen.getByText('Pseudocódigo')).toBeInTheDocument();
+      expect(screen.getByText(/Línea 2 activa/i)).toBeInTheDocument();
 
       rerender(
         <PedagogicalKnowledgePanel
@@ -590,7 +590,7 @@ describe('Design System UI Components', () => {
       );
 
       expect(screen.getByText('TypeScript')).toBeInTheDocument();
-      expect(screen.getByText(/Line 1 Active/i)).toBeInTheDocument();
+      expect(screen.getByText(/Línea 1 activa/i)).toBeInTheDocument();
     });
   });
 });

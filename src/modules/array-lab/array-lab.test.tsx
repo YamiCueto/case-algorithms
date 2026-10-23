@@ -179,26 +179,26 @@ describe('ArrayLab Component', () => {
   it('switches between pedagogical progression tabs in both languages', async () => {
     render(<ArrayLab />);
 
-    const explainTab = screen.getByRole('button', { name: '04. Explicar' });
+    const explainTab = screen.getByRole('tab', { name: '04. Explicar' });
     fireEvent.click(explainTab);
     expect(screen.getByText('Complejidad matemática e invariantes')).toBeInTheDocument();
     expect(screen.getByText(/O\(n²\)/i)).toBeInTheDocument();
 
-    const pseudocodeTab = screen.getByRole('button', { name: '06. Pseudocódigo' });
+    const pseudocodeTab = screen.getByRole('tab', { name: '06. Pseudocódigo' });
     fireEvent.click(pseudocodeTab);
     expect(screen.getAllByText('procedure').length).toBeGreaterThan(0);
     expect(screen.getAllByText('bubbleSort').length).toBeGreaterThan(0);
 
-    const codeTab = screen.getByRole('button', { name: '07. Código' });
+    const codeTab = screen.getByRole('tab', { name: '07. Código' });
     fireEvent.click(codeTab);
     expect(screen.getAllByText('export').length).toBeGreaterThan(0);
     expect(screen.getAllByText('bubbleSort').length).toBeGreaterThan(0);
 
-    const modifyTab = screen.getByRole('button', { name: '08. Modificar' });
+    const modifyTab = screen.getByRole('tab', { name: '08. Modificar' });
     fireEvent.click(modifyTab);
     expect(screen.getByText(/salida temprana activa/i)).toBeInTheDocument();
 
-    const challengeTab = screen.getByRole('button', { name: '10. Desafío' });
+    const challengeTab = screen.getByRole('tab', { name: '10. Desafío' });
     fireEvent.click(challengeTab);
     expect(screen.getByText('Desafío de dominio del algoritmo')).toBeInTheDocument();
 
@@ -206,10 +206,10 @@ describe('ArrayLab Component', () => {
       await changeLanguage('en');
     });
 
-    expect(screen.getByRole('button', { name: '04. Explain' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '06. Pseudocode' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '07. Code' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '10. Challenge' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: '04. Explain' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: '06. Pseudocode' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: '07. Code' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: '10. Challenge' })).toBeInTheDocument();
     expect(screen.getByText('Algorithm Mastery Challenge')).toBeInTheDocument();
   });
 
@@ -221,13 +221,13 @@ describe('ArrayLab Component', () => {
     const stepForwardBtn = screen.getByRole('button', { name: 'Avanzar un paso' });
     fireEvent.click(stepForwardBtn);
 
-    expect(screen.getByText(/Line 6 Active/i)).toBeInTheDocument();
+    expect(screen.getByText(/Línea 6 activa/i)).toBeInTheDocument();
 
     const codeLangBtns = screen.getAllByRole('button', { name: 'TypeScript' });
     fireEvent.click(codeLangBtns[0]!);
 
     expect(screen.getAllByText('TypeScript').length).toBeGreaterThan(0);
-    expect(screen.getByText(/Line 7 Active/i)).toBeInTheDocument();
+    expect(screen.getByText(/Línea 7 activa/i)).toBeInTheDocument();
   });
 
   it('updates A11yAnnouncer live region with accessible narrative messages', () => {

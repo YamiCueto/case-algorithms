@@ -1,5 +1,5 @@
 {
-  "selectLabLabel": "Select Laboratory:",
+  "selectLabLabel": "Laboratories",
   "breadcrumbsRoot": "Laboratory",
   "breadcrumbsSection": "Data Structures",
   "labArrayTitle": "Array & Bubble Sort",
@@ -13,5 +13,12 @@
   "labQueueAria": "Switch to Queue Laboratory",
   "labLinkedListTitle": "Linked List",
   "labLinkedListBreadcrumb": "Singly Linked List & Pointer Chains",
-  "labLinkedListAria": "Switch to Linked List Laboratory"
+  "labLinkedListAria": "Switch to Linked List Laboratory",
+  "skipToWorkspace": "Skip to workspace",
+  "learnByDoing": "Code makes sense when you see it.",
+  "learnByDoingHint": "Change a value, follow its steps and discover what happens.",
+  "labArrayHint": "Compare and sort",
+  "labStackHint": "Last in, first out",
+  "labQueueHint": "First in, first out",
+  "labLinkedListHint": "Connect and traverse"
 }

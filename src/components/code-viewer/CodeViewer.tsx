@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   getHighlighterPromise,
   highlightCode,
@@ -19,7 +20,8 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
   activeLine,
   className = '',
 }) => {
-  const [, setHighlighterReady] = useState(() => !!cachedHighlighter);
+  const { t } = useTranslation('common');
+  const [highlighterReady, setHighlighterReady] = useState(() => !!cachedHighlighter);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<Map<number, HTMLTableRowElement>>(new Map());
   const lastScrollTimeRef = useRef<number>(0);
@@ -39,8 +41,8 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
   }, []);
 
   const highlightedLines: HighlightedLine[] = useMemo(() => {
-    return highlightCode(code, language);
-  }, [code, language]);
+    return highlightCode(code, language, highlighterReady);
+  }, [code, language, highlighterReady]);
 
   const validActiveLine =
     typeof activeLine === 'number' &&
@@ -105,15 +107,15 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
     <div
       className={`code-viewer-container ${className}`.trim()}
       role="region"
-      aria-label={`${language === 'typescript' ? 'TypeScript' : 'Pseudocode'} viewer`}
+      aria-label={t('codeViewer', { language: language === 'typescript' ? 'TypeScript' : t('pseudocode') })}
     >
       <div className="code-viewer-header">
         <span className="code-viewer-lang-badge">
-          {language === 'typescript' ? 'TypeScript' : 'Pseudocode'}
+          {language === 'typescript' ? 'TypeScript' : t('pseudocode')}
         </span>
         {validActiveLine !== undefined && (
           <span className="code-viewer-active-badge">
-            Line {validActiveLine} Active
+            {t('activeLine', { line: validActiveLine })}
           </span>
         )}
       </div>
@@ -123,7 +125,7 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
         className="code-viewer-scroll-box"
         tabIndex={0}
         role="group"
-        aria-label="Code content"
+        aria-label={t('codeContent')}
       >
         <table className="code-viewer-table">
           <tbody>

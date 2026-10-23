@@ -516,7 +516,7 @@ export const StackLab: React.FC = () => {
             <div className="control-group">
               <span className="control-label">{t('stack:operationsLabel')}</span>
               <div className="input-action-row">
-                <input
+                <label className="operation-field"><span>{t('common:valueLabel')}</span><input
                   type="text"
                   inputMode="numeric"
                   value={pushInputText}
@@ -529,7 +529,7 @@ export const StackLab: React.FC = () => {
                   placeholder={t('stack:pushInputPlaceholder')}
                   aria-label={t('stack:pushInputAria')}
                   className="array-input-field"
-                />
+                /></label>
                 <Button
                   variant="primary"
                   size="sm"

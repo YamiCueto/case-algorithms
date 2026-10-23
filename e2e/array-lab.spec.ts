@@ -19,19 +19,19 @@ test.describe('Array Laboratory & Bubble Sort Exploration', () => {
     await stepForwardBtn.click();
     await expect(inspector).toContainText('2 / 19');
     await expect(inspector).toContainText('COMPARE');
-    await expect(page.locator('.code-viewer-active-badge')).toHaveText('Line 6 Active');
+    await expect(page.locator('.code-viewer-active-badge')).toHaveText('Línea 6 activa');
     await expect(page.locator('.viz-node-comparing')).toHaveCount(2);
 
     await stepForwardBtn.click();
     await expect(inspector).toContainText('3 / 19');
     await expect(inspector).toContainText('SWAP');
-    await expect(page.locator('.code-viewer-active-badge')).toHaveText('Line 7 Active');
+    await expect(page.locator('.code-viewer-active-badge')).toHaveText('Línea 7 activa');
     await expect(page.locator('.viz-node-swapping')).toHaveCount(2);
 
     await stepBackwardBtn.click();
     await expect(inspector).toContainText('2 / 19');
     await expect(inspector).toContainText('COMPARE');
-    await expect(page.locator('.code-viewer-active-badge')).toHaveText('Line 6 Active');
+    await expect(page.locator('.code-viewer-active-badge')).toHaveText('Línea 6 activa');
 
     await resetBtn.click();
     await expect(inspector).toContainText('1 / 19');

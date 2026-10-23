@@ -25,13 +25,14 @@ export const useTimeTravelKeyboard = ({
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
+      const target = event.target instanceof Element ? event.target : null;
       if (
         target &&
         (target.tagName === 'INPUT' ||
           target.tagName === 'TEXTAREA' ||
           target.tagName === 'SELECT' ||
-          target.isContentEditable)
+          (target instanceof HTMLElement && target.isContentEditable) ||
+          target.closest('button, a, [role="tab"], [role="tabpanel"], [role="region"], [role="group"]'))
       ) {
         return;
       }

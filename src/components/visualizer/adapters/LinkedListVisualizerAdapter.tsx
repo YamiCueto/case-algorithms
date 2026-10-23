@@ -79,6 +79,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
         nullBoxWidth;
 
   const startX = Math.max(40, (viewBoxWidth - totalChainWidth) / 2 + nodeWidth / 2);
+  const fittedWidth = Math.max(viewBoxWidth, totalChainWidth + 80);
   const centerY = viewBoxHeight / 2 + 8;
 
   const getNodeCenterX = (idx: number) => {
@@ -91,13 +92,13 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
 
   return (
     <SVGViewport
-      viewBoxDimensions={{ width: viewBoxWidth, height: viewBoxHeight }}
+      viewBoxDimensions={{ width: fittedWidth, height: viewBoxHeight }}
       title={t('linkedList:canvas.title')}
       description={step.a11yMessage}
     >
       <g ref={containerRef} className="ll-stage-container">
         <VisualLabel
-          x={viewBoxWidth / 2}
+          x={fittedWidth / 2}
           y={26}
           text={step.description}
           variant={isError ? 'default' : isFound ? 'default' : 'accent'}
@@ -106,7 +107,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
         />
 
         <VisualLabel
-          x={viewBoxWidth / 2}
+          x={fittedWidth / 2}
           y={50}
           text={t('linkedList:canvas.size', {
             size,
@@ -192,7 +193,7 @@ export const LinkedListVisualizerAdapter: React.FC<LinkedListVisualizerAdapterPr
                     subLabel={`[${i}]`}
                     state={visualState}
                     shape="rect"
-                    onClick={() => onNodeClick?.(i, node.value)}
+                    onClick={onNodeClick ? () => onNodeClick(i, node.value) : undefined}
                   />
 
                   {isActive && (

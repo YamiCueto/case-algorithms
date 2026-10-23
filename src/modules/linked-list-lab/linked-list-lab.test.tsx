@@ -166,7 +166,7 @@ describe('LinkedListLab Component', () => {
   it('navigates through pedagogical phases in both languages', async () => {
     render(<LinkedListLab />);
 
-    const phaseBtnEs = screen.getByRole('button', { name: '06. Pseudocódigo' });
+    const phaseBtnEs = screen.getByRole('tab', { name: '06. Pseudocódigo' });
     fireEvent.click(phaseBtnEs);
 
     expect(screen.getAllByText('Pseudocódigo').length).toBeGreaterThan(0);
@@ -175,7 +175,7 @@ describe('LinkedListLab Component', () => {
       await changeLanguage('en');
     });
 
-    const phaseBtnEn = screen.getByRole('button', { name: '06. Pseudocode' });
+    const phaseBtnEn = screen.getByRole('tab', { name: '06. Pseudocode' });
     fireEvent.click(phaseBtnEn);
 
     expect(screen.getAllByText('Pseudocode').length).toBeGreaterThan(0);

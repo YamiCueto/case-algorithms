@@ -536,7 +536,7 @@ export const QueueLab: React.FC = () => {
             <div className="control-group">
               <span className="control-label">{t('queue:operationsLabel')}</span>
               <div className="input-action-row">
-                <input
+                <label className="operation-field"><span>{t('common:valueLabel')}</span><input
                   type="text"
                   inputMode="numeric"
                   value={enqueueInputText}
@@ -549,7 +549,7 @@ export const QueueLab: React.FC = () => {
                   placeholder={t('queue:enqueueInputPlaceholder')}
                   aria-label={t('queue:enqueueInputAria')}
                   className="array-input-field"
-                />
+                /></label>
                 <Button
                   variant="primary"
                   size="sm"

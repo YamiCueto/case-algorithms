@@ -1,5 +1,5 @@
 {
-  "selectLabLabel": "Seleccionar laboratorio:",
+  "selectLabLabel": "Laboratorios",
   "breadcrumbsRoot": "Laboratorio",
   "breadcrumbsSection": "Estructuras de Datos",
   "labArrayTitle": "Arreglo y Burbuja",
@@ -13,5 +13,12 @@
   "labQueueAria": "Cambiar al laboratorio de colas",
   "labLinkedListTitle": "Lista Enlazada",
   "labLinkedListBreadcrumb": "Lista Simplemente Enlazada y Cadenas de Punteros",
-  "labLinkedListAria": "Cambiar al laboratorio de listas enlazadas"
+  "labLinkedListAria": "Cambiar al laboratorio de listas enlazadas",
+  "skipToWorkspace": "Ir al laboratorio",
+  "learnByDoing": "El código cobra sentido cuando lo ves.",
+  "learnByDoingHint": "Cambia un valor, sigue sus pasos y descubre qué sucede.",
+  "labArrayHint": "Comparar y ordenar",
+  "labStackHint": "Último en entrar",
+  "labQueueHint": "Primero en salir",
+  "labLinkedListHint": "Conectar y recorrer"
 }

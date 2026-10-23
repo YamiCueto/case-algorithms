@@ -582,7 +582,7 @@ export const LinkedListLab: React.FC = () => {
             <div className="control-group">
               <span className="control-label">{t('linkedList:operationsLabel')}</span>
               <div className="input-action-row">
-                <input
+                <label className="operation-field"><span>{t('common:valueLabel')}</span><input
                   type="text"
                   inputMode="numeric"
                   value={nodeValueText}
@@ -595,8 +595,8 @@ export const LinkedListLab: React.FC = () => {
                   placeholder={t('linkedList:valuePlaceholder')}
                   aria-label={t('linkedList:valueAria')}
                   className="array-input-field"
-                />
-                <input
+                /></label>
+                <label className="operation-field"><span>{t('common:indexLabel')}</span><input
                   type="text"
                   inputMode="numeric"
                   value={nodeIndexText}
@@ -609,7 +609,7 @@ export const LinkedListLab: React.FC = () => {
                   placeholder={t('linkedList:indexPlaceholder')}
                   aria-label={t('linkedList:indexAria')}
                   className="array-input-field"
-                />
+                /></label>
               </div>
 
               <div className="control-actions">

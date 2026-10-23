@@ -40,7 +40,7 @@ describe('CodeViewer Component', () => {
   it('renders and tokenizes Pseudocode with distinct token classes', async () => {
     const { container } = render(<CodeViewer code={samplePseudocode} language="pseudocode" />);
 
-    expect(screen.getByText('Pseudocode')).toBeInTheDocument();
+    expect(screen.getByText('Pseudocódigo')).toBeInTheDocument();
 
     await waitFor(() => {
       const keywords = container.querySelectorAll('.shiki-token-keyword');
@@ -55,7 +55,7 @@ describe('CodeViewer Component', () => {
       <CodeViewer code={sampleTsCode} language="typescript" activeLine={2} />
     );
 
-    expect(screen.getByText('Line 2 Active')).toBeInTheDocument();
+    expect(screen.getByText('Línea 2 activa')).toBeInTheDocument();
     expect(screen.getByText('▶')).toBeInTheDocument();
 
     const activeRows = container.querySelectorAll('.code-line-active');
@@ -68,11 +68,11 @@ describe('CodeViewer Component', () => {
       <CodeViewer code={sampleTsCode} language="typescript" activeLine={1} />
     );
 
-    expect(screen.getByText('Line 1 Active')).toBeInTheDocument();
+    expect(screen.getByText('Línea 1 activa')).toBeInTheDocument();
 
     rerender(<CodeViewer code={sampleTsCode} language="typescript" activeLine={3} />);
 
-    expect(screen.getByText('Line 3 Active')).toBeInTheDocument();
+    expect(screen.getByText('Línea 3 activa')).toBeInTheDocument();
     const activeRows = container.querySelectorAll('.code-line-active');
     expect(activeRows.length).toBe(1);
   });
@@ -82,7 +82,7 @@ describe('CodeViewer Component', () => {
       <CodeViewer code={samplePseudocode} language="pseudocode" />
     );
 
-    expect(screen.getByText('Pseudocode')).toBeInTheDocument();
+    expect(screen.getByText('Pseudocódigo')).toBeInTheDocument();
     expect(screen.queryByText(/Line .* Active/i)).not.toBeInTheDocument();
     expect(container.querySelectorAll('.code-line-active').length).toBe(0);
     expect(screen.queryByText('▶')).not.toBeInTheDocument();
@@ -120,7 +120,7 @@ describe('CodeViewer Component', () => {
       <CodeViewer code="" language="pseudocode" />
     );
 
-    expect(screen.getByText('Pseudocode')).toBeInTheDocument();
+    expect(screen.getByText('Pseudocódigo')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(container.querySelectorAll('.code-line-row').length).toBe(1);
   });
@@ -128,10 +128,10 @@ describe('CodeViewer Component', () => {
   it('provides accessible region, aria labels and keyboard-scrollable container', () => {
     render(<CodeViewer code={sampleTsCode} language="typescript" activeLine={2} />);
 
-    const region = screen.getByRole('region', { name: /typescript viewer/i });
+    const region = screen.getByRole('region', { name: /Visor de TypeScript/i });
     expect(region).toBeInTheDocument();
 
-    const scrollBox = screen.getByRole('group', { name: /code content/i });
+    const scrollBox = screen.getByRole('group', { name: /Contenido del código/i });
     expect(scrollBox).toHaveAttribute('tabIndex', '0');
   });
 
@@ -148,7 +148,7 @@ describe('CodeViewer Component', () => {
     scrollBox.scrollTo = scrollToMock;
 
     rerender(<CodeViewer code={longCode} language="typescript" activeLine={35} />);
-    expect(screen.getByText('Line 35 Active')).toBeInTheDocument();
+    expect(screen.getByText('Línea 35 activa')).toBeInTheDocument();
   });
 
   it('does not scroll when active line is already within the pedagogical comfort zone', () => {

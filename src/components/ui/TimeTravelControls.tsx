@@ -42,7 +42,7 @@ export const TimeTravelControls: React.FC<TimeTravelControlsProps> = ({
   const progressText = t('timeTravel:stepProgress', { current: displayStep, total: totalSteps });
 
   return (
-    <div className={`control-group ${className}`.trim()}>
+    <div className={`control-group playback-layout ${className}`.trim()}>
       <span className="control-label">{t('timeTravel:title')}</span>
       <div className="control-actions">
         <Button

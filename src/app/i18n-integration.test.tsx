@@ -15,8 +15,8 @@ describe('i18n integration in App and shared components', () => {
     render(<App />);
 
     expect(screen.getByText('Laboratorio de Algoritmos')).toBeInTheDocument();
-    expect(screen.getByText('v0.2 — Expansión de Estructuras de Datos')).toBeInTheDocument();
-    expect(screen.getByText('Seleccionar laboratorio:')).toBeInTheDocument();
+    expect(screen.getByText('Espacio interactivo')).toBeInTheDocument();
+    expect(screen.getByText('Laboratorios')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cambiar al laboratorio de pilas/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cambiar al laboratorio de arreglos/i })).toBeInTheDocument();
   });
@@ -31,8 +31,8 @@ describe('i18n integration in App and shared components', () => {
 
     expect(getCurrentLanguage()).toBe('en');
     expect(screen.getByText('Algorithm Laboratory')).toBeInTheDocument();
-    expect(screen.getByText('v0.2 — Data Structures Expansion')).toBeInTheDocument();
-    expect(screen.getByText('Select Laboratory:')).toBeInTheDocument();
+    expect(screen.getByText('Interactive workspace')).toBeInTheDocument();
+    expect(screen.getByText('Laboratories')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /switch to stack laboratory/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /switch to array laboratory/i })).toBeInTheDocument();
   });

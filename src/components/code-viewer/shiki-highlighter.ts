@@ -92,11 +92,12 @@ export function getTokenClassName(color: string | undefined): string {
 
 export function highlightCode(
   code: string,
-  language: 'typescript' | 'pseudocode'
+  language: 'typescript' | 'pseudocode',
+  ready = !!cachedHighlighter
 ): HighlightedLine[] {
   const rawLines = code.split('\n');
 
-  if (!cachedHighlighter) {
+  if (!ready || !cachedHighlighter) {
     return rawLines.map((line, idx) => ({
       lineNumber: idx + 1,
       tokens: [{ content: line || ' ', className: 'shiki-token-default' }],

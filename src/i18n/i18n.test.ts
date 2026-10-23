@@ -95,11 +95,11 @@ describe('i18n configuration and behavior', () => {
 
   it('translates navigation keys correctly in both languages', async () => {
     await changeLanguage('es');
-    expect(i18n.t('navigation:selectLabLabel')).toBe('Seleccionar laboratorio:');
+    expect(i18n.t('navigation:selectLabLabel')).toBe('Laboratorios');
     expect(i18n.t('navigation:labStackTitle')).toBe('Pila (LIFO)');
 
     await changeLanguage('en');
-    expect(i18n.t('navigation:selectLabLabel')).toBe('Select Laboratory:');
+    expect(i18n.t('navigation:selectLabLabel')).toBe('Laboratories');
     expect(i18n.t('navigation:labStackTitle')).toBe('Stack (LIFO)');
   });
 

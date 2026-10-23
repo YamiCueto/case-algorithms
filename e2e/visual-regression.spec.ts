@@ -90,12 +90,12 @@ test.describe('Visual Layout & Rendering Integrity', () => {
     expect(box!.height).toBeGreaterThanOrEqual(300);
 
     await expect(page.locator('.code-viewer-container')).toBeVisible();
-    await expect(page.locator('.code-viewer-lang-badge')).toHaveText('Pseudocode');
+    await expect(page.locator('.code-viewer-lang-badge')).toHaveText('Pseudocódigo');
     await expect(page.locator('.code-line-number').first()).toBeVisible();
     await expect(page.locator('.shiki-token-keyword').first()).toBeVisible();
 
     await page.getByRole('button', { name: /(Step forward|Avanzar un paso)/i }).click();
-    await expect(page.locator('.code-viewer-active-badge')).toHaveText('Line 6 Active');
+    await expect(page.locator('.code-viewer-active-badge')).toHaveText('Línea 6 activa');
     await expect(page.locator('.code-line-active')).toBeVisible();
   });
 });

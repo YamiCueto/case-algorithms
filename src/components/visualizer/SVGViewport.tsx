@@ -1,4 +1,5 @@
-import React, { useId } from 'react';
+import React, { useId, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SVGViewportProps } from './types';
 import { SVGViewportContext } from './context';
 
@@ -12,6 +13,8 @@ export const SVGViewport: React.FC<SVGViewportProps> = ({
   ...props
 }) => {
   const gridPatternId = useId();
+  const { t } = useTranslation('common');
+  const [zoom, setZoom] = useState(0);
   const titleId = useId();
   const descId = useId();
   const markerArrowId = useId();
@@ -27,7 +30,13 @@ export const SVGViewport: React.FC<SVGViewportProps> = ({
         markerArrowActiveId,
       }}
     >
-      <div className={`svg-viewport-container ${className}`.trim()}>
+      <div className="svg-viewport-frame">
+      <div className="viz-zoom-controls" role="group" aria-label={t('zoomControls')}>
+        <button type="button" disabled={zoom === 0} onClick={() => setZoom(Math.max(0, zoom - 1))} aria-label={t('zoomOut')}>−</button>
+        <button type="button" onClick={() => setZoom(0)} aria-label={t('fitView')}>{zoom === 0 ? t('fitLabel') : `${zoom * 100}%`}</button>
+        <button type="button" disabled={zoom === 2} onClick={() => setZoom(Math.min(2, zoom + 1))} aria-label={t('zoomIn')}>+</button>
+      </div>
+      <div className={`svg-viewport-container${zoom > 0 ? ' is-zoomed' : ''} ${className}`.trim()} tabIndex={zoom > 0 ? 0 : undefined} role={zoom > 0 ? 'region' : undefined} aria-label={zoom > 0 ? t('panCanvas') : undefined}>
         <svg
           role="img"
           aria-labelledby={title ? titleId : undefined}
@@ -35,6 +44,7 @@ export const SVGViewport: React.FC<SVGViewportProps> = ({
           viewBox={viewBoxStr}
           preserveAspectRatio="xMidYMid meet"
           className="svg-viewport"
+          style={zoom > 0 ? { width: width * zoom, height: height * zoom, flexShrink: 0 } : undefined}
           {...props}
         >
           {title && <title id={titleId}>{title}</title>}
@@ -97,6 +107,7 @@ export const SVGViewport: React.FC<SVGViewportProps> = ({
 
           <g className="svg-viewport-content">{children}</g>
         </svg>
+      </div>
       </div>
     </SVGViewportContext.Provider>
   );
